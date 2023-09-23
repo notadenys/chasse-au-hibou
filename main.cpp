@@ -1,5 +1,6 @@
 #include <iostream>
 #include <SDL2/SDL.h>
+#include "sdl2-light.cpp"
 
 using namespace std;
 
@@ -8,43 +9,45 @@ using namespace std;
 #define SCREEN_HEIGHT 720
 
 
-int init_sdl(SDL_Window **window, SDL_Renderer **renderer, int width, int height)
+typedef struct resources_s
 {
-    if(0 != SDL_Init(SDL_INIT_VIDEO|SDL_INIT_AUDIO))
-    {
-        fprintf(stderr, "Error initialising SDL: %s", SDL_GetError());
-        return -1;
-    }
-    if(0 != SDL_CreateWindowAndRenderer(width, height, SDL_WINDOW_SHOWN, window, renderer))
-    {
-        fprintf(stderr, "Error initialising a window and renderer: %s", SDL_GetError());
-        return -1;
-    }
-    return 0;
+    SDL_Texture* background;
+} resources_t;
+
+
+void  init_textures(SDL_Renderer *renderer, resources_t *textures)
+{
+    textures->background = load_image( "resources/background.bmp",renderer);
 }
 
-void clear_renderer(SDL_Renderer *renderer){
-    SDL_RenderClear(renderer);
+void apply_background(SDL_Renderer *renderer, resources_t *textures)
+{
+    if(textures->background != NULL){
+      apply_texture(textures->background, renderer, 0, 0);
+    }
 }
 
-void clean_sdl(SDL_Renderer *renderer,SDL_Window *window){
-    if(NULL != renderer)
-        SDL_DestroyRenderer(renderer);
-    if(NULL != window)
-        SDL_DestroyWindow(window);
-    SDL_Quit();    
+void clean_textures(resources_t *textures)
+{
+    clean_texture(textures->background);
 }
+
 
 int main()
 {
     SDL_Renderer *renderer;
     SDL_Window *window;
+    resources_t textures;
 
     init_sdl(&window, &renderer, SCREEN_WIDTH, SCREEN_HEIGHT);
+    init_textures(renderer, &textures);
+    clear_renderer(renderer);
+    apply_background(renderer, &textures);
+    update_screen(renderer);
 
     SDL_Delay(3000);
 
-    clear_renderer(renderer);
+    clean_textures(&textures);
     clean_sdl(renderer, window);
     return 0;
 }
