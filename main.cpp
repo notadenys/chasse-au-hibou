@@ -15,14 +15,14 @@ typedef struct resources_s
 } resources_t;
 
 
-void  init_textures(SDL_Renderer *renderer, resources_t *textures)
+void init_textures(SDL_Renderer *renderer, resources_t *textures)
 {
     textures->background = load_image( "resources/background.bmp",renderer);
 }
 
 void apply_background(SDL_Renderer *renderer, resources_t *textures)
 {
-    if(textures->background != NULL)
+    if (textures->background != NULL)
     {
       apply_texture(textures->background, renderer, 0, 0);
     }
@@ -51,9 +51,12 @@ int main()
 
     int frameCount = 0;
     Uint32 startTime = SDL_GetTicks();
+    int fpsLim = 60;
+    int desiredDelta = 1000 / fpsLim;
 
-    while (!quit)   // ESC to exit
+    while (!quit)   
     {
+        int startLoop = SDL_GetTicks();
         while (SDL_PollEvent(&e) != 0)
         {
             if (e.type == SDL_QUIT)
@@ -62,12 +65,19 @@ int main()
             }
             else if (e.type == SDL_KEYDOWN)
             {
-                if (e.key.keysym.sym == SDLK_ESCAPE)
+                if (e.key.keysym.sym == SDLK_ESCAPE)    // ESC to exit
                 {
                     quit = true;
                 }
             }
         }
+
+        int delta = SDL_GetTicks() - startLoop;
+        if (delta < desiredDelta)
+        {
+            SDL_Delay(desiredDelta - delta);    // FPS reducing
+        }
+
         frameCount++;
 
         Uint32 currentTime = SDL_GetTicks();
@@ -75,7 +85,7 @@ int main()
 
         if (deltaTime >= 1000) 
         {
-            float fps = static_cast<float>(frameCount) / (static_cast<float>(deltaTime) / 1000.0f);
+            int fps = static_cast<float>(frameCount) / (static_cast<float>(deltaTime) / 1000.0f);
             cout << "FPS: " << fps << endl;
 
             frameCount = 0;
