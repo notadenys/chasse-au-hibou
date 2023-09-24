@@ -22,7 +22,8 @@ void  init_textures(SDL_Renderer *renderer, resources_t *textures)
 
 void apply_background(SDL_Renderer *renderer, resources_t *textures)
 {
-    if(textures->background != NULL){
+    if(textures->background != NULL)
+    {
       apply_texture(textures->background, renderer, 0, 0);
     }
 }
@@ -45,7 +46,26 @@ int main()
     apply_background(renderer, &textures);
     update_screen(renderer);
 
-    SDL_Delay(3000);
+    SDL_Event e;
+    bool quit = false;
+
+    while (!quit)   // ESC to exit
+    {
+        while (SDL_PollEvent(&e) != 0)
+        {
+            if (e.type == SDL_QUIT)
+            {
+                quit = true;
+            }
+            else if (e.type == SDL_KEYDOWN)
+            {
+                if (e.key.keysym.sym == SDLK_ESCAPE)
+                {
+                    quit = true;
+                }
+            }
+        }
+    }
 
     clean_textures(&textures);
     clean_sdl(renderer, window);
