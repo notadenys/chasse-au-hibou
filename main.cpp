@@ -49,6 +49,9 @@ int main()
     SDL_Event e;
     bool quit = false;
 
+    int frameCount = 0;
+    Uint32 startTime = SDL_GetTicks();
+
     while (!quit)   // ESC to exit
     {
         while (SDL_PollEvent(&e) != 0)
@@ -65,9 +68,23 @@ int main()
                 }
             }
         }
+        frameCount++;
+
+        Uint32 currentTime = SDL_GetTicks();
+        Uint32 deltaTime = currentTime - startTime;
+
+        if (deltaTime >= 1000) 
+        {
+            float fps = static_cast<float>(frameCount) / (static_cast<float>(deltaTime) / 1000.0f);
+            cout << "FPS: " << fps << endl;
+
+            frameCount = 0;
+            startTime = currentTime;
+        }
     }
 
     clean_textures(&textures);
     clean_sdl(renderer, window);
+    
     return 0;
 }
