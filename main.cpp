@@ -1,6 +1,7 @@
 #include <iostream>
 #include <SDL2/SDL.h>
-#include "sdl2-light.cpp"
+#include "sdl2-support.cpp"
+#include "owl.cpp"
 
 using namespace std;
 
@@ -12,6 +13,7 @@ using namespace std;
 typedef struct resources_s
 {
     SDL_Texture* background;
+    SDL_Texture* owl;
 } resources_t;
 
 
@@ -46,7 +48,7 @@ int main()
     apply_background(renderer, &textures);
     update_screen(renderer);
 
-    SDL_Event e;
+    SDL_Event event;
     bool quit = false;
 
     int frameCount = 0;
@@ -57,15 +59,15 @@ int main()
     while (!quit)   
     {
         int startLoop = SDL_GetTicks();
-        while (SDL_PollEvent(&e) != 0)
+        while (SDL_PollEvent(&event) != 0)
         {
-            if (e.type == SDL_QUIT)
+            if (event.type == SDL_QUIT)
             {
                 quit = true;
             }
-            else if (e.type == SDL_KEYDOWN)
+            else if (event.type == SDL_KEYDOWN)
             {
-                if (e.key.keysym.sym == SDLK_ESCAPE)    // ESC to exit
+                if (event.key.keysym.sym == SDLK_ESCAPE)    // ESC to exit
                 {
                     quit = true;
                 }
