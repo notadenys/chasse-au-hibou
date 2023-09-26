@@ -30,7 +30,7 @@ struct Owl {
         {
             set_state(REST);
         }
-        if ((state==REST || state==FLIGHT) && kbstate[SDL_SCANCODE_LSHIFT])
+        if ((state==REST || state==FLIGHT) && kbstate[SDL_SCANCODE_LSHIFT] && (Clock::now()-dash_timestamp).count() > 1000000000)
         {
             if (kbstate[SDL_SCANCODE_A] || kbstate[SDL_SCANCODE_D])
             {
@@ -39,7 +39,7 @@ struct Owl {
                 dash_timestamp = Clock::now();
             }
         }
-        if (state == DASH && (Clock::now()-timestamp).count() > 10000000)
+        if (state == DASH && (Clock::now()-timestamp).count() > 80000000)
         {
             set_state(REST);
         }
