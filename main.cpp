@@ -1,13 +1,8 @@
-#include <iostream>
-#include <SDL2/SDL.h>
-#include "sdl2-support.cpp"
+#include "sdl2-support.hpp"
+#include "owl.hpp"
+#include "game.hpp"
 
 using namespace std;
-
-
-#define SCREEN_WIDTH 1280
-#define SCREEN_HEIGHT 720
-#define FPS_LIM 60
 
 
 typedef struct resources_s
@@ -73,13 +68,24 @@ void count_FPS(Uint32* startTime, int* frameCount)
     }
 }
 
-void main_loop(bool gameover, SDL_Event* event, int* frameCount, Uint32* startTime, SDL_Renderer *renderer)
+void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *renderer)
 {
+    Owl owl(renderer);
+    TimeStamp timestamp = Clock::now();
     while (!gameover)   
     {
         int timeOnStart = SDL_GetTicks();
 
-        handle_events(event, &gameover);
+        owl.handle_keyboard(); // no need for the event variable, direct keyboard state polling
+
+        SDL_Event event; // handle window closing
+        handle_events(&event, &gameover);
+
+        const auto dt = Clock::now() - timestamp;
+        owl.update_state(std::chrono::duration<double>(dt).count());
+
+        SDL_RenderClear(renderer); // re-draw the window
+        owl.draw();
         update_screen(renderer);
 
         reduce_FPS(timeOnStart);
@@ -104,14 +110,12 @@ int main()
     init_textures(renderer, &textures);
     apply_background(renderer, &textures);
     
-
-    SDL_Event event;
     bool gameover = false;
 
     int frameCount = 0;
     Uint32 startTime = SDL_GetTicks();
 
-    main_loop(gameover, &event, &frameCount, &startTime, renderer);
+    main_loop(gameover, &frameCount, &startTime, renderer);
 
     clean_textures(&textures);
     clean_sdl(renderer, window);
