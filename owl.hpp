@@ -8,9 +8,9 @@ struct Owl {
 
     Owl(SDL_Renderer *renderer) :
         renderer(renderer),
-        sprites{Animation(renderer, "rest.bmp",    150, 1.0, true ),
-                Animation(renderer, "flight.bmp",    150, 0.3, true ),
-                Animation(renderer, "dash.bmp", 150, 0.3, false)} {  }
+        sprites{Animation(renderer, "rest.bmp",    OWL_WIDTH, 1.0, true ),
+                Animation(renderer, "flight.bmp",    OWL_WIDTH, 0.5, true ),
+                Animation(renderer, "dash.bmp", OWL_WIDTH, 0.1, false)} {  }
 
     void set_state(int s) {
         timestamp = Clock::now();
@@ -18,7 +18,7 @@ struct Owl {
         if (state!=DASH && state!=FLIGHT)
             vx = 0;
         else if (state==FLIGHT)
-            vx = backwards ? -10 : 10;
+            vx = backwards ? -OWL_SPEED : OWL_SPEED;
         else if (state==DASH) {
             vx = backwards ? -dash : dash;
         }
@@ -30,16 +30,16 @@ struct Owl {
         {
             set_state(REST);
         }
-        if ((state==REST || state==FLIGHT) && kbstate[SDL_SCANCODE_LSHIFT] && (Clock::now()-dash_timestamp).count() > 1000000000)
+        if ((state==REST || state==FLIGHT) && kbstate[SDL_SCANCODE_LSHIFT] && (Clock::now()-dash_timestamp).count() > OWL_DASH_DELAY * 1000000000)  // OWL_DASH_DELAY is in seconds
         {
             if (kbstate[SDL_SCANCODE_A] || kbstate[SDL_SCANCODE_D])
             {
-                dash = 30; // dash equal to thirty (30)
+                dash = OWL_DASH_SPEED; // dash equal to thirty (30)
                 set_state(DASH);
                 dash_timestamp = Clock::now();
             }
         }
-        if (state == DASH && (Clock::now()-timestamp).count() > 80000000)
+        if (state == DASH && (Clock::now()-timestamp).count() > OWL_DASH_TIME * 1000000000)  // OWL_DASH_TIME is in seconds
         {
             set_state(REST);
         }
@@ -49,6 +49,10 @@ struct Owl {
             set_state(FLIGHT);
         }
         if (kbstate[SDL_SCANCODE_A] && kbstate[SDL_SCANCODE_D])
+        {
+            set_state(REST);
+        }
+        if ((kbstate[SDL_SCANCODE_A] && vx > 0) || (kbstate[SDL_SCANCODE_D] && vx < 0))
         {
             set_state(REST);
         }
@@ -83,7 +87,7 @@ struct Owl {
         SDL_RenderCopyEx(renderer, sprites[state].texture, &src, &dest, 0, nullptr, backwards ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE);
     }
 
-    double x = 150, y = 200; // coordinates of the character
+    double x = SCREEN_WIDTH/2 - OWL_WIDTH/2, y = 50; // coordinates of the character
     double vx = 0;   // speed
     double dash = 0;  // dash
     bool backwards = false;  // facing left or right

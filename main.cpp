@@ -5,24 +5,21 @@
 using namespace std;
 
 
-typedef struct resources_s
-{
-    SDL_Texture* background;
-} resources_t;
+SDL_Texture* background = NULL;  // background texture is a global variable to be valid from any place of a code
 
-
-void init_textures(SDL_Renderer *renderer, resources_t *textures)
+void init_background(SDL_Renderer *renderer)
 {
-    textures->background = load_image( "resources/background.bmp",renderer);
+    background = load_image( "resources/background.bmp", renderer);
 }
 
-void apply_background(SDL_Renderer *renderer, resources_t *textures)
+void apply_background(SDL_Renderer *renderer)
 {
-    if (textures->background != NULL)
+    if (background != NULL)
     {
-      apply_texture(textures->background, renderer, 0, 0);
+      SDL_RenderCopy(renderer, background, NULL, NULL);
     }
 }
+
 
 void handle_events(SDL_Event* event, bool* gameover)
 {
@@ -38,6 +35,7 @@ void handle_events(SDL_Event* event, bool* gameover)
                 {
                     *gameover = true;
                 }
+                
             }
         }
 }
@@ -68,7 +66,7 @@ void count_FPS(Uint32* startTime, int* frameCount)
     }
 }
 
-void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *renderer)
+void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *renderer, SDL_Texture* background)
 {
     Owl owl(renderer);
     TimeStamp timestamp = Clock::now();
@@ -85,6 +83,7 @@ void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *
         owl.update_state(std::chrono::duration<double>(dt).count());
 
         SDL_RenderClear(renderer); // re-draw the window
+        apply_background(renderer);
         owl.draw();
         update_screen(renderer);
 
@@ -94,9 +93,9 @@ void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *
     }
 }
 
-void clean_textures(resources_t *textures)
+void clean_background()
 {
-    clean_texture(textures->background);
+    clean_texture(background);
 }
 
 
@@ -104,20 +103,18 @@ int main()
 {
     SDL_Renderer *renderer;
     SDL_Window *window;
-    resources_t textures;
 
     init_sdl(&window, &renderer, SCREEN_WIDTH, SCREEN_HEIGHT);
-    init_textures(renderer, &textures);
-    apply_background(renderer, &textures);
+    init_background(renderer);
     
     bool gameover = false;
 
     int frameCount = 0;
     Uint32 startTime = SDL_GetTicks();
 
-    main_loop(gameover, &frameCount, &startTime, renderer);
+    main_loop(gameover, &frameCount, &startTime, renderer, background);
 
-    clean_textures(&textures);
+    clean_background();
     clean_sdl(renderer, window);
     
     return 0;

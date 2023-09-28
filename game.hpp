@@ -1,6 +1,10 @@
 #define RESOURCES_DIR "resources/"
-#define OWL_WIDTH 150
-#define OWL_HEIGHT 300
-#define SCREEN_WIDTH 1280
-#define SCREEN_HEIGHT 720
+#define SCREEN_WIDTH 1920
+#define SCREEN_HEIGHT 1080
 #define FPS_LIM 60
+#define OWL_WIDTH 100
+#define OWL_HEIGHT 100
+#define OWL_SPEED 10
+#define OWL_DASH_SPEED 30
+#define OWL_DASH_TIME 0.15  // in seconds
+#define OWL_DASH_DELAY 2  // in seconds
