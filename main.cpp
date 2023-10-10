@@ -1,5 +1,6 @@
 #include "sdl2-support.hpp"
 #include "owl.hpp"
+#include "hunter.hpp"
 #include "game.hpp"
 
 using namespace std;
@@ -69,6 +70,7 @@ void count_FPS(Uint32* startTime, int* frameCount)
 void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *renderer, SDL_Texture* background)
 {
     Owl owl(renderer);
+    Hunter hunter(renderer);
     TimeStamp timestamp = Clock::now();
     while (!gameover)   
     {
@@ -85,6 +87,7 @@ void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *
         SDL_RenderClear(renderer); // re-draw the window
         apply_background(renderer);
         owl.draw();
+        hunter.draw();
         update_screen(renderer);
 
         reduce_FPS(timeOnStart);

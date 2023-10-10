@@ -7,6 +7,8 @@
 
 using namespace std;
 
+#ifndef SPRITE_HPP
+#define SPRITE_HPP
 
 class Sprite
 {
@@ -66,3 +68,5 @@ class Animation : public Sprite {
     const double duration = 1; // duration of the animation sequence in seconds
     const bool repeat = false; // should we repeat the animation?
 };
+
+#endif
