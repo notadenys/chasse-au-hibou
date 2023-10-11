@@ -87,6 +87,10 @@ struct Owl {
         SDL_RenderCopyEx(renderer, sprites[state].texture, &src, &dest, 0, nullptr, backwards ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE);
     }
 
+    double getCoordsX() {
+        return x;
+    }
+
     double x = SCREEN_WIDTH/2 - OWL_WIDTH/2, y = 50; // coordinates of the character
     double vx = 0;   // speed
     double dash = 0;  // dash

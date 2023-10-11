@@ -12,3 +12,6 @@
 #define HUNTER_HEIGHT 150
 #define BULLET_HEIGHT 20
 #define BULLET_WIDTH 10
+#define POOP_WIDTH 59
+#define POOP_HEIGHT 60
+#define POOP_SPEED 20
