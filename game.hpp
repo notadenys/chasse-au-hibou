@@ -10,3 +10,6 @@
 #define OWL_DASH_DELAY 2  // in seconds
 #define HUNTER_WIDTH 75
 #define HUNTER_HEIGHT 150
+#define POOP_WIDTH 59
+#define POOP_HEIGHT 60
+#define POOP_SPEED 20

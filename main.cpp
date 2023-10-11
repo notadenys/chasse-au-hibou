@@ -2,6 +2,7 @@
 #include "owl.hpp"
 #include "hunter.hpp"
 #include "game.hpp"
+#include "poop.hpp"
 
 using namespace std;
 
@@ -71,6 +72,7 @@ void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *
 {
     Owl owl(renderer);
     Hunter hunter(renderer);
+    Poop poop(renderer);
     TimeStamp timestamp = Clock::now();
     while (!gameover)   
     {
@@ -86,8 +88,11 @@ void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *
 
         SDL_RenderClear(renderer); // re-draw the window
         apply_background(renderer);
+        // replace poop draw and getting coord here to hide it under owl(for future)
         owl.draw();
         hunter.draw();
+        poop.setCoordX(owl.getCoordsX());
+        poop.draw();
         update_screen(renderer);
 
         reduce_FPS(timeOnStart);
