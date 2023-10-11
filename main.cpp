@@ -88,7 +88,9 @@ void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *
 
         SDL_RenderClear(renderer); // re-draw the window
         apply_background(renderer);
-        poop.setCoordX(owl.getCoordsX());
+        poop.setOwlCoordX(owl.getCoordsX());
+        poop.setHunterCoordX(hunter.getCoordsX());
+        poop.setHunterCoordY(hunter.getCoordsY());
         poop.draw();
         owl.draw();
         hunter.draw();

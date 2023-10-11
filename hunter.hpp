@@ -11,6 +11,14 @@ struct Hunter {
         SDL_RenderCopyEx(renderer, sprite.texture, &src, &dest, 0, nullptr, SDL_FLIP_NONE);
     }
 
+    double getCoordsX() {
+        return x;
+    }
+
+    double getCoordsY() {
+        return y;
+    }
+
     double x = SCREEN_WIDTH/2 - HUNTER_WIDTH/2, y = SCREEN_HEIGHT - HUNTER_HEIGHT; // coordinates of the character
 
     SDL_Renderer *renderer;   // draw here
