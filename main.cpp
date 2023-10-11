@@ -80,20 +80,19 @@ void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *
         int timeOnStart = SDL_GetTicks();
 
         owl.handle_keyboard(); // no need for the event variable, direct keyboard state polling
-
         SDL_Event event; // handle window closing
         handle_events(&event, &gameover);
 
         owl.update_state();
+        poop.update_state();
 
         SDL_RenderClear(renderer); // re-draw the window
         apply_background(renderer);
-        // replace poop draw and getting coord here to hide it under owl(for future)
-        owl.draw();
-        hunter.draw();
         bullet.draw();
         poop.setCoordX(owl.getCoordsX());
         poop.draw();
+        owl.draw();
+        hunter.draw();
         update_screen(renderer);
 
         reduce_FPS(timeOnStart);
