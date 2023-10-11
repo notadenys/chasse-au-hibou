@@ -93,6 +93,7 @@ void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *
         poop.setHunterCoordY(hunter.getCoordsY());
         poop.draw();
         owl.draw();
+        hunter.setDead(poop.setHunterDead());
         hunter.draw();
         update_screen(renderer);
 
