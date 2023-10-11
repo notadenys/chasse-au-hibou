@@ -74,9 +74,9 @@ struct Owl {
         }
     }
 
-    void update_state(const double dt)
+    void update_state()
     {
-        x += vx; // prior to collision detection
+        x += vx;
         handle_collisison();
     }
 

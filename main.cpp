@@ -1,6 +1,7 @@
 #include "sdl2-support.hpp"
 #include "owl.hpp"
 #include "hunter.hpp"
+#include "bullet.hpp"
 #include "game.hpp"
 
 using namespace std;
@@ -71,7 +72,7 @@ void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *
 {
     Owl owl(renderer);
     Hunter hunter(renderer);
-    TimeStamp timestamp = Clock::now();
+    Bullet bullet(renderer);
     while (!gameover)   
     {
         int timeOnStart = SDL_GetTicks();
@@ -81,13 +82,13 @@ void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *
         SDL_Event event; // handle window closing
         handle_events(&event, &gameover);
 
-        const auto dt = Clock::now() - timestamp;
-        owl.update_state(std::chrono::duration<double>(dt).count());
+        owl.update_state();
 
         SDL_RenderClear(renderer); // re-draw the window
         apply_background(renderer);
         owl.draw();
         hunter.draw();
+        bullet.draw();
         update_screen(renderer);
 
         reduce_FPS(timeOnStart);

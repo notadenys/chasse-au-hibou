@@ -10,3 +10,5 @@
 #define OWL_DASH_DELAY 2  // in seconds
 #define HUNTER_WIDTH 75
 #define HUNTER_HEIGHT 150
+#define BULLET_HEIGHT 20
+#define BULLET_WIDTH 10
