@@ -38,15 +38,25 @@ struct Poop {
     void update_state()
     {
         handle_keyboard();
-        if(y >= SCREEN_HEIGHT - POOP_HEIGHT) {
+        if((y >= SCREEN_HEIGHT - POOP_HEIGHT)) {
+            pooped = false;
+            y = 50;
+        }
+        else if(((y >= hY - HUNTER_HEIGHT/3) && ((x >= hX - HUNTER_WIDTH) && (x <= hX + HUNTER_WIDTH)))) {
+            dead = true;
             pooped = false;
             y = 50;
         }
     }
 
+    bool setHunterDead() {
+        return dead;
+    }
+
     double x = SCREEN_WIDTH/2 - POOP_WIDTH/2, y = 50 + POOP_HEIGHT/2;
 
     bool pooped = false;
+    bool dead = false;
 
     double hX;
     double hY;

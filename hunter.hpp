@@ -6,20 +6,32 @@ struct Hunter {
 
     void draw()
     {
-        SDL_Rect src = sprite.rect(0);
-        SDL_Rect dest = {int(x), int(y), HUNTER_WIDTH, HUNTER_HEIGHT};
-        SDL_RenderCopyEx(renderer, sprite.texture, &src, &dest, 0, nullptr, SDL_FLIP_NONE);
+        if(dead == false) {
+            SDL_Rect src = sprite.rect(0);
+            SDL_Rect dest = {int(x), int(y), HUNTER_WIDTH, HUNTER_HEIGHT};
+            SDL_RenderCopyEx(renderer, sprite.texture, &src, &dest, 0, nullptr, SDL_FLIP_NONE);
+        }
+        else {
+            x = 0;
+            y = 0;
+        }
     }
 
-    double getCoordsX() {
+    double getCoordX() {
         return x;
     }
 
-    double getCoordsY() {
+    double getCoordY() {
         return y;
     }
 
+    void setDead(bool dead_p) {
+        dead = dead_p;
+    }
+
     double x = SCREEN_WIDTH/2 - HUNTER_WIDTH/2, y = SCREEN_HEIGHT - HUNTER_HEIGHT; // coordinates of the character
+
+    bool dead = false;
 
     SDL_Renderer *renderer;   // draw here
 

@@ -87,7 +87,7 @@ struct Owl {
         SDL_RenderCopyEx(renderer, sprites[state].texture, &src, &dest, 0, nullptr, backwards ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE);
     }
 
-    double getCoordsX() {
+    double getCoordX() {
         return x;
     }
 
