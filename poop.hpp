@@ -12,10 +12,26 @@ struct Poop {
     }
 
     void setCoordX(double owlX) {
-        x = owlX + POOP_WIDTH/2;
+        if(!pooped){
+            x = owlX + POOP_WIDTH/2;
+        }
+    }
+
+    void handle_keyboard() {
+        const Uint8 *kbstate = SDL_GetKeyboardState(NULL);
+        if((kbstate[SDL_SCANCODE_SPACE] || pooped == true) && y < SCREEN_HEIGHT - POOP_HEIGHT) {
+            pooped = true;
+            y += POOP_SPEED;
+        }
+        if(y >= SCREEN_HEIGHT - POOP_HEIGHT) {
+            pooped = false;
+            y = 50;
+        }
     }
 
     double x = SCREEN_WIDTH/2 - POOP_WIDTH/2, y = 50 + POOP_HEIGHT/2;
+
+    bool pooped = false;
 
     SDL_Renderer *renderer;
 
