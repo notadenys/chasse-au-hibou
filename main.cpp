@@ -84,17 +84,18 @@ void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *
         handle_events(&event, &gameover);
 
         owl.update_state();
-        poop.update_state();
+        poop.update_state(owl.getCoordX());
+        bullet.update_state(hunter.getCoordX(), hunter.getCoordY());
 
         SDL_RenderClear(renderer); // re-draw the window
         apply_background(renderer);
-        poop.setOwlCoordX(owl.getCoordX());
         poop.setHunterCoordX(hunter.getCoordX());
         poop.setHunterCoordY(hunter.getCoordY());
         poop.draw();
         owl.draw();
-        hunter.setDead(poop.setHunterDead());
+        hunter.setDead(poop.getHunterDead());
         hunter.draw();
+        bullet.draw();
         update_screen(renderer);
 
         reduce_FPS(timeOnStart);

@@ -11,11 +11,9 @@ struct Poop {
         SDL_RenderCopyEx(renderer, sprite.texture, &src, &dest, 0, nullptr, SDL_FLIP_NONE);
     }
 
-    void setOwlCoordX(double owlX) {
+    void setCoordX(double owlX) {
         if(!pooped){
-            if(!pooped){
             x = owlX + POOP_WIDTH/2;
-        }
         }
     }
 
@@ -29,16 +27,20 @@ struct Poop {
 
     void handle_keyboard() {
         const Uint8 *kbstate = SDL_GetKeyboardState(NULL);
-        if((kbstate[SDL_SCANCODE_SPACE] || pooped == true) && y < SCREEN_HEIGHT - POOP_HEIGHT) {
+        if(kbstate[SDL_SCANCODE_SPACE] && y < SCREEN_HEIGHT - POOP_HEIGHT) 
+        {
             pooped = true;
-            y += POOP_SPEED;
         }
     }
 
-    void update_state()
+    void update_state(double owlX)
     {
         handle_keyboard();
-        if((y >= SCREEN_HEIGHT - POOP_HEIGHT)) {
+        if (pooped)
+        {
+            y += POOP_SPEED;
+        }
+        if((y >= SCREEN_HEIGHT)) {
             pooped = false;
             y = 50;
         }
@@ -47,9 +49,10 @@ struct Poop {
             pooped = false;
             y = 50;
         }
+        setCoordX(owlX);
     }
 
-    bool setHunterDead() {
+    bool getHunterDead() {
         return dead;
     }
 
