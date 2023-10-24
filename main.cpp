@@ -85,7 +85,7 @@ void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *
 
         owl.update_state();
         poop.update_state(owl.getCoordX());
-        bullet.update_state(hunter.getCoordX(), hunter.getCoordY());
+        bullet.update_state(hunter.getCoordX(), hunter.getCoordY(), owl.getCoordX(), owl.getCoordY());
 
         SDL_RenderClear(renderer); // re-draw the window
         apply_background(renderer);

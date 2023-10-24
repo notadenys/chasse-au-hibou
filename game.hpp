@@ -17,3 +17,4 @@
 #define POOP_WIDTH 59
 #define POOP_HEIGHT 60
 #define POOP_SPEED 20
+#define PI 3.1415926535897932384626433  // math pi
