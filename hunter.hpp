@@ -1,3 +1,5 @@
+#include <cstdlib>
+
 #include "sprite.hpp"
 
 
@@ -29,7 +31,13 @@ struct Hunter {
         dead = dead_p;
     }
 
-    double x = SCREEN_WIDTH/2 - HUNTER_WIDTH/2, y = SCREEN_HEIGHT - HUNTER_HEIGHT; // coordinates of the character
+    double fRand() {
+        srand(time(NULL));
+        double f = (double)rand() / RAND_MAX;
+        return 0 + f * (SCREEN_WIDTH - 0);
+    }
+    
+    double x = fRand(), y = SCREEN_HEIGHT - HUNTER_HEIGHT; // coordinates of the character
 
     bool dead = false;
 
