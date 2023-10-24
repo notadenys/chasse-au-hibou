@@ -40,10 +40,17 @@ struct Bullet {
         }
     }
 
-    bool handle_collision()
+    bool handle_collision(double owlX, double owlY)
     {
         if (y <= 0)
         {
+            shot = false;
+            shot_timestamp = Clock::now();
+        }
+
+        if (!(x > owlX + OWL_WIDTH || owlX > x + BULLET_WIDTH || y > owlY + OWL_HEIGHT || owlY > y + BULLET_HEIGHT))
+        {
+            cout << "AAAAAAAAAA\n";
             shot = false;
             shot_timestamp = Clock::now();
         }
@@ -51,7 +58,7 @@ struct Bullet {
 
     void update_state(double hunterX, double hunterY, double owlX, double owlY)
     {
-        handle_collision();
+        handle_collision(owlX, owlY);
         if (!shot)
         {
             angle = getDestAngle(owlX, owlY);
