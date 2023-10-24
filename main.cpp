@@ -69,6 +69,35 @@ void count_FPS(Uint32* startTime, int* frameCount)
     }
 }
 
+void draw(Owl* owl, Hunter* hunter, Bullet* bullet, Poop* poop, SDL_Renderer *renderer)
+{
+    SDL_RenderClear(renderer); // re-draw the window
+    apply_background(renderer);
+    (*poop).setHunterCoordX((*hunter).getCoordX());
+    ((*poop).setHunterCoordY((*hunter).getCoordY()));
+    (*poop).draw();
+    (*owl).draw();
+    (*hunter).setDead((*poop).getHunterDead());
+    (*hunter).draw();
+    (*bullet).draw();
+    update_screen(renderer);
+}
+
+void update_game(Owl* owl, Hunter* hunter, Bullet* bullet, Poop* poop, SDL_Renderer *renderer)
+{
+    (*owl).update_state();
+    (*poop).update_state((*owl).getCoordX());
+    (*bullet).update_state((*hunter).getCoordX(), (*hunter).getCoordY(), (*owl).getCoordX(), (*owl).getCoordY());
+    if ((*bullet).getKilled())
+    {
+        (*owl).shot();
+        (*bullet).setKilled(0);
+        (*poop).update_state((*owl).getCoordX());
+        draw(owl, hunter, bullet, poop, renderer);
+        SDL_Delay(1000);
+    }
+}
+
 void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *renderer, SDL_Texture* background)
 {
     Owl owl(renderer);
@@ -83,20 +112,8 @@ void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *
         SDL_Event event; // handle window closing
         handle_events(&event, &gameover);
 
-        owl.update_state();
-        poop.update_state(owl.getCoordX());
-        bullet.update_state(hunter.getCoordX(), hunter.getCoordY(), owl.getCoordX(), owl.getCoordY());
-
-        SDL_RenderClear(renderer); // re-draw the window
-        apply_background(renderer);
-        poop.setHunterCoordX(hunter.getCoordX());
-        poop.setHunterCoordY(hunter.getCoordY());
-        poop.draw();
-        owl.draw();
-        hunter.setDead(poop.getHunterDead());
-        hunter.draw();
-        bullet.draw();
-        update_screen(renderer);
+        update_game(&owl, &hunter, &bullet, &poop, renderer);
+        draw(&owl, &hunter, &bullet, &poop, renderer);
 
         reduce_FPS(timeOnStart);
         (*frameCount)++;

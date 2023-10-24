@@ -50,8 +50,9 @@ struct Bullet {
 
         if (!(x > owlX + OWL_WIDTH || owlX > x + BULLET_WIDTH || y > owlY + OWL_HEIGHT || owlY > y + BULLET_HEIGHT))
         {
-            cout << "AAAAAAAAAA\n";
+            killed = 1;
             shot = false;
+            
             shot_timestamp = Clock::now();
         }
     }
@@ -69,9 +70,20 @@ struct Bullet {
         }
     }
 
+    bool getKilled()
+    {
+        return killed;
+    }
+
+    void setKilled(bool b)
+    {
+        killed = b;
+    }
+
     double x = SCREEN_WIDTH/2 - BULLET_WIDTH/2, y = SCREEN_HEIGHT - HUNTER_HEIGHT; // coordinates of the bullet
 
     bool shot = 0;
+    bool killed = 0;
     double angle = 0;
     TimeStamp shot_timestamp = Clock::now();
 

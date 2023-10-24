@@ -12,6 +12,18 @@ struct Owl {
                 Animation(renderer, "flight.bmp",    OWL_WIDTH, 0.5, true ),
                 Animation(renderer, "dash.bmp", OWL_WIDTH, 0.1, false)} {  }
 
+    void reset()
+    {
+        x = SCREEN_WIDTH/2 - OWL_WIDTH/2, y = 50; // coordinates of the character
+        vx = 0;   // speed
+        dash = 0;  // dash
+        backwards = false;  // facing left or right
+
+        state = REST;         // current sprite
+        timestamp = Clock::now();
+        dash_timestamp = Clock::now();
+    }
+
     void set_state(int s) {
         timestamp = Clock::now();
         state = s;
@@ -97,10 +109,22 @@ struct Owl {
         return y;
     }
 
+    int getLives()
+    {
+        return lives;
+    }
+
+    void shot()
+    {
+        lives--;
+        reset();
+    }
+
     double x = SCREEN_WIDTH/2 - OWL_WIDTH/2, y = 50; // coordinates of the character
     double vx = 0;   // speed
     double dash = 0;  // dash
     bool backwards = false;  // facing left or right
+    int lives = OWL_LIVES_ON_START;
 
     int state = REST;         // current sprite
     TimeStamp timestamp = Clock::now();

@@ -8,12 +8,13 @@
 #define OWL_DASH_SPEED 30
 #define OWL_DASH_TIME 0.15  // in seconds
 #define OWL_DASH_DELAY 2  // in seconds
+#define OWL_LIVES_ON_START 3
 #define HUNTER_WIDTH 75
 #define HUNTER_HEIGHT 150
 #define BULLET_HEIGHT 20
 #define BULLET_WIDTH 10
 #define BULLET_SPEED 40
-#define SHOOTING_DELAY_MIN 1 // in seconds
+#define SHOOTING_DELAY_MIN 1  // in seconds
 #define POOP_WIDTH 59
 #define POOP_HEIGHT 60
 #define POOP_SPEED 20
