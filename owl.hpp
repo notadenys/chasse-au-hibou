@@ -95,7 +95,7 @@ struct Owl {
     void draw()
     {
         SDL_Rect src = sprites[state].rect(timestamp);
-        SDL_Rect dest = { int(x), int(y), OWL_WIDTH, OWL_HEIGHT };
+        SDL_Rect dest = { int(x), int(y), OWL_WIDTH, OWL_HEIGHT};
         SDL_RenderCopyEx(renderer, sprites[state].texture, &src, &dest, 0, nullptr, backwards ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE);
     }
 

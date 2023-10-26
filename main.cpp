@@ -83,7 +83,7 @@ void draw(Owl* owl, Hunter* hunter, Bullet* bullet, Poop* poop, SDL_Renderer *re
     update_screen(renderer);
 }
 
-void update_game(Owl* owl, Hunter* hunter, Bullet* bullet, Poop* poop, SDL_Renderer *renderer)
+void update_game(Owl* owl, Hunter* hunter, Bullet* bullet, Poop* poop, SDL_Renderer *renderer, bool* gameover)
 {
     (*owl).update_state();
     (*poop).update_state((*owl).getCoordX());
@@ -91,11 +91,16 @@ void update_game(Owl* owl, Hunter* hunter, Bullet* bullet, Poop* poop, SDL_Rende
     if ((*bullet).getKilled())
     {
         (*owl).shot();
-        (*bullet).setKilled(0);
+        if((*owl).getLives() > 0)
+        {
+            (*bullet).setKilled(0);
+        } else {
+            (*gameover) = true;
+        }
         (*poop).reset((*owl).getCoordX());
         (*poop).update_state((*owl).getCoordX());
         draw(owl, hunter, bullet, poop, renderer);
-        SDL_Delay(1000);
+        //SDL_Delay(1000);
     }
 }
 
@@ -113,13 +118,14 @@ void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *
         SDL_Event event; // handle window closing
         handle_events(&event, &gameover);
 
-        update_game(&owl, &hunter, &bullet, &poop, renderer);
+        update_game(&owl, &hunter, &bullet, &poop, renderer, &gameover);
         draw(&owl, &hunter, &bullet, &poop, renderer);
 
         reduce_FPS(timeOnStart);
         (*frameCount)++;
         count_FPS(startTime, frameCount);
     }
+    
 }
 
 void clean_background()
@@ -143,6 +149,7 @@ int main()
 
     main_loop(gameover, &frameCount, &startTime, renderer, background);
 
+    SDL_Delay(1000);
     clean_background();
     clean_sdl(renderer, window);
     

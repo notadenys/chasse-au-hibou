@@ -52,7 +52,6 @@ struct Bullet {
         {
             killed = 1;
             shot = false;
-            
             shot_timestamp = Clock::now();
         }
     }
