@@ -77,7 +77,7 @@ void draw(Owl* owl, Hunter* hunter, Bullet* bullet, Poop* poop, SDL_Renderer *re
     ((*poop).setHunterCoordY((*hunter).getCoordY()));
     (*poop).draw();
     (*owl).draw();
-    (*hunter).setDead((*poop).getHunterDead());
+    (*hunter).setDead((*poop).getHunterShot());
     (*hunter).draw();
     (*bullet).draw();
     update_screen(renderer);
@@ -92,6 +92,7 @@ void update_game(Owl* owl, Hunter* hunter, Bullet* bullet, Poop* poop, SDL_Rende
     {
         (*owl).shot();
         (*bullet).setKilled(0);
+        (*poop).reset((*owl).getCoordX());
         (*poop).update_state((*owl).getCoordX());
         draw(owl, hunter, bullet, poop, renderer);
         SDL_Delay(1000);

@@ -11,7 +11,7 @@ struct Poop {
         SDL_RenderCopyEx(renderer, sprite.texture, &src, &dest, 0, nullptr, SDL_FLIP_NONE);
     }
 
-    void setCoordX(double owlX) {
+    void follow(double owlX) {
         if(!pooped){
             x = owlX + POOP_WIDTH/2;
         }
@@ -41,25 +41,30 @@ struct Poop {
             y += POOP_SPEED;
         }
         if((y >= SCREEN_HEIGHT)) {
-            pooped = false;
-            y = 50;
+            reset(owlX);
         }
         else if(((y >= hY - HUNTER_HEIGHT/3) && ((x >= hX - HUNTER_WIDTH) && (x <= hX + HUNTER_WIDTH)))) {
-            dead = true;
-            pooped = false;
-            y = 50;
+            shot = true;
+            reset(owlX);
         }
-        setCoordX(owlX);
+        follow(owlX);
     }
 
-    bool getHunterDead() {
-        return dead;
+    bool getHunterShot() {
+        return shot;
+    }
+
+    void reset(double owlX)
+    {
+        pooped = false;
+        y = 50;
+        follow(owlX);
     }
 
     double x = SCREEN_WIDTH/2 - POOP_WIDTH/2, y = 50 + POOP_HEIGHT/2;
 
     bool pooped = false;
-    bool dead = false;
+    bool shot = false;
 
     double hX;
     double hY;
