@@ -2,7 +2,7 @@
 #include "owl.hpp"
 #include "hunter.hpp"
 #include "bullet.hpp"
-#include "game.hpp"
+#include "settings.hpp"
 #include "poop.hpp"
 
 using namespace std;
@@ -91,7 +91,7 @@ void update_game(Owl* owl, Hunter* hunter, Bullet* bullet, Poop* poop, SDL_Rende
     if ((*bullet).getKilled())
     {
         (*owl).shot();
-        if((*owl).getLives() > 0)
+        if((*owl).getLives() > 0)  // when owl has no more lives left the game ends
         {
             (*bullet).setKilled(0);
         } else {
@@ -146,6 +146,8 @@ int main()
 
     int frameCount = 0;
     Uint32 startTime = SDL_GetTicks();
+
+    srand(time(NULL));
 
     main_loop(gameover, &frameCount, &startTime, renderer, background);
 

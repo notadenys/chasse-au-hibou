@@ -12,12 +12,14 @@ struct Bullet {
         SDL_RenderCopyEx(renderer, sprite.texture, &src, &dest, angle*180/PI, nullptr, SDL_FLIP_NONE);
     }
 
+    // while bullet is waiting for its time to be shot its position is linked to the hunter
     void follow(double hunterX, double hunterY)
     {
         x = hunterX + HUNTER_WIDTH/2 - BULLET_WIDTH/2;
         y = hunterY;
     }
 
+    // calculating an angle between the bullet and the owl
     double getDestAngle(double owlX, double owlY)
     {
         double l = (owlX + OWL_WIDTH/2) - (x + BULLET_WIDTH/2);
@@ -34,20 +36,24 @@ struct Bullet {
 
     void shoot(double owlX, double owlY)
     {
-        if ((Clock::now()-shot_timestamp).count() > SHOOTING_DELAY_MIN * 1000000000)
+        // we set a delay for a bullet to be shot only after a certaint amount of time and not just after its return to hunter's position
+        if ((Clock::now()-shot_timestamp).count() > (SHOOTING_DELAY_MIN + ((double)rand() / RAND_MAX) * SHOOTING_DELAY_ADD) * 1000000000)
         {
+
             shot = true;
         }
     }
 
     bool handle_collision(double owlX, double owlY)
     {
+        // if bullet goes out of the screen
         if (y <= 0)
         {
             shot = false;
             shot_timestamp = Clock::now();
         }
 
+        // if bullet hits the owl
         if (!(x > owlX + OWL_WIDTH || owlX > x + BULLET_WIDTH || y > owlY + OWL_HEIGHT || owlY > y + BULLET_HEIGHT))
         {
             killed = 1;

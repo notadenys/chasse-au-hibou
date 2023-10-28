@@ -2,7 +2,7 @@
 #include <SDL2/SDL.h>
 #include <chrono>
 #include <algorithm>
-#include "game.hpp"
+#include "settings.hpp"
 
 
 using namespace std;
