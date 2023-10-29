@@ -44,7 +44,7 @@ struct Bullet {
         }
     }
 
-    bool handle_collision(double owlX, double owlY)
+    void handle_collision(double owlX, double owlY)
     {
         // if bullet goes out of the screen
         if (y <= 0)
