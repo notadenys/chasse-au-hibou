@@ -1,4 +1,6 @@
-#include "sdl2-support.hpp"
+#include <iostream>
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_ttf.h>
 #include "owl.hpp"
 #include "hunter.hpp"
 #include "bullet.hpp"
@@ -9,6 +11,30 @@ using namespace std;
 
 
 SDL_Texture* background = NULL;  // background texture is a global variable to be valid from any place of a code
+int frameCount = 0; // Global frame count
+Uint32 startTime = 0; // Global start time
+int fps;
+
+SDL_Texture *load_image(const char path[], SDL_Renderer *renderer)
+{
+    SDL_Surface *tmp = NULL;
+    SDL_Texture *texture = NULL;
+    tmp = SDL_LoadBMP(path);
+    if(NULL == tmp)
+    {
+        fprintf(stderr, "Error while charging an image BMP: %s", SDL_GetError());
+        return NULL;
+    }
+    SDL_SetColorKey(tmp, SDL_TRUE, SDL_MapRGB(tmp->format, 255, 0, 255));
+    texture = SDL_CreateTextureFromSurface(renderer, tmp);
+    SDL_FreeSurface(tmp);
+    if(NULL == texture)
+    {
+        fprintf(stderr, "Error while creating a texture: %s", SDL_GetError());
+        return NULL;
+    }
+    return texture;
+}
 
 void init_background(SDL_Renderer *renderer)
 {
@@ -61,9 +87,7 @@ void count_FPS(Uint32* startTime, int* frameCount)
 
     if (deltaTime >= 1000) 
     {
-        int fps = static_cast<float>(*frameCount) / (static_cast<float>(deltaTime) / 1000.0f);
-        cout << "FPS: " << fps << endl;
-
+        fps = static_cast<float>(*frameCount) / (static_cast<float>(deltaTime) / 1000.0f);
         *frameCount = 0;
         *startTime = currentTime;
     }
@@ -71,8 +95,15 @@ void count_FPS(Uint32* startTime, int* frameCount)
 
 void draw(Owl* owl, Hunter* hunter, Bullet* bullet, Poop* poop, SDL_Renderer *renderer)
 {
-    SDL_RenderClear(renderer); // re-draw the window
+    SDL_RenderClear(renderer);
     apply_background(renderer);
+    TTF_Font *font = TTF_OpenFont("resources/ARCADECLASSIC.ttf", 48);
+    char str_fps[2];
+    sprintf(str_fps, "%d", fps);
+    SDL_Surface* surfaceText = TTF_RenderText_Solid(font, str_fps, {255, 0, 255});
+    SDL_Texture* textureText = SDL_CreateTextureFromSurface(renderer,surfaceText);
+    SDL_FreeSurface(surfaceText);
+    SDL_Rect rec = {10, 5, 50, 50};
     (*poop).setHunterCoordX((*hunter).getCoordX());
     ((*poop).setHunterCoordY((*hunter).getCoordY()));
     (*poop).draw();
@@ -80,8 +111,12 @@ void draw(Owl* owl, Hunter* hunter, Bullet* bullet, Poop* poop, SDL_Renderer *re
     (*hunter).setDead((*poop).getHunterShot());
     (*hunter).draw();
     (*bullet).draw();
-    update_screen(renderer);
+    SDL_SetRenderDrawColor(renderer,0,0,0xFF,SDL_ALPHA_OPAQUE);
+    SDL_RenderCopy(renderer,textureText,NULL,&rec);
+    SDL_RenderPresent(renderer);
 }
+
+
 
 void update_game(Owl* owl, Hunter* hunter, Bullet* bullet, Poop* poop, SDL_Renderer *renderer, bool* gameover)
 {
@@ -120,7 +155,6 @@ void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *
 
         update_game(&owl, &hunter, &bullet, &poop, renderer, &gameover);
         draw(&owl, &hunter, &bullet, &poop, renderer);
-
         reduce_FPS(timeOnStart);
         (*frameCount)++;
         count_FPS(startTime, frameCount);
@@ -128,10 +162,21 @@ void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *
     
 }
 
-void clean_background()
+int init_sdl(SDL_Window **window, SDL_Renderer **renderer, int width, int height)
 {
-    clean_texture(background);
+    if(0 != SDL_Init(SDL_INIT_VIDEO|SDL_INIT_AUDIO))
+    {
+        fprintf(stderr, "Error while initialising SDL: %s", SDL_GetError());
+        return -1;
+    }
+    if(0 != SDL_CreateWindowAndRenderer(width, height, SDL_WINDOW_SHOWN, window, renderer))
+    {
+        fprintf(stderr, "Error while creating an image and rendering it: %s", SDL_GetError());
+        return -1;
+    }
+    return 0;
 }
+
 
 
 int main()
@@ -141,19 +186,19 @@ int main()
 
     init_sdl(&window, &renderer, SCREEN_WIDTH, SCREEN_HEIGHT);
     init_background(renderer);
+    TTF_Init();
     
     bool gameover = false;
 
-    int frameCount = 0;
-    Uint32 startTime = SDL_GetTicks();
 
     srand(time(NULL));
 
     main_loop(gameover, &frameCount, &startTime, renderer, background);
 
     SDL_Delay(1000);
-    clean_background();
-    clean_sdl(renderer, window);
-    
+    SDL_DestroyTexture(background);
+    SDL_DestroyRenderer(renderer);
+    SDL_DestroyWindow(window);
+    SDL_Quit();    
     return 0;
 }
