@@ -2,7 +2,7 @@ CC = g++
 CFLAGS = -std=c++17 -Wall
 LIBS = -L"lib" -lSDL2main -lSDL2 -lSDL2_ttf -lSDL2_image
 INCLUDES = -I"include"
-EXEC = chasse.out
+EXEC = chasse
 
 .PHONY: all force
 

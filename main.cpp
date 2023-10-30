@@ -173,7 +173,7 @@ int init_sdl(SDL_Window **window, SDL_Renderer **renderer, int width, int height
     {
         fprintf(stderr, "Error while creating an image and rendering it: %s", SDL_GetError());
         return -1;
-    }
+    }SDL_DestroyTexture(background);
     return 0;
 }
 

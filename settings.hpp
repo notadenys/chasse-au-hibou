@@ -15,7 +15,7 @@
 #define BULLET_WIDTH 10
 #define BULLET_SPEED 40
 #define SHOOTING_DELAY_MIN 0.5  // in seconds
-#define SHOOTING_DELAY_ADD 0.5 // in seconds
+#define SHOOTING_DELAY_ADD 5 // in seconds
 #define POOP_WIDTH 59
 #define POOP_HEIGHT 60
 #define POOP_SPEED 20

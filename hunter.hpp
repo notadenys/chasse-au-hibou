@@ -32,9 +32,8 @@ struct Hunter {
     }
 
     double fRand() {
-        srand(time(NULL));
         double f = (double)rand() / RAND_MAX;
-        return 0 + f * (SCREEN_WIDTH - 0);
+        return f * SCREEN_WIDTH;
     }
     
     double x = fRand(), y = SCREEN_HEIGHT - HUNTER_HEIGHT; // coordinates of the character
