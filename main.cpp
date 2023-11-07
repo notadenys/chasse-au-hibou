@@ -151,8 +151,8 @@ void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *
         SDL_Event event; // handle window closing
         handle_events(&event, &gameover);
 
-        update_game(&owl, &hunter, &hunter.bullet, &poop, renderer, &gameover);
-        draw(&owl, &hunter, &hunter.bullet, &poop, renderer);
+        update_game(&owl, &hunter, hunter.getBulletAdr(), &poop, renderer, &gameover);
+        draw(&owl, &hunter, hunter.getBulletAdr(), &poop, renderer);
         reduce_FPS(timeOnStart);
         (*frameCount)++;
         count_FPS(startTime, frameCount);

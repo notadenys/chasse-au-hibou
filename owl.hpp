@@ -4,6 +4,7 @@
 
 
 struct Owl {
+    public :
     enum States { REST=0, FLIGHT=1, DASH = 2};
 
     Owl(SDL_Renderer *renderer) :
@@ -119,17 +120,17 @@ struct Owl {
         lives--;
         reset();
     }
+    private:
+        double x = SCREEN_WIDTH/2 - OWL_WIDTH/2, y = 50; // coordinates of the character
+        double vx = 0;   // speed
+        double dash = 0;  // dash
+        bool backwards = false;  // facing left or right
+        int lives = OWL_LIVES_ON_START;
 
-    double x = SCREEN_WIDTH/2 - OWL_WIDTH/2, y = 50; // coordinates of the character
-    double vx = 0;   // speed
-    double dash = 0;  // dash
-    bool backwards = false;  // facing left or right
-    int lives = OWL_LIVES_ON_START;
+        int state = REST;         // current sprite
+        TimeStamp timestamp = Clock::now();
+        TimeStamp dash_timestamp = Clock::now();
+        SDL_Renderer *renderer;   // draw here
 
-    int state = REST;         // current sprite
-    TimeStamp timestamp = Clock::now();
-    TimeStamp dash_timestamp = Clock::now();
-    SDL_Renderer *renderer;   // draw here
-
-    const std::array<Animation,3> sprites; // sprite sequences to be drawn
+        const std::array<Animation,3> sprites; // sprite sequences to be drawn
 };

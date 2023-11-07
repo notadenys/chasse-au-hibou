@@ -2,6 +2,7 @@
 
 
 struct Poop {
+    public:
     Poop(SDL_Renderer *renderer) : renderer(renderer), sprite(renderer, "poop.bmp", POOP_WIDTH){}
 
     void draw()
@@ -61,6 +62,7 @@ struct Poop {
         follow(owlX);
     }
 
+    private:
     double x = SCREEN_WIDTH/2 - POOP_WIDTH/2, y = 50 + POOP_HEIGHT/2;
 
     bool pooped = false;
