@@ -3,7 +3,6 @@
 #include <SDL2/SDL_ttf.h>
 #include "owl.hpp"
 #include "hunter.hpp"
-#include "bullet.hpp"
 #include "settings.hpp"
 #include "poop.hpp"
 
@@ -53,20 +52,20 @@ void apply_background(SDL_Renderer *renderer)
 void handle_events(SDL_Event* event, bool* gameover)
 {
     while (SDL_PollEvent(event))
+    {
+       if (event->type == SDL_QUIT)
         {
-            if (event->type == SDL_QUIT)
+            *gameover = true;
+        }
+        else if (event->type == SDL_KEYDOWN)
+        {
+            if (event->key.keysym.sym == SDLK_ESCAPE)    // ESC to exit
             {
                 *gameover = true;
             }
-            else if (event->type == SDL_KEYDOWN)
-            {
-                if (event->key.keysym.sym == SDLK_ESCAPE)    // ESC to exit
-                {
-                    *gameover = true;
-                }
                 
-            }
         }
+    }
 }
 
 void reduce_FPS(int timeOnStart)
@@ -100,7 +99,7 @@ void draw(Owl* owl, Hunter* hunter, Bullet* bullet, Poop* poop, SDL_Renderer *re
     TTF_Font *font = TTF_OpenFont("resources/ARCADECLASSIC.ttf", 48);
     char str_fps[2];
     sprintf(str_fps, "%d", fps);
-    SDL_Surface* surfaceText = TTF_RenderText_Solid(font, str_fps, {255, 0, 255});
+    SDL_Surface* surfaceText = TTF_RenderText_Solid(font, str_fps, {0, 0, 0});
     SDL_Texture* textureText = SDL_CreateTextureFromSurface(renderer,surfaceText);
     SDL_FreeSurface(surfaceText);
     SDL_Rect rec = {10, 5, 50, 50};
@@ -143,7 +142,6 @@ void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *
 {
     Owl owl(renderer);
     Hunter hunter(renderer);
-    Bullet bullet(renderer);
     Poop poop(renderer);
     while (!gameover)   
     {
@@ -153,8 +151,8 @@ void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *
         SDL_Event event; // handle window closing
         handle_events(&event, &gameover);
 
-        update_game(&owl, &hunter, &bullet, &poop, renderer, &gameover);
-        draw(&owl, &hunter, &bullet, &poop, renderer);
+        update_game(&owl, &hunter, &hunter.bullet, &poop, renderer, &gameover);
+        draw(&owl, &hunter, &hunter.bullet, &poop, renderer);
         reduce_FPS(timeOnStart);
         (*frameCount)++;
         count_FPS(startTime, frameCount);
