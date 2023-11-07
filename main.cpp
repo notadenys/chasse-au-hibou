@@ -9,10 +9,12 @@
 using namespace std;
 
 
-SDL_Texture* background = NULL;  // background texture is a global variable to be valid from any place of a code
+SDL_Texture* background = NULL;  // background texture is global variable to be valid from any place of a code
+
 int frameCount = 0; // Global frame count
 Uint32 startTime = 0; // Global start time
 int fps;
+
 
 SDL_Texture *load_image(const char path[], SDL_Renderer *renderer)
 {
@@ -48,6 +50,19 @@ void apply_background(SDL_Renderer *renderer)
     }
 }
 
+void apply_fps(SDL_Renderer *renderer)
+{
+    TTF_Font *font = TTF_OpenFont("resources/ARCADECLASSIC.ttf", 48);
+    char str_fps[2];
+    sprintf(str_fps, "%d", fps);
+    SDL_Surface* surfaceText = TTF_RenderText_Solid(font, str_fps, {0, 0, 0});
+    SDL_Texture* textureText = SDL_CreateTextureFromSurface(renderer,surfaceText);
+    SDL_FreeSurface(surfaceText);
+    SDL_Rect rec = {SCREEN_WIDTH - 60 - 5, 5, 60, 50};
+    SDL_SetRenderDrawColor(renderer,0,0,0xFF,SDL_ALPHA_OPAQUE);
+    SDL_RenderCopy(renderer, textureText, NULL, &rec);
+    SDL_DestroyTexture(textureText);
+}
 
 void handle_events(SDL_Event* event, bool* gameover)
 {
@@ -96,13 +111,6 @@ void draw(Owl* owl, Hunter* hunter, Bullet* bullet, Poop* poop, SDL_Renderer *re
 {
     SDL_RenderClear(renderer);
     apply_background(renderer);
-    TTF_Font *font = TTF_OpenFont("resources/ARCADECLASSIC.ttf", 48);
-    char str_fps[2];
-    sprintf(str_fps, "%d", fps);
-    SDL_Surface* surfaceText = TTF_RenderText_Solid(font, str_fps, {0, 0, 0});
-    SDL_Texture* textureText = SDL_CreateTextureFromSurface(renderer,surfaceText);
-    SDL_FreeSurface(surfaceText);
-    SDL_Rect rec = {10, 5, 50, 50};
     (*poop).setHunterCoordX((*hunter).getCoordX());
     ((*poop).setHunterCoordY((*hunter).getCoordY()));
     (*poop).draw();
@@ -110,8 +118,7 @@ void draw(Owl* owl, Hunter* hunter, Bullet* bullet, Poop* poop, SDL_Renderer *re
     (*hunter).setDead((*poop).getHunterShot());
     (*hunter).draw();
     (*bullet).draw();
-    SDL_SetRenderDrawColor(renderer,0,0,0xFF,SDL_ALPHA_OPAQUE);
-    SDL_RenderCopy(renderer,textureText,NULL,&rec);
+    apply_fps(renderer);
     SDL_RenderPresent(renderer);
 }
 
