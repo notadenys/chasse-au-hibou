@@ -5,6 +5,7 @@
 #include "hunter.hpp"
 #include "settings.hpp"
 #include "poop.hpp"
+#include "gui.hpp"
 
 using namespace std;
 
@@ -50,20 +51,6 @@ void apply_background(SDL_Renderer *renderer)
     }
 }
 
-void apply_fps(SDL_Renderer *renderer)
-{
-    TTF_Font *font = TTF_OpenFont("resources/ARCADECLASSIC.ttf", 48);
-    char str_fps[2];
-    sprintf(str_fps, "%d", fps);
-    SDL_Surface* surfaceText = TTF_RenderText_Solid(font, str_fps, {0, 0, 0});
-    SDL_Texture* textureText = SDL_CreateTextureFromSurface(renderer,surfaceText);
-    SDL_FreeSurface(surfaceText);
-    SDL_Rect rec = {SCREEN_WIDTH - 60 - 5, 5, 60, 50};
-    SDL_SetRenderDrawColor(renderer,0,0,0xFF,SDL_ALPHA_OPAQUE);
-    SDL_RenderCopy(renderer, textureText, NULL, &rec);
-    SDL_DestroyTexture(textureText);
-}
-
 void handle_events(SDL_Event* event, bool* gameover)
 {
     while (SDL_PollEvent(event))
@@ -107,24 +94,26 @@ void count_FPS(Uint32* startTime, int* frameCount)
     }
 }
 
-void draw(Owl* owl, Hunter* hunter, Bullet* bullet, Poop* poop, SDL_Renderer *renderer)
+void draw(Owl* owl, Hunter* hunter, Bullet* bullet, Poop* poop, GUI* gui, SDL_Renderer *renderer)
 {
     SDL_RenderClear(renderer);
     apply_background(renderer);
-    (*poop).setHunterCoordX((*hunter).getCoordX());
-    ((*poop).setHunterCoordY((*hunter).getCoordY()));
-    (*poop).draw();
-    (*owl).draw();
-    (*hunter).setDead((*poop).getHunterShot());
-    (*hunter).draw();
-    (*bullet).draw();
-    apply_fps(renderer);
+    poop->setHunterCoordX(hunter->getCoordX());
+    poop->setHunterCoordY(hunter->getCoordY());
+    poop->draw();
+    owl->draw();
+    hunter->setDead(poop->getHunterShot());
+    hunter->draw();
+    bullet->draw();
+    gui->draw_lives();
+    gui->apply_lives_text(renderer, owl->getLives());
+    gui->apply_fps(renderer, fps);
     SDL_RenderPresent(renderer);
 }
 
 
 
-void update_game(Owl* owl, Hunter* hunter, Bullet* bullet, Poop* poop, SDL_Renderer *renderer, bool* gameover)
+void update_game(Owl* owl, Hunter* hunter, Bullet* bullet, Poop* poop, GUI* gui, SDL_Renderer *renderer, bool* gameover)
 {
     (*owl).update_state();
     (*poop).update_state((*owl).getCoordX());
@@ -140,7 +129,7 @@ void update_game(Owl* owl, Hunter* hunter, Bullet* bullet, Poop* poop, SDL_Rende
         }
         (*poop).reset((*owl).getCoordX());
         (*poop).update_state((*owl).getCoordX());
-        draw(owl, hunter, bullet, poop, renderer);
+        draw(owl, hunter, bullet, poop, gui, renderer);
         //SDL_Delay(1000);
     }
 }
@@ -150,6 +139,7 @@ void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *
     Owl owl(renderer);
     Hunter hunter(renderer);
     Poop poop(renderer);
+    GUI gui(renderer);
     while (!gameover)   
     {
         int timeOnStart = SDL_GetTicks();
@@ -158,8 +148,8 @@ void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *
         SDL_Event event; // handle window closing
         handle_events(&event, &gameover);
 
-        update_game(&owl, &hunter, hunter.getBulletAdr(), &poop, renderer, &gameover);
-        draw(&owl, &hunter, hunter.getBulletAdr(), &poop, renderer);
+        update_game(&owl, &hunter, hunter.getBulletAdr(), &poop, &gui, renderer, &gameover);
+        draw(&owl, &hunter, hunter.getBulletAdr(), &poop, &gui, renderer);
         reduce_FPS(timeOnStart);
         (*frameCount)++;
         count_FPS(startTime, frameCount);
