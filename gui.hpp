@@ -19,7 +19,7 @@ struct GUI
         SDL_Surface* surfaceText = TTF_RenderText_Solid(font, str, {0, 0, 0});
         SDL_Texture* textureText = SDL_CreateTextureFromSurface(renderer,surfaceText);
         SDL_FreeSurface(surfaceText);
-        SDL_Rect rec = {55, 25, 50, 100};
+        SDL_Rect rec = {60, 25, 50, 100};
         SDL_SetRenderDrawColor(renderer,0,0,0xFF,SDL_ALPHA_OPAQUE);
         SDL_RenderCopy(renderer, textureText, NULL, &rec);
         SDL_DestroyTexture(textureText);
@@ -32,7 +32,7 @@ struct GUI
     SDL_Surface* surfaceText = TTF_RenderText_Solid(font, str_fps, {0, 0, 0});
     SDL_Texture* textureText = SDL_CreateTextureFromSurface(renderer,surfaceText);
     SDL_FreeSurface(surfaceText);
-    SDL_Rect rec = {SCREEN_WIDTH - 60 - 5, 5, 60, 50};
+    SDL_Rect rec = {SCREEN_WIDTH - 30 - 5, SCREEN_HEIGHT - 40, 30, 40};
     SDL_SetRenderDrawColor(renderer,0,0,0xFF,SDL_ALPHA_OPAQUE);
     SDL_RenderCopy(renderer, textureText, NULL, &rec);
     SDL_DestroyTexture(textureText);
