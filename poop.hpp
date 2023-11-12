@@ -18,12 +18,10 @@ struct Poop {
         }
     }
 
-    void setHunterCoordX(double huntX) {
-        hX = huntX;
-    }
-
-    void setHunterCoordY(double huntY) {
-        hY = huntY;
+    void setHunterCoords(Hunter* hunter)
+    {
+        hX = hunter->getCoordX();
+        hY = hunter->getCoordY();
     }
 
     void handle_keyboard() {
@@ -34,7 +32,7 @@ struct Poop {
         }
     }
 
-    void update_state(double owlX)
+    void update_state(Owl* owl)
     {
         handle_keyboard();
         if (pooped)
@@ -42,24 +40,24 @@ struct Poop {
             y += POOP_SPEED;
         }
         if((y >= SCREEN_HEIGHT)) {
-            reset(owlX);
+            reset(owl);
         }
         else if(((y >= hY - HUNTER_HEIGHT/3) && ((x >= hX - HUNTER_WIDTH) && (x <= hX + HUNTER_WIDTH)))) {
             shot = true;
-            reset(owlX);
+            reset(owl);
         }
-        follow(owlX);
+        follow(owl->getCoordX());
     }
 
     bool getHunterShot() {
         return shot;
     }
 
-    void reset(double owlX)
+    void reset(Owl* owl)
     {
         pooped = false;
         y = 50;
-        follow(owlX);
+        follow(owl->getCoordX());
     }
 
     private:

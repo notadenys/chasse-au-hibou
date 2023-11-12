@@ -98,8 +98,7 @@ void draw(Owl* owl, Hunter* hunter, Bullet* bullet, Poop* poop, GUI* gui, SDL_Re
 {
     SDL_RenderClear(renderer);
     apply_background(renderer);
-    poop->setHunterCoordX(hunter->getCoordX());
-    poop->setHunterCoordY(hunter->getCoordY());
+    poop->setHunterCoords(hunter);
     poop->draw();
     owl->draw();
     hunter->setDead(poop->getHunterShot());
@@ -115,22 +114,21 @@ void draw(Owl* owl, Hunter* hunter, Bullet* bullet, Poop* poop, GUI* gui, SDL_Re
 
 void update_game(Owl* owl, Hunter* hunter, Bullet* bullet, Poop* poop, GUI* gui, SDL_Renderer *renderer, bool* gameover)
 {
-    (*owl).update_state();
-    (*poop).update_state((*owl).getCoordX());
-    (*bullet).update_state((*hunter).getCoordX(), (*hunter).getCoordY(), (*owl).getCoordX(), (*owl).getCoordY());
-    if ((*bullet).getKilled())
+    owl->update_state();
+    poop->update_state(owl);
+    bullet->update_state(hunter->getCoordX(), hunter->getCoordY(), owl->getCoordX(), owl->getCoordY());
+    if (bullet->getKilled())
     {
-        (*owl).shot();
-        if((*owl).getLives() > 0)  // when owl has no more lives left the game ends
+        owl->shot();
+        if (owl->getLives() > 0) // when owl has no more lives left the game ends
         {
-            (*bullet).setKilled(0);
+            bullet->setKilled(0);  // sends to Bullet the info that Owl is dead
         } else {
-            (*gameover) = true;
+            *gameover = true;
         }
-        (*poop).reset((*owl).getCoordX());
-        (*poop).update_state((*owl).getCoordX());
+        poop->reset(owl);
+        poop->update_state(owl);
         draw(owl, hunter, bullet, poop, gui, renderer);
-        //SDL_Delay(1000);
     }
 }
 

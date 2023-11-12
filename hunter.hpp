@@ -3,7 +3,7 @@
 #include "sprite.hpp"
 
 
-class Bullet {
+struct Bullet {
     public:
     Bullet(SDL_Renderer *renderer) : renderer(renderer), sprite(renderer, "bullet.bmp", BULLET_WIDTH){}
 
