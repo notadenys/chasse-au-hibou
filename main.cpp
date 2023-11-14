@@ -6,50 +6,15 @@
 #include "settings.hpp"
 #include "poop.hpp"
 #include "gui.hpp"
+#include "map.hpp"
 
 using namespace std;
 
-
-SDL_Texture* background = NULL;  // background texture is global variable to be valid from any place of a code
 
 int frameCount = 0; // Global frame count
 Uint32 startTime = 0; // Global start time
 int fps;
 
-
-SDL_Texture *load_image(const char path[], SDL_Renderer *renderer)
-{
-    SDL_Surface *tmp = NULL;
-    SDL_Texture *texture = NULL;
-    tmp = SDL_LoadBMP(path);
-    if(NULL == tmp)
-    {
-        fprintf(stderr, "Error while charging an image BMP: %s", SDL_GetError());
-        return NULL;
-    }
-    SDL_SetColorKey(tmp, SDL_TRUE, SDL_MapRGB(tmp->format, 255, 0, 255));
-    texture = SDL_CreateTextureFromSurface(renderer, tmp);
-    SDL_FreeSurface(tmp);
-    if(NULL == texture)
-    {
-        fprintf(stderr, "Error while creating a texture: %s", SDL_GetError());
-        return NULL;
-    }
-    return texture;
-}
-
-void init_background(SDL_Renderer *renderer)
-{
-    background = load_image( "resources/background.bmp", renderer);
-}
-
-void apply_background(SDL_Renderer *renderer)
-{
-    if (background != NULL)
-    {
-      SDL_RenderCopy(renderer, background, NULL, NULL);
-    }
-}
 
 void handle_events(SDL_Event* event, bool* gameover)
 {
@@ -94,16 +59,17 @@ void count_FPS(Uint32* startTime, int* frameCount)
     }
 }
 
-void draw(Owl* owl, Hunter* hunter, Bullet* bullet, Poop* poop, GUI* gui, SDL_Renderer *renderer)
+void draw(Owl* owl, Hunter* hunter, Bullet* bullet, Poop* poop, GUI* gui, Map* map, SDL_Renderer *renderer)
 {
     SDL_RenderClear(renderer);
-    apply_background(renderer);
+    map->draw_background();
     poop->setHunterCoords(hunter);
     poop->draw();
     owl->draw();
     hunter->setDead(poop->getHunterShot());
     hunter->draw();
     bullet->draw();
+    map->draw();
     gui->draw_lives();
     gui->apply_lives_text(renderer, owl->getLives());
     gui->apply_fps(renderer, fps);
@@ -112,9 +78,9 @@ void draw(Owl* owl, Hunter* hunter, Bullet* bullet, Poop* poop, GUI* gui, SDL_Re
 
 
 
-void update_game(Owl* owl, Hunter* hunter, Bullet* bullet, Poop* poop, GUI* gui, SDL_Renderer *renderer, bool* gameover)
+void update_game(Owl* owl, Hunter* hunter, Bullet* bullet, Poop* poop, GUI* gui, Map* map, SDL_Renderer *renderer, bool* gameover)
 {
-    owl->update_state();
+    owl->update_state(map);
     poop->update_state(owl);
     bullet->update_state(hunter->getCoordX(), hunter->getCoordY(), owl->getCoordX(), owl->getCoordY());
     if (bullet->getKilled())
@@ -128,16 +94,20 @@ void update_game(Owl* owl, Hunter* hunter, Bullet* bullet, Poop* poop, GUI* gui,
         }
         poop->reset(owl);
         poop->update_state(owl);
-        draw(owl, hunter, bullet, poop, gui, renderer);
+        draw(owl, hunter, bullet, poop, gui, map, renderer);
     }
 }
 
-void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *renderer, SDL_Texture* background)
+void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *renderer)
 {
     Owl owl(renderer);
     Hunter hunter(renderer);
     Poop poop(renderer);
     GUI gui(renderer);
+    Map map(renderer);
+
+    map.calculate_map();
+
     while (!gameover)   
     {
         int timeOnStart = SDL_GetTicks();
@@ -146,13 +116,12 @@ void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *
         SDL_Event event; // handle window closing
         handle_events(&event, &gameover);
 
-        update_game(&owl, &hunter, hunter.getBulletAdr(), &poop, &gui, renderer, &gameover);
-        draw(&owl, &hunter, hunter.getBulletAdr(), &poop, &gui, renderer);
+        update_game(&owl, &hunter, hunter.getBulletAdr(), &poop, &gui, &map, renderer, &gameover);
+        draw(&owl, &hunter, hunter.getBulletAdr(), &poop, &gui, &map, renderer);
         reduce_FPS(timeOnStart);
         (*frameCount)++;
         count_FPS(startTime, frameCount);
     }
-    
 }
 
 int init_sdl(SDL_Window **window, SDL_Renderer **renderer, int width, int height)
@@ -166,7 +135,7 @@ int init_sdl(SDL_Window **window, SDL_Renderer **renderer, int width, int height
     {
         fprintf(stderr, "Error while creating an image and rendering it: %s", SDL_GetError());
         return -1;
-    }SDL_DestroyTexture(background);
+    }
     return 0;
 }
 
@@ -178,7 +147,6 @@ int main()
     SDL_Window *window;
 
     init_sdl(&window, &renderer, SCREEN_WIDTH, SCREEN_HEIGHT);
-    init_background(renderer);
     TTF_Init();
     
     bool gameover = false;
@@ -186,10 +154,9 @@ int main()
 
     srand(time(NULL));
 
-    main_loop(gameover, &frameCount, &startTime, renderer, background);
+    main_loop(gameover, &frameCount, &startTime, renderer);
 
     SDL_Delay(1000);
-    SDL_DestroyTexture(background);
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();    

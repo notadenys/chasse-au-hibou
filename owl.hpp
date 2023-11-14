@@ -1,7 +1,7 @@
 #include <cmath>
 #include <array>
 #include "sprite.hpp"
-
+#include "map.hpp"
 
 struct Owl {
     public :
@@ -71,7 +71,7 @@ struct Owl {
         }
     }
 
-    void handle_collisison()
+    void handle_collisison(Map* map)
     {
         if(x < 0)  // if owl touches the left border
         {
@@ -85,12 +85,24 @@ struct Owl {
             vx = 0;
             set_state(REST);
         }
+        else if (map->left_collision(x, OWL_WIDTH))
+        {
+            x += 10;
+            vx = 0;
+            set_state(REST);
+        }
+        else if (map->right_collision(x, OWL_WIDTH))
+        {
+            x -= 10;
+            vx = 0;
+            set_state(REST);
+        }
     }
 
-    void update_state()
+    void update_state(Map* map)
     {
         x += vx;
-        handle_collisison();
+        handle_collisison(map);
     }
 
     void draw()

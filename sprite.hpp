@@ -24,7 +24,7 @@ class Sprite
             nframes = surface->w/width;
             texture = SDL_CreateTextureFromSurface(renderer, surface);
         } else
-            std::cerr << "Incorrect sprite size" << std::endl;
+            std::cerr << "Incorrect sprite size in " << filename << std::endl;
         SDL_FreeSurface(surface);
     }
 
