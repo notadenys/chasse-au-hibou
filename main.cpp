@@ -83,18 +83,18 @@ void reduce_FPS(int timeOnStart)
 
 void count_FPS(Uint32* startTime, int* frameCount)
 {
-    Uint32 currentTime = SDL_GetTicks();
-    Uint32 deltaTime = currentTime - *startTime;
+    Uint32 current_hunterTime = SDL_GetTicks();
+    Uint32 deltaTime = current_hunterTime - *startTime;
 
     if (deltaTime >= 1000) 
     {
         fps = static_cast<float>(*frameCount) / (static_cast<float>(deltaTime) / 1000.0f);
         *frameCount = 0;
-        *startTime = currentTime;
+        *startTime = current_hunterTime;
     }
 }
 
-void draw(Owl* owl, Node * list, Poop* poop, GUI* gui, SDL_Renderer *renderer)
+void draw(Owl* owl, Hunterlist * list, Poop* poop, GUI* gui, SDL_Renderer *renderer)
 {
     SDL_RenderClear(renderer);
     apply_background(renderer);
@@ -108,14 +108,13 @@ void draw(Owl* owl, Node * list, Poop* poop, GUI* gui, SDL_Renderer *renderer)
     SDL_RenderPresent(renderer);
 }
 
-
-void update_game(Owl* owl, Node* list, Poop* poop, GUI* gui, SDL_Renderer *renderer, bool* gameover) {
+void update_game(Owl* owl, Hunterlist* list, Poop* poop, GUI* gui, SDL_Renderer *renderer, bool* gameover) {
     owl->update_state();
     poop->update_state(owl);
-    Node* current = list;
-    while (current != nullptr) {
-        Bullet* bullet = current->hunter.getBulletAdr();
-        updateHuntersWithBullets(current, owl); 
+    Hunterlist* current_hunter = list;
+    while (current_hunter != nullptr) {
+        Bullet* bullet = current_hunter->hunter.getBulletAdr();
+        updateHuntersWithBullets(current_hunter, owl); 
         if (bullet->getKilled()) { 
             owl->shot();
             if (owl->getLives() > 0) { 
@@ -128,10 +127,9 @@ void update_game(Owl* owl, Node* list, Poop* poop, GUI* gui, SDL_Renderer *rende
             draw(owl, list, poop, gui, renderer); 
             break;
         }
-        current = current->next; // Move to next hunter
+        current_hunter = current_hunter->next; // Move to next hunter
     }
 }
-
 
 void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *renderer, SDL_Texture* background)
 {
@@ -139,7 +137,7 @@ void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *
     Poop poop(renderer);
     GUI gui(renderer);
 
-    Node* hunterListHead = nullptr;
+    Hunterlist* hunterListHead = nullptr;
     Hunter hunter1(renderer);
     insertHunter(hunterListHead, hunter1);
     Hunter hunter2(renderer);
@@ -176,8 +174,6 @@ int init_sdl(SDL_Window **window, SDL_Renderer **renderer, int width, int height
     }SDL_DestroyTexture(background);
     return 0;
 }
-
-
 
 int main()
 {

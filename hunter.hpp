@@ -132,75 +132,75 @@ struct Hunter {
     Bullet bullet; // bullet, linked to hunter
 };
 
-struct Node { // linked list, to store several hunters
+struct Hunterlist { // linked list, to store several hunters
     public :
     Hunter hunter;
-    Node* next;
+    Hunterlist* next;
 
-    Node(Hunter hunter) : hunter(hunter) {}
+    Hunterlist(Hunter hunter) : hunter(hunter) {}
 };
 
-void insertHunter(Node* &head, Hunter hunter) {
-    Node* newNode = new Node(hunter);
+void insertHunter(Hunterlist* &head, Hunter hunter) {
+    Hunterlist* newHunterlist = new Hunterlist(hunter);
 
-    newNode->next = head;
-    head = newNode;
+    newHunterlist->next = head;
+    head = newHunterlist;
 }
 
-void removeHunter(Node* &head, Hunter hunter) {
-    Node* current = head;
-    Node* previous = nullptr;
-    while (current != nullptr) {
-        if (current->hunter.getCoordX() == hunter.getCoordX() && current->hunter.getCoordY() == hunter.getCoordY()) {
+void removeHunter(Hunterlist* &head, Hunter hunter) {
+    Hunterlist* current_hunter = head;
+    Hunterlist* previous = nullptr;
+    while (current_hunter != nullptr) {
+        if (current_hunter->hunter.getCoordX() == hunter.getCoordX() && current_hunter->hunter.getCoordY() == hunter.getCoordY()) {
             if (previous == nullptr) {
-                head = current->next;
+                head = current_hunter->next;
             } else {
-                previous->next = current->next;
+                previous->next = current_hunter->next;
             }
-            delete current;
+            delete current_hunter;
             break;
         }
-        previous = current;
-        current = current->next;
+        previous = current_hunter;
+        current_hunter = current_hunter->next;
     }
 }
 
-void drawHunters(Node* &head) {
-    Node* current = head;
-    while (current != nullptr) {
-        std::cout << "Hunter Position: (" << current->hunter.getCoordX() << ", " << current->hunter.getCoordY() << ")\n";
-        current->hunter.getBulletAdr()->draw();
-        current->hunter.draw();
-        current = current->next;
+void drawHunters(Hunterlist* &head) {
+    Hunterlist* current_hunter = head;
+    while (current_hunter != nullptr) {
+        std::cout << "Hunter Position: (" << current_hunter->hunter.getCoordX() << ", " << current_hunter->hunter.getCoordY() << ")\n";
+        current_hunter->hunter.getBulletAdr()->draw();
+        current_hunter->hunter.draw();
+        current_hunter = current_hunter->next;
     }
 }
 
-void checkHunterCollision(Owl* owl, Node* &list, Poop* poop) {
-    Node* current = list;
-    while (current != nullptr) {
-        if((poop->getCoordY() >= current->hunter.getCoordY() - HUNTER_HEIGHT/3) &&
-         ((poop->getCoordX() >= current->hunter.getCoordX() - HUNTER_WIDTH) && 
-         (poop->getCoordX() <= current->hunter.getCoordX() + HUNTER_WIDTH))) {
-            removeHunter(list, current->hunter);
+void checkHunterCollision(Owl* owl, Hunterlist* &head, Poop* poop) {
+    Hunterlist* current_hunter = head;
+    while (current_hunter != nullptr) {
+        if((poop->getCoordY() >= current_hunter->hunter.getCoordY() - HUNTER_HEIGHT/3) &&
+         ((poop->getCoordX() >= current_hunter->hunter.getCoordX() - HUNTER_WIDTH) && 
+         (poop->getCoordX() <= current_hunter->hunter.getCoordX() + HUNTER_WIDTH))) {
+            removeHunter(head, current_hunter->hunter);
             poop->reset(owl);
         }
-        current = current->next;
+        current_hunter = current_hunter->next;
     }
 }
 
-void updateHuntersWithBullets(Node* &head, Owl* owl) {
-    Node* current = head;
-    while (current != nullptr) {
-        current->hunter.getBulletAdr()->update_state(current->hunter.getCoordX(), current->hunter.getCoordY(), owl->getCoordX(), owl->getCoordY());
-        current = current->next;
+void updateHuntersWithBullets(Hunterlist* &head, Owl* owl) {
+    Hunterlist* current_hunter = head;
+    while (current_hunter != nullptr) {
+        current_hunter->hunter.getBulletAdr()->update_state(current_hunter->hunter.getCoordX(), current_hunter->hunter.getCoordY(), owl->getCoordX(), owl->getCoordY());
+        current_hunter = current_hunter->next;
     }
 }
 
-void freeHunterList(Node* &head) {
-    Node* current = head;
-    while (current != nullptr) {
-        Node* next = current->next;
-        delete current;
-        current = next;
+void freeHunterList(Hunterlist* &head) {
+    Hunterlist* current_hunter = head;
+    while (current_hunter != nullptr) {
+        Hunterlist* next = current_hunter->next;
+        delete current_hunter;
+        current_hunter = next;
     }
 }
