@@ -61,7 +61,7 @@ void handle_events(SDL_Event* event, bool* gameover)
         }
         else if (event->type == SDL_KEYDOWN)
         {
-            if (event->key.keysym.sym == SDLK_ESCAPE)    // ESC to exit
+            if (event->key.keysym.sym == SDLK_ESCAPE) // ESC to exit
             {
                 *gameover = true;
             }
@@ -77,7 +77,7 @@ void reduce_FPS(int timeOnStart)
 
     if (delta < desiredDelta)
     {
-        SDL_Delay(desiredDelta - delta);    // FPS reducing
+        SDL_Delay(desiredDelta - delta); // FPS reducing
     }
 }
 
@@ -94,16 +94,14 @@ void count_FPS(Uint32* startTime, int* frameCount)
     }
 }
 
-void draw(Owl* owl, Hunter* hunter, Bullet* bullet, Poop* poop, GUI* gui, SDL_Renderer *renderer)
+void draw(Owl* owl, Node * list, Poop* poop, GUI* gui, SDL_Renderer *renderer)
 {
     SDL_RenderClear(renderer);
     apply_background(renderer);
-    poop->setHunterCoords(hunter);
+    checkHunterCollision(owl, list, poop);
+    drawHunters(list);
     poop->draw();
     owl->draw();
-    hunter->setDead(poop->getHunterShot());
-    hunter->draw();
-    bullet->draw();
     gui->draw_lives();
     gui->apply_lives_text(renderer, owl->getLives());
     gui->apply_fps(renderer, fps);
@@ -111,48 +109,57 @@ void draw(Owl* owl, Hunter* hunter, Bullet* bullet, Poop* poop, GUI* gui, SDL_Re
 }
 
 
-
-void update_game(Owl* owl, Hunter* hunter, Bullet* bullet, Poop* poop, GUI* gui, SDL_Renderer *renderer, bool* gameover)
-{
+void update_game(Owl* owl, Node* list, Poop* poop, GUI* gui, SDL_Renderer *renderer, bool* gameover) {
     owl->update_state();
     poop->update_state(owl);
-    bullet->update_state(hunter->getCoordX(), hunter->getCoordY(), owl->getCoordX(), owl->getCoordY());
-    if (bullet->getKilled())
-    {
-        owl->shot();
-        if (owl->getLives() > 0) // when owl has no more lives left the game ends
-        {
-            bullet->setKilled(0);  // sends to Bullet the info that Owl is dead
-        } else {
-            *gameover = true;
+    Node* current = list;
+    while (current != nullptr) {
+        Bullet* bullet = current->hunter.getBulletAdr();
+        updateHuntersWithBullets(current, owl); 
+        if (bullet->getKilled()) { 
+            owl->shot();
+            if (owl->getLives() > 0) { 
+                bullet->setKilled(0);
+            } else {
+                *gameover = true;
+            }
+            poop->reset(owl); 
+            poop->update_state(owl);
+            draw(owl, list, poop, gui, renderer); 
+            break;
         }
-        poop->reset(owl);
-        poop->update_state(owl);
-        draw(owl, hunter, bullet, poop, gui, renderer);
+        current = current->next; // Move to next hunter
     }
 }
+
 
 void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *renderer, SDL_Texture* background)
 {
     Owl owl(renderer);
-    Hunter hunter(renderer);
     Poop poop(renderer);
     GUI gui(renderer);
-    while (!gameover)   
-    {
+
+    Node* hunterListHead = nullptr;
+    Hunter hunter1(renderer);
+    insertHunter(hunterListHead, hunter1);
+    Hunter hunter2(renderer);
+    insertHunter(hunterListHead, hunter2);
+    Hunter hunter3(renderer);
+    insertHunter(hunterListHead, hunter3);
+
+    while (!gameover) {
         int timeOnStart = SDL_GetTicks();
 
         owl.handle_keyboard(); // no need for the event variable, direct keyboard state polling
         SDL_Event event; // handle window closing
         handle_events(&event, &gameover);
-
-        update_game(&owl, &hunter, hunter.getBulletAdr(), &poop, &gui, renderer, &gameover);
-        draw(&owl, &hunter, hunter.getBulletAdr(), &poop, &gui, renderer);
+        update_game(&owl, hunterListHead, &poop, &gui, renderer, &gameover);
+        draw(&owl, hunterListHead, &poop, &gui, renderer);
         reduce_FPS(timeOnStart);
         (*frameCount)++;
         count_FPS(startTime, frameCount);
     }
-    
+    freeHunterList(hunterListHead);
 }
 
 int init_sdl(SDL_Window **window, SDL_Renderer **renderer, int width, int height)
@@ -182,7 +189,6 @@ int main()
     TTF_Init();
     
     bool gameover = false;
-
 
     srand(time(NULL));
 

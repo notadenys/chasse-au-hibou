@@ -119,6 +119,7 @@ struct Owl {
     {
         lives--;
         reset();
+        std::cout << "boom!" << std::endl;
     }
     private:
         double x = SCREEN_WIDTH/2 - OWL_WIDTH/2, y = 50; // coordinates of the character

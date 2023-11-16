@@ -1,74 +1,64 @@
 #include <cstdlib>
 
+#include "poop.hpp"
 #include "sprite.hpp"
 
 
-struct Bullet {
+class Bullet {
     public:
     Bullet(SDL_Renderer *renderer) : renderer(renderer), sprite(renderer, "bullet.bmp", BULLET_WIDTH){}
 
-    void draw()
-    {
+    void draw() {
         SDL_Rect src = sprite.rect(0);
         SDL_Rect dest = {int(x), int(y), BULLET_WIDTH, BULLET_HEIGHT};
         SDL_RenderCopyEx(renderer, sprite.texture, &src, &dest, angle*180/PI, nullptr, SDL_FLIP_NONE);
     }
 
     // while bullet is waiting for its time to be shot its position is linked to the hunter
-    void follow(double hunterX, double hunterY)
-    {
+    void follow(double hunterX, double hunterY) {
         x = hunterX + HUNTER_WIDTH/2 - BULLET_WIDTH/2;
         y = (hunterY + BULLET_HEIGHT);
     }
 
     // calculating an angle between the bullet and the owl
-    double getDestAngle(double owlX, double owlY)
-    {
+    double getDestAngle(double owlX, double owlY) {
         double l = (owlX + OWL_WIDTH/2) - (x + BULLET_WIDTH/2);
         if (l == 0) return 0;  
         double h = y - (owlY + OWL_HEIGHT/2);
         return atan(l/h);
     }
 
-    void move(double angle)
-    {
+    void move(double angle) {
         x += BULLET_SPEED * sin(angle);
         y -= BULLET_SPEED * cos(angle);
     }
 
-    void shoot(double owlX, double owlY)
-    {
+    void shoot(double owlX, double owlY) {
         // we set a delay for a bullet to be shot only after a certaint amount of time and not just after its return to hunter's position
-        if ((Clock::now()-shot_timestamp).count() > (SHOOTING_DELAY_MIN + ((double)rand() / RAND_MAX) * SHOOTING_DELAY_ADD) * 1000000000)
-        {
-
+        if ((Clock::now()-shot_timestamp).count() > (SHOOTING_DELAY_MIN + ((double)rand() / RAND_MAX) * SHOOTING_DELAY_ADD) * 1000000000) {
+            std::cout << "bam!" << std::endl;
             shot = true;
         }
     }
 
-    void handle_collision(double owlX, double owlY)
-    {
+    void handle_collision(double owlX, double owlY) {
         // if bullet goes out of the screen
-        if (y <= 0)
-        {
+        if (y <= 0) {
             shot = false;
             shot_timestamp = Clock::now();
         }
 
         // if bullet hits the owl
-        if (!(x > owlX + OWL_WIDTH || owlX > x + BULLET_WIDTH || y > owlY + OWL_HEIGHT || owlY > y + BULLET_HEIGHT))
-        {
+        if (!(x > owlX + OWL_WIDTH || owlX > x + BULLET_WIDTH || y > owlY + OWL_HEIGHT || owlY > y + BULLET_HEIGHT)) {
             killed = 1;
             shot = false;
             shot_timestamp = Clock::now();
         }
     }
 
-    void update_state(double hunterX, double hunterY, double owlX, double owlY)
-    {
+    void update_state(double hunterX, double hunterY, double owlX, double owlY) {
         handle_collision(owlX, owlY);
-        if (!shot)
-        {
+        if (!shot) {
             angle = getDestAngle(owlX, owlY);
             shoot(owlX, owlY);
             follow(hunterX, hunterY);
@@ -77,13 +67,11 @@ struct Bullet {
         }
     }
 
-    bool getKilled()
-    {
+    bool getKilled() {
         return killed;
     }
 
-    void setKilled(bool b)
-    {
+    void setKilled(bool b) {
         killed = b;
     }
 
@@ -110,8 +98,7 @@ struct Hunter {
             SDL_Rect src = sprite.rect(0);
             SDL_Rect dest = {int(x), int(y), HUNTER_WIDTH, HUNTER_HEIGHT};
             SDL_RenderCopyEx(renderer, sprite.texture, &src, &dest, 0, nullptr, SDL_FLIP_NONE);
-        }
-        else {
+        }else {
             x = 0;
             y = 0;
         }
@@ -129,7 +116,9 @@ struct Hunter {
         dead = dead_p;
     }
 
-    Bullet* getBulletAdr() {return &bullet;}
+    Bullet* getBulletAdr() {
+        return &bullet;
+    }
 
     private:    
     double x = rand() % (SCREEN_WIDTH - HUNTER_WIDTH), y = SCREEN_HEIGHT - HUNTER_HEIGHT; // coordinates of the character
@@ -142,3 +131,76 @@ struct Hunter {
 
     Bullet bullet; // bullet, linked to hunter
 };
+
+struct Node { // linked list, to store several hunters
+    public :
+    Hunter hunter;
+    Node* next;
+
+    Node(Hunter hunter) : hunter(hunter) {}
+};
+
+void insertHunter(Node* &head, Hunter hunter) {
+    Node* newNode = new Node(hunter);
+
+    newNode->next = head;
+    head = newNode;
+}
+
+void removeHunter(Node* &head, Hunter hunter) {
+    Node* current = head;
+    Node* previous = nullptr;
+    while (current != nullptr) {
+        if (current->hunter.getCoordX() == hunter.getCoordX() && current->hunter.getCoordY() == hunter.getCoordY()) {
+            if (previous == nullptr) {
+                head = current->next;
+            } else {
+                previous->next = current->next;
+            }
+            delete current;
+            break;
+        }
+        previous = current;
+        current = current->next;
+    }
+}
+
+void drawHunters(Node* &head) {
+    Node* current = head;
+    while (current != nullptr) {
+        std::cout << "Hunter Position: (" << current->hunter.getCoordX() << ", " << current->hunter.getCoordY() << ")\n";
+        current->hunter.getBulletAdr()->draw();
+        current->hunter.draw();
+        current = current->next;
+    }
+}
+
+void checkHunterCollision(Owl* owl, Node* &list, Poop* poop) {
+    Node* current = list;
+    while (current != nullptr) {
+        if((poop->getCoordY() >= current->hunter.getCoordY() - HUNTER_HEIGHT/3) &&
+         ((poop->getCoordX() >= current->hunter.getCoordX() - HUNTER_WIDTH) && 
+         (poop->getCoordX() <= current->hunter.getCoordX() + HUNTER_WIDTH))) {
+            removeHunter(list, current->hunter);
+            poop->reset(owl);
+        }
+        current = current->next;
+    }
+}
+
+void updateHuntersWithBullets(Node* &head, Owl* owl) {
+    Node* current = head;
+    while (current != nullptr) {
+        current->hunter.getBulletAdr()->update_state(current->hunter.getCoordX(), current->hunter.getCoordY(), owl->getCoordX(), owl->getCoordY());
+        current = current->next;
+    }
+}
+
+void freeHunterList(Node* &head) {
+    Node* current = head;
+    while (current != nullptr) {
+        Node* next = current->next;
+        delete current;
+        current = next;
+    }
+}
