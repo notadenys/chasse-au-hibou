@@ -137,17 +137,17 @@ struct Hunterlist { // linked list, to store several hunters
     Hunter hunter;
     Hunterlist* next;
 
-    Hunterlist(Hunter hunter) : hunter(hunter) {}
+    Hunterlist(Hunter& hunter) : hunter(hunter) {}
 };
 
-void insertHunter(Hunterlist* &head, Hunter hunter) {
+void insertHunter(Hunterlist* &head, Hunter& hunter) {
     Hunterlist* newHunterlist = new Hunterlist(hunter);
 
     newHunterlist->next = head;
     head = newHunterlist;
 }
 
-void removeHunter(Hunterlist* &head, Hunter hunter) {
+void removeHunter(Hunterlist* &head, Hunter& hunter) {
     Hunterlist* current_hunter = head;
     Hunterlist* previous = nullptr;
     while (current_hunter != nullptr) {
