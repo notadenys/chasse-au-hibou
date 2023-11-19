@@ -140,4 +140,24 @@ SDL_Texture *load_image(const char path[], SDL_Renderer *renderer)
     }
     return texture;
 }
+
+int countDigit(long long n) 
+{ 
+    if (n/10 == 0) 
+        return 1; 
+    return 1 + countDigit(n / 10); 
+} 
+
+/*applies integer on the screen*/
+void apply_text_int(SDL_Renderer *renderer, TTF_Font *font, SDL_Rect* rec, int text)
+{
+    char str[countDigit(text) + 1];
+    sprintf(str, "%d", text);
+    SDL_Surface* surfaceText = TTF_RenderText_Solid(font, str, {0, 0, 0});
+    SDL_Texture* textureText = SDL_CreateTextureFromSurface(renderer, surfaceText);
+    SDL_FreeSurface(surfaceText);
+    SDL_SetRenderDrawColor(renderer,0,0,0xFF,SDL_ALPHA_OPAQUE);
+    SDL_RenderCopy(renderer, textureText, NULL, rec);
+    SDL_DestroyTexture(textureText);
+}
 #endif

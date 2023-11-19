@@ -11,7 +11,7 @@ struct Map
         Map(SDL_Renderer *renderer) : renderer(renderer), 
         background(renderer, "background.bmp", SCREEN_WIDTH),
         ground(renderer, "ground.bmp", SCREEN_WIDTH), 
-        tree(renderer, "tree.bmp", TREE_WIDTH), 
+        tree(renderer, "tree.bmp", TREE_WIDTH),
         leaves(renderer, "leaves.bmp", LEAVES_WIDTH){}
 
         void draw_background()

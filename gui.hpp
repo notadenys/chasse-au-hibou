@@ -4,47 +4,55 @@
 struct GUI
 {
     public :
-    GUI(SDL_Renderer *renderer) : renderer(renderer), lives_sprite(renderer, "heart.bmp", HEART_WIDTH){}
+    GUI(SDL_Renderer *renderer) : renderer(renderer), lives_sprite(renderer, "heart.bmp", HEART_WIDTH), moon_sprite(renderer, "moon.bmp", MOON_SIZE){}
+
+    void draw(SDL_Renderer *renderer, int lives, int fps)
+    {
+        draw_lives();
+        apply_lives_text(renderer, lives);
+        apply_fps(renderer, fps);
+    }
 
     void draw_lives() 
     {
         SDL_Rect src = lives_sprite.rect(0);
-        SDL_Rect dest = {int(x), int(y), HEART_WIDTH*2, HEART_HEIGHT*2};
+        SDL_Rect dest = {int(livesX), int(livesY), HEART_WIDTH*2, HEART_HEIGHT*2};
         SDL_RenderCopy(renderer, lives_sprite.texture, &src, &dest);
+    }
+
+    void draw_moon()
+    {
+        SDL_Rect src = moon_sprite.rect(0);
+        SDL_Rect dest = {moonX, moonY, MOON_SIZE*20, MOON_SIZE*20};
+        SDL_RenderCopy(renderer, moon_sprite.texture, &src, &dest);
     }
 
     void apply_lives_text(SDL_Renderer *renderer, int lives)
     {
-        char str[2];
-        sprintf(str, "%d", lives);
-        SDL_Surface* surfaceText = TTF_RenderText_Solid(font, str, {0, 0, 0});
-        SDL_Texture* textureText = SDL_CreateTextureFromSurface(renderer,surfaceText);
-        SDL_FreeSurface(surfaceText);
         SDL_Rect rec = {60, 25, 50, 100};
-        SDL_SetRenderDrawColor(renderer,0,0,0xFF,SDL_ALPHA_OPAQUE);
-        SDL_RenderCopy(renderer, textureText, NULL, &rec);
-        SDL_DestroyTexture(textureText);
+        apply_text_int(renderer, font, &rec, lives);
     }
 
     void apply_fps(SDL_Renderer *renderer, int fps)
     {
-        char str_fps[2];
-        sprintf(str_fps, "%d", fps);
-        SDL_Surface* surfaceText = TTF_RenderText_Solid(font, str_fps, {0, 0, 0});
-        SDL_Texture* textureText = SDL_CreateTextureFromSurface(renderer,surfaceText);
-        SDL_FreeSurface(surfaceText);
         SDL_Rect rec = {SCREEN_WIDTH - 30 - 5, SCREEN_HEIGHT - 40, 30, 40};
-        SDL_SetRenderDrawColor(renderer,0,0,0xFF,SDL_ALPHA_OPAQUE);
-        SDL_RenderCopy(renderer, textureText, NULL, &rec);
-        SDL_DestroyTexture(textureText);
+        apply_text_int(renderer, font, &rec, fps);
+    }
+
+    void apply_score(SDL_Renderer *renderer, int score)
+    {
+        SDL_Rect rec = {moonX + MOON_SIZE*10 - countDigit(score)*27, moonY + 100, countDigit(score)*50, 100};
+        apply_text_int(renderer, font, &rec, score);
     }
 
 
     private:    
-    int x = 5, y = 5;
+    int livesX = 5, livesY = 5;
+    int moonX = 1200, moonY = 200;
     TTF_Font *font = TTF_OpenFont("resources/ARCADECLASSIC.ttf", 48);
 
     SDL_Renderer *renderer; // draw here
 
-    const Sprite lives_sprite; // hunter sprite
+    const Sprite lives_sprite;
+    const Sprite moon_sprite;
 };

@@ -14,6 +14,7 @@ using namespace std;
 int frameCount = 0; // Global frame count
 Uint32 startTime = 0; // Global start time
 int fps;
+int score = 0;
 
 
 void handle_events(SDL_Event* event, bool* gameover)
@@ -59,27 +60,39 @@ void count_FPS(Uint32* startTime, int* frameCount)
     }
 }
 
+void update_score(clock_t* timer)
+{
+    clock_t currentTime;
+    currentTime = clock();
+
+    if (double(currentTime - *timer) / TICKS_PER_SECOND > 1/SCORES_PER_SECOND)
+    {
+        score++;
+        *timer = clock();
+    }
+}
+
 void draw(Owl* owl, Hunter* hunter, Bullet* bullet, Poop* poop, GUI* gui, Map* map, SDL_Renderer *renderer)
 {
     SDL_RenderClear(renderer);
     map->draw_background();
+    gui->draw_moon();                   // moon is drawn separately to be behind the trees
+    gui->apply_score(renderer, score);
     poop->setHunterCoords(hunter);
     poop->draw();
     owl->draw();
-    hunter->setDead(poop->getHunterShot());
     hunter->draw();
     bullet->draw();
     map->draw();
-    gui->draw_lives();
-    gui->apply_lives_text(renderer, owl->getLives());
-    gui->apply_fps(renderer, fps);
+    gui->draw(renderer, owl->getLives(), fps);
     SDL_RenderPresent(renderer);
 }
 
 
 
-void update_game(Owl* owl, Hunter* hunter, Bullet* bullet, Poop* poop, GUI* gui, Map* map, SDL_Renderer *renderer, bool* gameover)
+void update_game(Owl* owl, Hunter* hunter, Bullet* bullet, Poop* poop, GUI* gui, Map* map, SDL_Renderer *renderer, bool* gameover, clock_t* timer)
 {
+
     owl->update_state(map);
     poop->update_state(owl);
     bullet->update_state(hunter->getCoordX(), hunter->getCoordY(), owl->getCoordX(), owl->getCoordY());
@@ -96,6 +109,9 @@ void update_game(Owl* owl, Hunter* hunter, Bullet* bullet, Poop* poop, GUI* gui,
         poop->update_state(owl);
         draw(owl, hunter, bullet, poop, gui, map, renderer);
     }
+    hunter->setDead(poop->getHunterShot());
+
+    update_score(timer);
 }
 
 void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *renderer)
@@ -105,8 +121,10 @@ void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *
     Poop poop(renderer);
     GUI gui(renderer);
     Map map(renderer);
+    clock_t timer;
 
     map.calculate_map();
+    timer = clock();
 
     while (!gameover)   
     {
@@ -116,7 +134,7 @@ void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *
         SDL_Event event; // handle window closing
         handle_events(&event, &gameover);
 
-        update_game(&owl, &hunter, hunter.getBulletAdr(), &poop, &gui, &map, renderer, &gameover);
+        update_game(&owl, &hunter, hunter.getBulletAdr(), &poop, &gui, &map, renderer, &gameover, &timer);
         draw(&owl, &hunter, hunter.getBulletAdr(), &poop, &gui, &map, renderer);
         reduce_FPS(timeOnStart);
         (*frameCount)++;

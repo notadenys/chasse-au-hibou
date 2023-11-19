@@ -129,6 +129,11 @@ struct Hunter {
         dead = dead_p;
     }
 
+    bool isDead()
+    {
+        return dead;
+    }
+
     Bullet* getBulletAdr() {return &bullet;}
 
     private:    
