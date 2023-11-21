@@ -113,12 +113,21 @@ struct Map
                 }
             }
 
+            if (groundY < 0)
+            {
+                throw std::invalid_argument("Ground is not defined");
+            }
+            if (owlX < 0)
+            {
+                throw std::invalid_argument("Owl is not defined");
+            }
+
             desallocate_tab_2D(tab, nbLig);
         }
 
     private:
         // coordinates of the objects on the screes (predefined -1)
-        int groundX = -1, groundY = -1;
+        int groundX = 0, groundY = -1;
         int owlX = -1, owlY = -1;
         int nbTrees = count_trees();
         int* treesX = new int(nbTrees);

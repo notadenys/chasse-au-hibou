@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream> 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
 #include "owl.hpp"
@@ -123,7 +124,16 @@ void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *
     Map map(renderer);
     clock_t timer;
 
-    map.calculate_map();
+    try
+    {
+        map.calculate_map();
+    }
+    catch(const std::exception& e)
+    {
+        std::cerr << e.what() << '\n';
+        gameover = 1;
+    }
+    
     timer = clock();
 
     while (!gameover)   
@@ -173,6 +183,10 @@ int main()
     srand(time(NULL));
 
     main_loop(gameover, &frameCount, &startTime, renderer);
+
+    ofstream MyFile("scores.txt");
+    MyFile << score << "\n";
+    MyFile.close();
 
     SDL_Delay(1000);
     SDL_DestroyRenderer(renderer);
