@@ -28,7 +28,7 @@ free a two-dimensional array, of n rows.
 */
 inline void desallocate_tab_2D(char** tab, int n) {
     for (int i = 0; i < n; ++i) {
-        free(tab[i]);
+        delete tab[i];
     }
 }
 

@@ -112,6 +112,8 @@ struct Map
                     }
                 }
             }
+
+            desallocate_tab_2D(tab, nbLig);
         }
 
     private:
