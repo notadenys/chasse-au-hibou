@@ -65,7 +65,7 @@ void update_score(clock_t* timer)
     clock_t currentTime;
     currentTime = clock();
 
-    if (double(currentTime - *timer) / TICKS_PER_SECOND > 1/SCORES_PER_SECOND)
+    if (double(currentTime - *timer) / TICKS_PER_SECOND > (1.0/SCORES_PER_SECOND))
     {
         score++;
         *timer = clock();
