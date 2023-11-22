@@ -73,12 +73,35 @@ void update_score(clock_t* timer)
     }
 }
 
-void draw(Owl* owl, Hunter* hunter, Bullet* bullet, Poop* poop, GUI* gui, Map* map, SDL_Renderer *renderer)
+void write_score()
+{
+    ofstream outfile;
+    outfile.open("scores.txt", std::ios_base::app); // append instead of overwrite
+    outfile << score << "\n";
+    outfile.close();
+}
+
+int read_highscore()
+{
+    fstream myfile("scores.txt", std::ios_base::in);
+
+    int num;
+    int max = 0;
+    while (myfile >> num)
+    {
+        max = (num > max) ? num : max;
+    }
+    return max;
+}
+
+
+void draw(Owl* owl, Hunter* hunter, Bullet* bullet, Poop* poop, GUI* gui, int highscore, Map* map, SDL_Renderer *renderer)
 {
     SDL_RenderClear(renderer);
     map->draw_background();
     gui->draw_moon();                   // moon is drawn separately to be behind the trees
     gui->apply_score(renderer, score);
+    gui->apply_highscore(renderer, highscore);
     poop->setHunterCoords(hunter);
     poop->draw();
     owl->draw();
@@ -91,7 +114,7 @@ void draw(Owl* owl, Hunter* hunter, Bullet* bullet, Poop* poop, GUI* gui, Map* m
 
 
 
-void update_game(Owl* owl, Hunter* hunter, Bullet* bullet, Poop* poop, GUI* gui, Map* map, SDL_Renderer *renderer, bool* gameover, clock_t* timer)
+void update_game(Owl* owl, Hunter* hunter, Bullet* bullet, Poop* poop, GUI* gui, int highscore, Map* map, SDL_Renderer *renderer, bool* gameover, clock_t* timer)
 {
 
     owl->update_state(map);
@@ -108,7 +131,7 @@ void update_game(Owl* owl, Hunter* hunter, Bullet* bullet, Poop* poop, GUI* gui,
         }
         poop->reset(owl);
         poop->update_state(owl);
-        draw(owl, hunter, bullet, poop, gui, map, renderer);
+        draw(owl, hunter, bullet, poop, gui, highscore, map, renderer);
     }
     hunter->setDead(poop->getHunterShot());
 
@@ -123,6 +146,8 @@ void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *
     GUI gui(renderer);
     Map map(renderer);
     clock_t timer;
+
+    int highscore = read_highscore();
 
     try
     {
@@ -144,8 +169,8 @@ void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *
         SDL_Event event; // handle window closing
         handle_events(&event, &gameover);
 
-        update_game(&owl, &hunter, hunter.getBulletAdr(), &poop, &gui, &map, renderer, &gameover, &timer);
-        draw(&owl, &hunter, hunter.getBulletAdr(), &poop, &gui, &map, renderer);
+        update_game(&owl, &hunter, hunter.getBulletAdr(), &poop, &gui, highscore, &map, renderer, &gameover, &timer);
+        draw(&owl, &hunter, hunter.getBulletAdr(), &poop, &gui, highscore, &map, renderer);
         reduce_FPS(timeOnStart);
         (*frameCount)++;
         count_FPS(startTime, frameCount);
@@ -179,14 +204,11 @@ int main()
     
     bool gameover = false;
 
-
     srand(time(NULL));
 
     main_loop(gameover, &frameCount, &startTime, renderer);
 
-    ofstream MyFile("scores.txt");
-    MyFile << score << "\n";
-    MyFile.close();
+    write_score();
 
     SDL_Delay(1000);
     SDL_DestroyRenderer(renderer);

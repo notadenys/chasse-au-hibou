@@ -160,4 +160,14 @@ void apply_text_int(SDL_Renderer *renderer, TTF_Font *font, SDL_Rect* rec, int t
     SDL_RenderCopy(renderer, textureText, NULL, rec);
     SDL_DestroyTexture(textureText);
 }
+
+void apply_text(SDL_Renderer *renderer, TTF_Font *font, SDL_Rect* rec, char* text)
+{
+    SDL_Surface* surfaceText = TTF_RenderText_Solid(font, text, {0, 0, 0});
+    SDL_Texture* textureText = SDL_CreateTextureFromSurface(renderer, surfaceText);
+    SDL_FreeSurface(surfaceText);
+    SDL_SetRenderDrawColor(renderer,0,0,0xFF,SDL_ALPHA_OPAQUE);
+    SDL_RenderCopy(renderer, textureText, NULL, rec);
+    SDL_DestroyTexture(textureText);
+}
 #endif
