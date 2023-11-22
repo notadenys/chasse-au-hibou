@@ -102,6 +102,7 @@ void draw(Owl* owl, Hunter* hunter, Bullet* bullet, Poop* poop, GUI* gui, int hi
     gui->draw_moon();                   // moon is drawn separately to be behind the trees
     gui->apply_score(renderer, score);
     gui->apply_highscore(renderer, highscore);
+    gui->draw_crown();
     poop->setHunterCoords(hunter);
     poop->draw();
     owl->draw();

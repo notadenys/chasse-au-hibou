@@ -4,7 +4,10 @@
 struct GUI
 {
     public :
-    GUI(SDL_Renderer *renderer) : renderer(renderer), lives_sprite(renderer, "heart.bmp", HEART_WIDTH), moon_sprite(renderer, "moon.bmp", 15){}
+    GUI(SDL_Renderer *renderer) : renderer(renderer), 
+                                  lives_sprite(renderer, "heart.bmp", HEART_WIDTH), 
+                                  moon_sprite(renderer, "moon.bmp", MOON_SIZE/20), 
+                                  crown_sprite(renderer, "crown.bmp", CROWN_WIDTH){}
 
     void draw(SDL_Renderer *renderer, int lives, int fps)
     {
@@ -27,6 +30,13 @@ struct GUI
         SDL_RenderCopy(renderer, moon_sprite.texture, &src, &dest);
     }
 
+    void draw_crown()
+    {
+        SDL_Rect src = crown_sprite.rect(0);
+        SDL_Rect dest = {moonX + MOON_SIZE/2 - CROWN_WIDTH/2, moonY + 195, CROWN_WIDTH, CROWN_HEIGHT};
+        SDL_RenderCopy(renderer, crown_sprite.texture, &src, &dest);
+    }
+
     void apply_lives_text(SDL_Renderer *renderer, int lives)
     {
         SDL_Rect rec = {60, 25, 50, 100};
@@ -47,14 +57,8 @@ struct GUI
 
     void apply_highscore(SDL_Renderer *renderer, int highscore)
     {
-        SDL_Rect rec = {moonX + MOON_SIZE/2 - (countDigit(highscore)*50 + 120) / 2, moonY + 190, countDigit(highscore)*50 + 100, 30};
-
-        char *highscoreString = (char*)malloc(sizeof(char) * 20);
-        sprintf(highscoreString, "HIGHSCORE %d", highscore);
-
-        apply_text(renderer, font, &rec, highscoreString);
-
-        free(highscoreString);
+        SDL_Rect rec = {moonX + MOON_SIZE/2 - countDigit(highscore)*25/2, moonY + 210, countDigit(highscore)*25, 50};
+        apply_text_int(renderer, font, &rec, highscore);
     }
 
 
@@ -67,4 +71,5 @@ struct GUI
 
     const Sprite lives_sprite;
     const Sprite moon_sprite;
+    const Sprite crown_sprite;
 };
