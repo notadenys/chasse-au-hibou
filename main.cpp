@@ -95,19 +95,18 @@ int read_highscore()
 }
 
 
-void draw(Owl* owl, Hunter* hunter, Bullet* bullet, Poop* poop, GUI* gui, int highscore, Map* map, SDL_Renderer *renderer)
+void draw(Owl* owl, Hunterlist * &list, Poop* poop, GUI* gui, int highscore, Map* map, SDL_Renderer *renderer)
 {
     SDL_RenderClear(renderer);
     map->draw_background();
+    checkHunterCollision(owl, list, poop);
     gui->draw_moon();                   // moon is drawn separately to be behind the trees
     gui->apply_score(renderer, score);
     gui->apply_highscore(renderer, highscore);
     gui->draw_crown();
-    poop->setHunterCoords(hunter);
     poop->draw();
     owl->draw();
-    hunter->draw();
-    bullet->draw();
+    drawHunters(list);
     map->draw();
     gui->draw(renderer, owl->getLives(), fps);
     SDL_RenderPresent(renderer);
@@ -115,38 +114,47 @@ void draw(Owl* owl, Hunter* hunter, Bullet* bullet, Poop* poop, GUI* gui, int hi
 
 
 
-void update_game(Owl* owl, Hunter* hunter, Bullet* bullet, Poop* poop, GUI* gui, int highscore, Map* map, SDL_Renderer *renderer, bool* gameover, clock_t* timer)
+void update_game(Owl* owl,  Hunterlist* list, Poop* poop, GUI* gui, int highscore, Map* map, SDL_Renderer *renderer, bool* gameover, clock_t* timer)
 {
 
     owl->update_state(map);
     poop->update_state(owl);
-    bullet->update_state(hunter->getCoordX(), hunter->getCoordY(), owl->getCoordX(), owl->getCoordY());
-    if (bullet->getKilled())
-    {
-        owl->shot();
-        if (owl->getLives() > 0) // when owl has no more lives left the game ends
-        {
-            bullet->setKilled(0);  // sends to Bullet the info that Owl is dead
-        } else {
-            *gameover = true;
+    Hunterlist* current_hunter = list;
+    while (current_hunter != nullptr) {
+        Bullet* bullet = current_hunter->hunter.getBulletAdr();
+        updateHuntersWithBullets(current_hunter, owl); 
+        if (bullet->getKilled()) { 
+            owl->shot();
+            if (owl->getLives() > 0) { 
+                bullet->setKilled(0);
+            } else {
+                *gameover = true;
+            }
+            poop->reset(owl); 
+            poop->update_state(owl);
+            draw(owl, list, poop, gui, highscore, map, renderer); 
+            break;
         }
-        poop->reset(owl);
-        poop->update_state(owl);
-        draw(owl, hunter, bullet, poop, gui, highscore, map, renderer);
+        current_hunter = current_hunter->next; // Move to next hunter
     }
-    hunter->setDead(poop->getHunterShot());
-
     update_score(timer);
 }
 
 void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *renderer)
 {
     Owl owl(renderer);
-    Hunter hunter(renderer);
     Poop poop(renderer);
     GUI gui(renderer);
     Map map(renderer);
     clock_t timer;
+
+    Hunterlist* hunterListHead = nullptr;
+    Hunter hunter1(renderer);
+    insertHunter(hunterListHead, hunter1);
+    Hunter hunter2(renderer);
+    insertHunter(hunterListHead, hunter2);
+    Hunter hunter3(renderer);
+    insertHunter(hunterListHead, hunter3);
 
     int highscore = read_highscore();
 
@@ -170,12 +178,13 @@ void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *
         SDL_Event event; // handle window closing
         handle_events(&event, &gameover);
 
-        update_game(&owl, &hunter, hunter.getBulletAdr(), &poop, &gui, highscore, &map, renderer, &gameover, &timer);
-        draw(&owl, &hunter, hunter.getBulletAdr(), &poop, &gui, highscore, &map, renderer);
+        update_game(&owl, hunterListHead, &poop, &gui, highscore, &map, renderer, &gameover, &timer);
+        draw(&owl, hunterListHead, &poop, &gui, highscore, &map, renderer);
         reduce_FPS(timeOnStart);
         (*frameCount)++;
         count_FPS(startTime, frameCount);
     }
+    freeHunterList(hunterListHead);
 }
 
 int init_sdl(SDL_Window **window, SDL_Renderer **renderer, int width, int height)

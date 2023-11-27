@@ -1,5 +1,7 @@
 #include "sprite.hpp"
 
+#ifndef POOP_HPP
+#define POOP_HPP
 
 struct Poop {
     public:
@@ -18,10 +20,12 @@ struct Poop {
         }
     }
 
-    void setHunterCoords(Hunter* hunter)
-    {
-        hX = hunter->getCoordX();
-        hY = hunter->getCoordY();
+    double getCoordY() {
+        return y;
+    }
+
+    double getCoordX() {
+        return x;
     }
 
     void handle_keyboard() {
@@ -32,25 +36,18 @@ struct Poop {
         }
     }
 
-    void update_state(Owl* owl)
-    {
+    void update_state(Owl* owl) {
         handle_keyboard();
-        if (pooped)
-        {
+        if (pooped) {
             y += POOP_SPEED;
         }
         if((y >= SCREEN_HEIGHT)) {
             reset(owl);
         }
-        else if(((y >= hY - HUNTER_HEIGHT/3) && ((x >= hX - HUNTER_WIDTH) && (x <= hX + HUNTER_WIDTH)))) {
-            shot = true;
-            reset(owl);
-        }
+        // else if(((y >= hY - HUNTER_HEIGHT/3) && ((x >= hX - HUNTER_WIDTH) && (x <= hX + HUNTER_WIDTH)))) {
+        //     reset(owl);
+        // }
         follow(owl->getCoordX());
-    }
-
-    bool getHunterShot() {
-        return shot;
     }
 
     void reset(Owl* owl)
@@ -64,12 +61,10 @@ struct Poop {
     double x = SCREEN_WIDTH/2 - POOP_WIDTH/2, y = 50 + POOP_HEIGHT/2;
 
     bool pooped = false;
-    bool shot = false;
 
-    double hX;
-    double hY;
 
     SDL_Renderer *renderer;
 
     const Sprite sprite;
 };
+#endif
