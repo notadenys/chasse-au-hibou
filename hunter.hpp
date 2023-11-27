@@ -1,4 +1,6 @@
 #include <cstdlib>
+#include <unistd.h>
+
 
 #include "poop.hpp"
 #include "sprite.hpp"
@@ -109,8 +111,20 @@ struct Hunter {
         return &bullet;
     }
 
+    void moveHunter() {
+        int random_move = rand() % 50;
+        int random_dir = rand() % 2;
+        std::cout << random_dir << std::endl;
+        if(random_dir == 0 && x < SCREEN_WIDTH - HUNTER_WIDTH - 250 && random_move == 0) {
+            x += HUNTER_SPEED;
+        }
+        if(random_dir == 1 && x > 250 && random_move == 0) {
+            x -= HUNTER_SPEED;
+        }
+    }
+
     private:    
-    double x = rand() % (SCREEN_WIDTH - HUNTER_WIDTH), y = SCREEN_HEIGHT - HUNTER_HEIGHT; // coordinates of the character
+    double x = 200 + rand() % (SCREEN_WIDTH - HUNTER_WIDTH - 300), y = SCREEN_HEIGHT - HUNTER_HEIGHT; // coordinates of the character
 
     SDL_Renderer *renderer; // draw here
 
@@ -200,6 +214,14 @@ void checkHunterCollision(Owl* owl, Hunterlist* &head, Poop* poop) {
             }
             poop->reset(owl);
         }
+        current_hunter = current_hunter->next;
+    }
+}
+
+void moveHunters(Hunterlist* &head) {
+    Hunterlist* current_hunter = head;
+    while (current_hunter != nullptr) {
+        current_hunter->hunter.moveHunter();
         current_hunter = current_hunter->next;
     }
 }

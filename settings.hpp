@@ -11,9 +11,10 @@
 #define OWL_LIVES_ON_START 3
 #define HUNTER_WIDTH 75
 #define HUNTER_HEIGHT 150
+#define HUNTER_SPEED 25
 #define BULLET_HEIGHT 20
 #define BULLET_WIDTH 10
-#define BULLET_SPEED 1
+#define BULLET_SPEED 5
 #define SHOOTING_DELAY_MIN 0.5  // in seconds
 #define SHOOTING_DELAY_ADD 5 // in seconds
 #define POOP_WIDTH 59

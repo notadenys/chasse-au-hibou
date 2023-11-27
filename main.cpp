@@ -106,6 +106,7 @@ void draw(Owl* owl, Hunterlist * &list, Poop* poop, GUI* gui, int highscore, Map
     gui->draw_crown();
     poop->draw();
     owl->draw();
+    moveHunters(list);
     drawHunters(list);
     map->draw();
     gui->draw(renderer, owl->getLives(), fps);
