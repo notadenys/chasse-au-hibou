@@ -37,7 +37,8 @@ class Bullet {
 
     void shoot(double owlX, double owlY) {
         // we set a delay for a bullet to be shot only after a certaint amount of time and not just after its return to hunter's position
-        if ((Clock::now()-shot_timestamp).count() > (SHOOTING_DELAY_MIN + ((double)rand() / RAND_MAX) * SHOOTING_DELAY_ADD) * 1000000000) {
+        if (std::chrono::duration<double>(Clock::now()-shot_timestamp).count() > shooting_delay) {
+            reset_shooting_delay();
             shot = true;
         }
     }
@@ -68,6 +69,11 @@ class Bullet {
         }
     }
 
+    void reset_shooting_delay()
+    {
+        shooting_delay = (SHOOTING_DELAY_MIN + ((double)rand() / RAND_MAX) * SHOOTING_DELAY_MAX);
+    }
+
     bool getKilled() {
         return killed;
     }
@@ -84,6 +90,7 @@ class Bullet {
     bool killed = 0;
     double angle = 0;
     TimeStamp shot_timestamp = Clock::now();
+    double shooting_delay = (SHOOTING_DELAY_MIN + ((double)rand() / RAND_MAX) * SHOOTING_DELAY_MAX);
 
     SDL_Renderer *renderer;   // draw here
 
@@ -114,7 +121,6 @@ struct Hunter {
     void moveHunter() {
         int random_move = rand() % 50;
         int random_dir = rand() % 2;
-        std::cout << random_dir << std::endl;
         if(random_dir == 0 && x < SCREEN_WIDTH - HUNTER_WIDTH - 250 && random_move == 0) {
             x += HUNTER_SPEED;
         }
@@ -226,12 +232,12 @@ void moveHunters(Hunterlist* &head) {
     }
 }
 
-void updateHuntersWithBullets(Hunterlist* &head, Owl* owl) {
+void updateHunterWithBullet(Hunterlist* &head, Owl* owl) {
     Hunterlist* current_hunter = head;
-    while (current_hunter != nullptr) {
-        if (current_hunter->hunter.getBulletAdr() != nullptr) {
-            current_hunter->hunter.getBulletAdr()->update_state(current_hunter->hunter.getCoordX(), current_hunter->hunter.getCoordY(), owl->getCoordX(), owl->getCoordY());
-        }
-        current_hunter = current_hunter->next;
+    Bullet* bullet = current_hunter->hunter.getBulletAdr();
+
+    if (bullet != nullptr) 
+    {
+        bullet->update_state(current_hunter->hunter.getCoordX(), current_hunter->hunter.getCoordY(), owl->getCoordX(), owl->getCoordY());
     }
 }

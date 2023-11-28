@@ -43,7 +43,7 @@ struct Owl {
         {
             set_state(REST);
         }
-        if ((state==REST || state==FLIGHT) && kbstate[SDL_SCANCODE_LSHIFT] && (Clock::now()-dash_timestamp).count() > OWL_DASH_DELAY * 1000000000)  // OWL_DASH_DELAY is in seconds
+        if ((state==REST || state==FLIGHT) && kbstate[SDL_SCANCODE_LSHIFT] && std::chrono::duration<double>(Clock::now()-dash_timestamp).count() > OWL_DASH_DELAY)  // OWL_DASH_DELAY is in seconds
         {
             if (kbstate[SDL_SCANCODE_A] || kbstate[SDL_SCANCODE_D])
             {
@@ -52,7 +52,7 @@ struct Owl {
                 dash_timestamp = Clock::now();
             }
         }
-        if (state == DASH && (Clock::now()-timestamp).count() > OWL_DASH_TIME * 1000000000)  // OWL_DASH_TIME is in seconds
+        if (state == DASH && std::chrono::duration<double>(Clock::now()-timestamp).count() > OWL_DASH_TIME)  // OWL_DASH_TIME is in seconds
         {
             set_state(REST);
         }

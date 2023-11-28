@@ -14,9 +14,9 @@
 #define HUNTER_SPEED 25
 #define BULLET_HEIGHT 20
 #define BULLET_WIDTH 10
-#define BULLET_SPEED 5
-#define SHOOTING_DELAY_MIN 0.5  // in seconds
-#define SHOOTING_DELAY_ADD 5 // in seconds
+#define BULLET_SPEED 10
+#define SHOOTING_DELAY_MIN 0.1  // in seconds
+#define SHOOTING_DELAY_MAX 1 // in seconds
 #define POOP_WIDTH 59
 #define POOP_HEIGHT 60
 #define POOP_SPEED 20

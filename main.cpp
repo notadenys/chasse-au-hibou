@@ -121,9 +121,11 @@ void update_game(Owl* owl,  Hunterlist* list, Poop* poop, GUI* gui, int highscor
     owl->update_state(map);
     poop->update_state(owl);
     Hunterlist* current_hunter = list;
+    // we iterate througt the list of hunters while it exists
     while (current_hunter != nullptr) {
         Bullet* bullet = current_hunter->hunter.getBulletAdr();
-        updateHuntersWithBullets(current_hunter, owl); 
+        updateHunterWithBullet(current_hunter, owl); 
+        
         if (bullet->getKilled()) { 
             owl->shot();
             if (owl->getLives() > 0) { 
