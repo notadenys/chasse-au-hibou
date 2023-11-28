@@ -4,6 +4,7 @@
 
 #include "poop.hpp"
 #include "sprite.hpp"
+#include "map.hpp"
 
 
 class Bullet {
@@ -118,18 +119,18 @@ struct Hunter {
         return &bullet;
     }
 
-    void moveHunter() {
+    void moveHunter(Map* map) {
         int change_dir = rand() % 100;
-        if(change_dir == 0 && direction == 0) {
+        if((change_dir == 0 && direction == 0) || (map->right_collision(x, HUNTER_WIDTH) && direction == 0)) {
             direction = 1;
         }
-        else if(change_dir == 0 && direction == 1) {
+        else if((change_dir == 0 && direction == 1) || (map->left_collision(x, HUNTER_WIDTH) && direction == 1)) {
             direction = 0;
         }
-        if(direction == 0 && x < SCREEN_WIDTH - HUNTER_WIDTH - 200) {
+        if(direction == 0) {
             x += HUNTER_SPEED;
         }
-        if(direction == 1 && x > 200 ) {
+        if(direction == 1) {
             x -= HUNTER_SPEED;
         }
     }
@@ -230,10 +231,10 @@ void checkHunterCollision(Owl* owl, Hunterlist* &head, Poop* poop) {
     }
 }
 
-void moveHunters(Hunterlist* &head) {
+void moveHunters(Hunterlist* &head, Map* map) {
     Hunterlist* current_hunter = head;
     while (current_hunter != nullptr) {
-        current_hunter->hunter.moveHunter();
+        current_hunter->hunter.moveHunter(map);
         current_hunter = current_hunter->next;
     }
 }
