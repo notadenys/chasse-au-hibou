@@ -73,27 +73,23 @@ void update_score(clock_t* timer)
     }
 }
 
-void write_score()
-{
-    ofstream outfile;
-    outfile.open("scores.txt", std::ios_base::app); // append instead of overwrite
-    outfile << score << "\n";
-    outfile.close();
-}
-
-int read_highscore()
+int read_score()
 {
     fstream myfile("scores.txt", std::ios_base::in);
-
     int num;
-    int max = 0;
-    while (myfile >> num)
-    {
-        max = (num > max) ? num : max;
-    }
-    return max;
+    myfile >> num;
+    
+    return num;
 }
 
+void write_score() {
+    
+    if (score > read_score()){
+        ofstream outfile("scores.txt", std::ios_base::trunc);
+        outfile << score << "\n";
+        outfile.close();
+    }
+}
 
 void draw(Owl* owl, Hunterlist * &list, Poop* poop, GUI* gui, int highscore, Map* map, SDL_Renderer *renderer)
 {
@@ -112,8 +108,6 @@ void draw(Owl* owl, Hunterlist * &list, Poop* poop, GUI* gui, int highscore, Map
     gui->draw(renderer, owl->getLives(), fps);
     SDL_RenderPresent(renderer);
 }
-
-
 
 void update_game(Owl* owl,  Hunterlist* list, Poop* poop, GUI* gui, int highscore, Map* map, SDL_Renderer *renderer, bool* gameover, clock_t* timer)
 {
@@ -143,6 +137,11 @@ void update_game(Owl* owl,  Hunterlist* list, Poop* poop, GUI* gui, int highscor
     update_score(timer);
 }
 
+void startscreen(GUI* gui, SDL_Renderer *renderer)
+{
+
+}
+
 void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *renderer)
 {
     Owl owl(renderer);
@@ -159,7 +158,7 @@ void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *
     Hunter hunter3(renderer);
     insertHunter(hunterListHead, hunter3);
 
-    int highscore = read_highscore();
+    int highscore = read_score();
 
     try
     {
@@ -168,8 +167,9 @@ void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *
     catch(const std::exception& e)
     {
         std::cerr << e.what() << '\n';
-        gameover = 1;
     }
+
+    startscreen(&gui, renderer);
     
     timer = clock();
 
@@ -226,6 +226,6 @@ int main()
     SDL_Delay(1000);
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
-    SDL_Quit();    
+    SDL_Quit();
     return 0;
 }

@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <cctype>
 #include <SDL2/SDL_ttf.h>
 
 #ifndef GAME_SUPPORT_HPP
@@ -109,13 +110,17 @@ inline char** lire_fichier(const char* fileName) {
                     c = fgetc(file);
                 }
             } else {
+                if (c != '0' && c != '1' && c != '2' && c != '3')
+                {
+                    throw std::invalid_argument("Invalid character");
+                }
                 tab[lig][col] = c;
                 col++;
             }
         } while (c != EOF);
         fclose(file);
     } else {
-        printf("file introuvable ??????");
+        printf("File is not found");
     }
     return tab;
 }

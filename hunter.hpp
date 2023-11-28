@@ -135,6 +135,11 @@ struct Hunter {
         }
     }
 
+    void setY(int h)
+    {
+        y = h;
+    }
+
     private:    
     double x = LEAVES_WIDTH + rand() % (SCREEN_WIDTH - HUNTER_WIDTH - LEAVES_WIDTH), y = SCREEN_HEIGHT - HUNTER_HEIGHT; // coordinates of the character
 
