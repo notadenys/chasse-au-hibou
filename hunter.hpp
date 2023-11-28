@@ -119,18 +119,25 @@ struct Hunter {
     }
 
     void moveHunter() {
-        int random_move = rand() % 50;
-        int random_dir = rand() % 2;
-        if(random_dir == 0 && x < SCREEN_WIDTH - HUNTER_WIDTH - 250 && random_move == 0) {
+        int change_dir = rand() % 100;
+        if(change_dir == 0 && direction == 0) {
+            direction = 1;
+        }
+        else if(change_dir == 0 && direction == 1) {
+            direction = 0;
+        }
+        if(direction == 0 && x < SCREEN_WIDTH - HUNTER_WIDTH - 200) {
             x += HUNTER_SPEED;
         }
-        if(random_dir == 1 && x > 250 && random_move == 0) {
+        if(direction == 1 && x > 200 ) {
             x -= HUNTER_SPEED;
         }
     }
 
     private:    
-    double x = 200 + rand() % (SCREEN_WIDTH - HUNTER_WIDTH - 300), y = SCREEN_HEIGHT - HUNTER_HEIGHT; // coordinates of the character
+    double x = LEAVES_WIDTH + rand() % (SCREEN_WIDTH - HUNTER_WIDTH - LEAVES_WIDTH), y = SCREEN_HEIGHT - HUNTER_HEIGHT; // coordinates of the character
+
+    int direction = rand() % 2;
 
     SDL_Renderer *renderer; // draw here
 
@@ -176,8 +183,7 @@ void removeHunter(Hunterlist* &head, Hunter& hunter) {
                         delete current_hunter;
                     }
                     else {
-                        Hunterlist* next = current_hunter->next;
-                        head = next;
+                        head = current_hunter->next;
                         delete current_hunter;
                         
                     }
