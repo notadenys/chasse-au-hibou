@@ -97,13 +97,27 @@ struct Map
                     switch (tab[i][j])
                     {
                         case '1':  // ground
-                            groundY = (groundY < 0) ? (SCREEN_HEIGHT / nbLig) * i : groundY;  // coordinates are set by the first occurence of 1
+                            if (groundY < 0)
+                            {
+                                groundY = (SCREEN_HEIGHT / nbLig) * i;
+                            }
+                            else
+                            {
+                                throw std::invalid_argument("Redefinition of ground");
+                            }
                             break;
 
                         case '2':  // owl
                             // coordinates are set by the first occurence of 2
-                            owlX = (owlX < 0) ? (SCREEN_WIDTH / nbCol) * j : owlX;
-                            owlY = (owlY < 0) ? (SCREEN_HEIGHT / nbLig) * i : owlY;
+                            if (owlX < 0)
+                            {
+                                owlX = (SCREEN_WIDTH / nbCol) * j;
+                                owlY = (SCREEN_HEIGHT / nbLig) * i;
+                            }
+                            else
+                            {
+                                throw std::invalid_argument("Redefinition of owl");
+                            }
                             break;
 
                         case '3':  //trees

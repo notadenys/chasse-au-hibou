@@ -73,19 +73,24 @@ void update_score(clock_t* timer)
     }
 }
 
-int read_score()
+int read_highscore()
 {
-    fstream myfile("scores.txt", std::ios_base::in);
+    fstream myfile("highscore.txt", std::ios_base::in);
     int num;
-    myfile >> num;
-    
+    if (!myfile.is_open()) {
+        num = 0; // Set highscore to 0 if file doesn't exist
+    } else {
+        myfile >> num; // Read highscore from the file
+    }
+    myfile.close(); // Close the file
+
     return num;
 }
 
-void write_score() {
-    
-    if (score > read_score()){
-        ofstream outfile("scores.txt", std::ios_base::trunc);
+void write_highscore() 
+{
+    if (score > read_highscore()){
+        ofstream outfile("highscore.txt", std::ios_base::trunc);
         outfile << score << "\n";
         outfile.close();
     }
@@ -158,7 +163,7 @@ void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *
     Hunter hunter3(renderer);
     insertHunter(hunterListHead, hunter3);
 
-    int highscore = read_score();
+    int highscore = read_highscore();
 
     try
     {
@@ -221,7 +226,7 @@ int main()
 
     main_loop(gameover, &frameCount, &startTime, renderer);
 
-    write_score();
+    write_highscore();
 
     SDL_Delay(1000);
     SDL_DestroyRenderer(renderer);
