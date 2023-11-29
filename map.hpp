@@ -96,20 +96,37 @@ struct Map
                 {
                     switch (tab[i][j])
                     {
-                    case '1':  // ground
-                        groundY = (groundY < 0) ? (SCREEN_HEIGHT / nbLig) * i : groundY;  // coordinates are set by the first occurence of 1
-                        break;
-                    case '2':  // owl
-                        // coordinates are set by the first occurence of 2
-                        owlX = (owlX < 0) ? (SCREEN_WIDTH / nbCol) * j : owlX;
-                        owlY = (owlY < 0) ? (SCREEN_HEIGHT / nbLig) * i : owlY;
-                        break;
-                    case '3':  //trees
-                        treesX[nbTreesBuilt] = SCREEN_WIDTH / nbCol * j;
-                        nbTreesBuilt++;
-                    default:
-                        break;
-                    }
+                        case '1':  // ground
+                            if (groundY < 0)
+                            {
+                                groundY = (SCREEN_HEIGHT / nbLig) * i;
+                            }
+                            else
+                            {
+                                throw std::invalid_argument("Redefinition of ground");
+                            }
+                            break;
+
+                        case '2':  // owl
+                            // coordinates are set by the first occurence of 2
+                            if (owlX < 0)
+                            {
+                                owlX = (SCREEN_WIDTH / nbCol) * j;
+                                owlY = (SCREEN_HEIGHT / nbLig) * i;
+                            }
+                            else
+                            {
+                                throw std::invalid_argument("Redefinition of owl");
+                            }
+                            break;
+
+                        case '3':  //trees
+                            treesX[nbTreesBuilt] = SCREEN_WIDTH / nbCol * j;
+                            nbTreesBuilt++;
+
+                        default:
+                            break;
+                        }
                 }
             }
 
@@ -123,6 +140,11 @@ struct Map
             }
 
             desallocate_tab_2D(tab, nbLig);
+        }
+
+        int get_groundY()
+        {
+            return groundY;
         }
 
     private:

@@ -76,27 +76,28 @@ int update_score(clock_t* timer)
     return score;
 }
 
-void write_score()
-{
-    ofstream outfile;
-    outfile.open("scores.txt", std::ios_base::app); // append instead of overwrite
-    outfile << score << "\n";
-    outfile.close();
-}
-
 int read_highscore()
 {
-    fstream myfile("scores.txt", std::ios_base::in);
-
+    fstream myfile("highscore.txt", std::ios_base::in);
     int num;
-    int max = 0;
-    while (myfile >> num)
-    {
-        max = (num > max) ? num : max;
+    if (!myfile.is_open()) {
+        num = 0; // Set highscore to 0 if file doesn't exist
+    } else {
+        myfile >> num; // Read highscore from the file
     }
-    return max;
+    myfile.close(); // Close the file
+
+    return num;
 }
 
+void write_highscore() 
+{
+    if (score > read_highscore()){
+        ofstream outfile("highscore.txt", std::ios_base::trunc);
+        outfile << score << "\n";
+        outfile.close();
+    }
+}
 
 void draw(Owl* owl, Hunterlist * &list, Poop* poop, GUI* gui, int highscore, Map* map, SDL_Renderer *renderer)
 {
@@ -104,19 +105,17 @@ void draw(Owl* owl, Hunterlist * &list, Poop* poop, GUI* gui, int highscore, Map
     map->draw_background();
     checkHunterCollision(owl, list, poop, renderer);
     gui->draw_moon();                   // moon is drawn separately to be behind the trees
-    gui->apply_score(renderer, score);
-    gui->apply_highscore(renderer, highscore);
+    gui->apply_score(score);
+    gui->apply_highscore(highscore);
     gui->draw_crown();
     poop->draw();
     owl->draw();
     moveHunters(map, list);
     drawHunters(list);
     map->draw();
-    gui->draw(renderer, owl->getLives(), fps);
+    gui->draw(owl->getLives(), fps);
     SDL_RenderPresent(renderer);
 }
-
-
 
 void update_game(Owl* owl,  Hunterlist* list, Poop* poop, GUI* gui, int highscore, Map* map, SDL_Renderer *renderer, bool* gameover, clock_t* timer)
 {
@@ -146,6 +145,69 @@ void update_game(Owl* owl,  Hunterlist* list, Poop* poop, GUI* gui, int highscor
     update_score(timer);
 }
 
+void handle_startscreen_events(GUI* gui, SDL_Event* event, bool* gameover, bool* continueStartscreen)
+{
+    while (SDL_PollEvent(event))
+    {
+        switch (event->type)
+        {
+        case SDL_QUIT:
+            *continueStartscreen = false;
+            *gameover = true;
+            break;
+
+        case SDL_KEYDOWN:
+            if (event->key.keysym.sym == SDLK_ESCAPE)    // ESC to exit
+            {
+                *continueStartscreen = false;
+                *gameover = true;
+            }
+            break;
+
+        case SDL_MOUSEBUTTONDOWN:
+            int x, y;
+            SDL_GetMouseState(&x, &y);
+
+            if (event->button.button == SDL_BUTTON_LEFT)
+            {
+                if (x > gui->getButtonsX() && x < gui->getButtonsX() + BUTTON_WIDTH)
+                {
+                    if (y > gui->getPlayY() && y < gui->getPlayY() + BUTTON_HEIGHT)
+                    {
+                        *continueStartscreen = false;
+                    }
+                    if (y > gui->getCreditsY() && y < gui->getCreditsY() + BUTTON_HEIGHT)
+                    {
+                        // to complete
+                    }
+                    if (y > gui->getExitY() && y < gui->getExitY() + BUTTON_HEIGHT)
+                    {
+                        *continueStartscreen = false;
+                        *gameover = true;
+                    }
+                }
+            }
+        
+        default:
+            break;
+        }
+    }
+}
+
+void startscreen(Map* map, GUI* gui, bool* gameover, SDL_Renderer *renderer)
+{
+    bool continueStartscreen = 1;
+
+    map->draw_background();
+    gui->draw_buttons();
+    SDL_RenderPresent(renderer);
+    while(continueStartscreen)
+    {
+        SDL_Event event;
+        handle_startscreen_events(gui, &event, gameover, &continueStartscreen);
+    }
+}
+
 void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *renderer)
 {
     Owl owl(renderer);
@@ -169,8 +231,9 @@ void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *
     catch(const std::exception& e)
     {
         std::cerr << e.what() << '\n';
-        gameover = 1;
     }
+
+    startscreen(&map, &gui, &gameover, renderer);
     
     timer = clock();
 
@@ -227,11 +290,11 @@ int main()
 
     main_loop(gameover, &frameCount, &startTime, renderer);
 
-    write_score();
+    write_highscore();
 
     SDL_Delay(1000);
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
-    SDL_Quit();    
+    SDL_Quit();
     return 0;
 }
