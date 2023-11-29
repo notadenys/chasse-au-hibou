@@ -98,6 +98,8 @@ class Bullet {
     const Sprite sprite;      // hunter sprite
 };
 
+struct Hunterlist;
+
 struct Hunter {
     public :
     Hunter(SDL_Renderer *renderer) : renderer(renderer), sprite(renderer, "hunter.bmp", HUNTER_WIDTH), bullet(renderer){}
@@ -119,7 +121,7 @@ struct Hunter {
         return &bullet;
     }
 
-    void moveHunter(Map* map) {
+    void moveHunter(Map* map, Hunterlist* list) {
         int change_dir = rand() % 100;
         if((change_dir == 0 && direction == 0) || (map->right_collision(x, HUNTER_WIDTH) && direction == 0)) {
             direction = 1;
@@ -136,7 +138,7 @@ struct Hunter {
     }
 
     private:    
-    double x = LEAVES_WIDTH + rand() % (SCREEN_WIDTH - HUNTER_WIDTH - LEAVES_WIDTH), y = SCREEN_HEIGHT - HUNTER_HEIGHT; // coordinates of the character
+    double x = LEAVES_WIDTH + rand() % (SCREEN_WIDTH - HUNTER_WIDTH - LEAVES_WIDTH*2), y = SCREEN_HEIGHT - HUNTER_HEIGHT; // coordinates of the character
 
     int direction = rand() % 2;
 
@@ -151,8 +153,10 @@ struct Hunterlist { // linked list, to store several hunters
     public :
     Hunter hunter;
     Hunterlist* next;
+    int number = 3;
 
     Hunterlist(Hunter& hunter) : hunter(hunter) {}
+    
 };
 
 void insertHunter(Hunterlist* &head, Hunter& hunter) {
@@ -160,6 +164,22 @@ void insertHunter(Hunterlist* &head, Hunter& hunter) {
 
     newHunterlist->next = head;
     head = newHunterlist;
+}
+
+void addHunter(Hunterlist* &head, SDL_Renderer *renderer) {
+    Hunter* hunter = new Hunter(renderer);
+    insertHunter(head, *hunter);
+}
+
+int getNum(Hunterlist* head) {
+    return head->number;
+}
+
+void createHunters(int numHunters, Hunterlist* &head, SDL_Renderer* renderer) {
+    for (int i = 0; i < numHunters; i++) {
+        Hunter* hunter = new Hunter(renderer);
+        insertHunter(head, *hunter);
+    }
 }
 
 void freeHunterList(Hunterlist* &head) {
@@ -171,8 +191,7 @@ void freeHunterList(Hunterlist* &head) {
     }
 }
 
-
-void removeHunter(Hunterlist* &head, Hunter& hunter) {
+void removeHunter(Hunterlist* &head, Hunter& hunter, SDL_Renderer *renderer) {
     Hunterlist* current_hunter = head;
     Hunterlist* previous_hunter = nullptr;
     while (current_hunter != nullptr) {
@@ -206,7 +225,6 @@ void removeHunter(Hunterlist* &head, Hunter& hunter) {
     }
 }
 
-
 void drawHunters(Hunterlist* &head) {
     Hunterlist* current_hunter = head;
     while (current_hunter != nullptr) {
@@ -216,14 +234,14 @@ void drawHunters(Hunterlist* &head) {
     }
 }
 
-void checkHunterCollision(Owl* owl, Hunterlist* &head, Poop* poop) {
+void checkHunterCollision(Owl* owl, Hunterlist* &head, Poop* poop, SDL_Renderer *renderer) {
     Hunterlist* current_hunter = head;
     while (current_hunter != nullptr) {
         if((poop->getCoordY() >= current_hunter->hunter.getCoordY() - HUNTER_HEIGHT/3) &&
          ((poop->getCoordX() >= current_hunter->hunter.getCoordX() - HUNTER_WIDTH) && 
          (poop->getCoordX() <= current_hunter->hunter.getCoordX() + HUNTER_WIDTH))) {
             if (head != NULL){
-                removeHunter(head, current_hunter->hunter);
+                removeHunter(head, current_hunter->hunter, renderer);
             }
             poop->reset(owl);
         }
@@ -231,10 +249,10 @@ void checkHunterCollision(Owl* owl, Hunterlist* &head, Poop* poop) {
     }
 }
 
-void moveHunters(Hunterlist* &head, Map* map) {
+void moveHunters(Map* map, Hunterlist* &head) {
     Hunterlist* current_hunter = head;
     while (current_hunter != nullptr) {
-        current_hunter->hunter.moveHunter(map);
+        current_hunter->hunter.moveHunter(map, head);
         current_hunter = current_hunter->next;
     }
 }

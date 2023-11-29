@@ -2,6 +2,8 @@
 #include <fstream> 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
+#include <chrono>
+#include <thread>
 #include "owl.hpp"
 #include "hunter.hpp"
 #include "settings.hpp"
@@ -61,7 +63,7 @@ void count_FPS(Uint32* startTime, int* frameCount)
     }
 }
 
-void update_score(clock_t* timer)
+int update_score(clock_t* timer)
 {
     clock_t currentTime;
     currentTime = clock();
@@ -71,6 +73,7 @@ void update_score(clock_t* timer)
         score++;
         *timer = clock();
     }
+    return score;
 }
 
 void write_score()
@@ -99,14 +102,14 @@ void draw(Owl* owl, Hunterlist * &list, Poop* poop, GUI* gui, int highscore, Map
 {
     SDL_RenderClear(renderer);
     map->draw_background();
-    checkHunterCollision(owl, list, poop);
+    checkHunterCollision(owl, list, poop, renderer);
     gui->draw_moon();                   // moon is drawn separately to be behind the trees
     gui->apply_score(renderer, score);
     gui->apply_highscore(renderer, highscore);
     gui->draw_crown();
     poop->draw();
     owl->draw();
-    moveHunters(list, map);
+    moveHunters(map, list);
     drawHunters(list);
     map->draw();
     gui->draw(renderer, owl->getLives(), fps);
@@ -152,12 +155,10 @@ void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *
     clock_t timer;
 
     Hunterlist* hunterListHead = nullptr;
-    Hunter hunter1(renderer);
-    insertHunter(hunterListHead, hunter1);
-    Hunter hunter2(renderer);
-    insertHunter(hunterListHead, hunter2);
-    Hunter hunter3(renderer);
-    insertHunter(hunterListHead, hunter3);
+    createHunters(3, hunterListHead, renderer);
+
+    TimeStamp spawn_timestamp = Clock::now();
+    int spawn_delay = HUNTER_SPAWN_DELAY;
 
     int highscore = read_highscore();
 
@@ -186,6 +187,11 @@ void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *
         reduce_FPS(timeOnStart);
         (*frameCount)++;
         count_FPS(startTime, frameCount);
+        if(update_score(&timer) % 5 == 0 && (std::chrono::duration<double>(Clock::now()-spawn_timestamp).count() > spawn_delay)) {
+            addHunter(hunterListHead, renderer);
+            spawn_timestamp = Clock::now();
+            spawn_delay = HUNTER_SPAWN_DELAY;
+        }
     }
     freeHunterList(hunterListHead);
 }
