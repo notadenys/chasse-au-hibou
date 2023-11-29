@@ -158,7 +158,6 @@ struct Hunterlist { // linked list, to store several hunters
     public :
     Hunter hunter;
     Hunterlist* next;
-    int number = 3;
 
     Hunterlist(Hunter& hunter) : hunter(hunter) {}
     
@@ -174,10 +173,6 @@ void insertHunter(Hunterlist* &head, Hunter& hunter) {
 void addHunter(Hunterlist* &head, SDL_Renderer *renderer) {
     Hunter* hunter = new Hunter(renderer);
     insertHunter(head, *hunter);
-}
-
-int getNum(Hunterlist* head) {
-    return head->number;
 }
 
 void createHunters(int numHunters, Hunterlist* &head, SDL_Renderer* renderer) {
@@ -210,7 +205,6 @@ void removeHunter(Hunterlist* &head, Hunter& hunter, SDL_Renderer *renderer) {
                     else {
                         head = current_hunter->next;
                         delete current_hunter;
-                        
                     }
                 }
                 else if(current_hunter->next == nullptr) {
@@ -239,7 +233,8 @@ void drawHunters(Hunterlist* &head) {
     }
 }
 
-void checkHunterCollision(Owl* owl, Hunterlist* &head, Poop* poop, SDL_Renderer *renderer) {
+bool checkHunterCollision(Owl* owl, Hunterlist* &head, Poop* poop, SDL_Renderer *renderer) {
+    bool killed = false;
     Hunterlist* current_hunter = head;
     while (current_hunter != nullptr) {
         if((poop->getCoordY() >= current_hunter->hunter.getCoordY() - HUNTER_HEIGHT/3) &&
@@ -247,11 +242,13 @@ void checkHunterCollision(Owl* owl, Hunterlist* &head, Poop* poop, SDL_Renderer 
          (poop->getCoordX() <= current_hunter->hunter.getCoordX() + HUNTER_WIDTH))) {
             if (head != NULL){
                 removeHunter(head, current_hunter->hunter, renderer);
+                killed = true;
             }
             poop->reset(owl);
         }
         current_hunter = current_hunter->next;
     }
+    return killed;
 }
 
 void moveHunters(Map* map, Hunterlist* &head) {

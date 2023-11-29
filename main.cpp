@@ -18,6 +18,7 @@ int frameCount = 0; // Global frame count
 Uint32 startTime = 0; // Global start time
 int fps;
 int score = 0;
+int number = 1;
 
 
 void handle_events(SDL_Event* event, bool* gameover)
@@ -103,7 +104,9 @@ void draw(Owl* owl, Hunterlist * &list, Poop* poop, GUI* gui, int highscore, Map
 {
     SDL_RenderClear(renderer);
     map->draw_background();
-    checkHunterCollision(owl, list, poop, renderer);
+    if(checkHunterCollision(owl, list, poop, renderer)){
+        score += 100;
+    }
     gui->draw_moon();                   // moon is drawn separately to be behind the trees
     gui->apply_score(score);
     gui->apply_highscore(highscore);
@@ -217,7 +220,7 @@ void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *
     clock_t timer;
 
     Hunterlist* hunterListHead = nullptr;
-    createHunters(3, hunterListHead, renderer);
+    createHunters(number, hunterListHead, renderer);
 
     TimeStamp spawn_timestamp = Clock::now();
     int spawn_delay = HUNTER_SPAWN_DELAY;
@@ -250,7 +253,7 @@ void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *
         reduce_FPS(timeOnStart);
         (*frameCount)++;
         count_FPS(startTime, frameCount);
-        if(update_score(&timer) % 5 == 0 && (std::chrono::duration<double>(Clock::now()-spawn_timestamp).count() > spawn_delay)) {
+        if(update_score(&timer) % 10 == 0 && (std::chrono::duration<double>(Clock::now()-spawn_timestamp).count() > spawn_delay)) {
             addHunter(hunterListHead, renderer);
             spawn_timestamp = Clock::now();
             spawn_delay = HUNTER_SPAWN_DELAY;
