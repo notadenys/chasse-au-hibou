@@ -1,6 +1,6 @@
 CC = g++
 CFLAGS = -std=c++17 -Wall
-LIBS = -L"lib" -lSDL2main -lSDL2 -lSDL2_ttf -lSDL2_image
+LIBS = -L"lib" -lSDL2main -lSDL2 -lSDL2_ttf -lSDL2_image -lSDL2_mixer
 INCLUDES = -I"include"
 EXEC = chasse
 

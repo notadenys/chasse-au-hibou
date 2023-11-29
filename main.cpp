@@ -2,8 +2,7 @@
 #include <fstream> 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
-#include <chrono>
-#include <thread>
+#include <SDL2/SDL_mixer.h> // sudo apt-get install libsdl2-mixer-dev libogg-dev libvorbis-dev   !!! ЗНИЩИТИ ПІСЛЯ ВИКОРИСТАННЯ !!!
 #include "owl.hpp"
 #include "hunter.hpp"
 #include "settings.hpp"
@@ -13,12 +12,11 @@
 
 using namespace std;
 
-
+int number = 3;
 int frameCount = 0; // Global frame count
 Uint32 startTime = 0; // Global start time
 int fps;
 int score = 0;
-int number = 1;
 
 
 void handle_events(SDL_Event* event, bool* gameover)
@@ -213,6 +211,23 @@ void startscreen(Map* map, GUI* gui, bool* gameover, SDL_Renderer *renderer)
 
 void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *renderer)
 {
+    if (SDL_Init(SDL_INIT_AUDIO) < 0) {
+        fprintf(stderr, "SDL_Init failed: %s\n", SDL_GetError());
+    }
+
+    if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024) < 0) {
+        fprintf(stderr, "Mix_OpenAudio failed: %s\n", Mix_GetError());
+        SDL_Quit();
+    }
+
+    Mix_Music* music = Mix_LoadMUS("resources/music.ogg");
+    if (!music) {
+        fprintf(stderr, "Error loading music: %s\n", Mix_GetError());
+        Mix_CloseAudio();
+        SDL_Quit();
+    }
+
+    Mix_PlayMusic(music, -1);
     Owl owl(renderer);
     Poop poop(renderer);
     GUI gui(renderer);
@@ -253,13 +268,15 @@ void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *
         reduce_FPS(timeOnStart);
         (*frameCount)++;
         count_FPS(startTime, frameCount);
-        if(update_score(&timer) % 10 == 0 && (std::chrono::duration<double>(Clock::now()-spawn_timestamp).count() > spawn_delay)) {
+        if(update_score(&timer) % 5 == 0 && (std::chrono::duration<double>(Clock::now()-spawn_timestamp).count() > spawn_delay) && update_score(&timer) != 0) {
             addHunter(hunterListHead, renderer);
             spawn_timestamp = Clock::now();
             spawn_delay = HUNTER_SPAWN_DELAY;
         }
     }
     freeHunterList(hunterListHead);
+    Mix_FreeMusic(music);
+    Mix_CloseAudio();
 }
 
 int init_sdl(SDL_Window **window, SDL_Renderer **renderer, int width, int height)
@@ -284,6 +301,7 @@ int main()
     SDL_Renderer *renderer;
     SDL_Window *window;
 
+    Mix_Init(MIX_INIT_MP3);
     init_sdl(&window, &renderer, SCREEN_WIDTH, SCREEN_HEIGHT);
     TTF_Init();
     
