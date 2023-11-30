@@ -103,7 +103,7 @@ void draw(Owl* owl, Hunterlist * &list, Poop* poop, GUI* gui, int highscore, Map
     SDL_RenderClear(renderer);
     map->draw_background();
     if(checkHunterCollision(owl, list, poop, renderer)){
-        score += 100;
+        score += 20;
     }
     gui->draw_moon();                   // moon is drawn separately to be behind the trees
     gui->apply_score(score);
@@ -120,7 +120,6 @@ void draw(Owl* owl, Hunterlist * &list, Poop* poop, GUI* gui, int highscore, Map
 
 void update_game(Owl* owl,  Hunterlist* list, Poop* poop, GUI* gui, int highscore, Map* map, SDL_Renderer *renderer, bool* gameover, clock_t* timer)
 {
-
     owl->update_state(map);
     poop->update_state(owl);
     Hunterlist* current_hunter = list;
@@ -128,8 +127,7 @@ void update_game(Owl* owl,  Hunterlist* list, Poop* poop, GUI* gui, int highscor
     while (current_hunter != nullptr) {
         Bullet* bullet = current_hunter->hunter.getBulletAdr();
         updateHunterWithBullet(current_hunter, owl); 
-        
-        if (bullet->getKilled()) { 
+        if (bullet->getKilled() ) {
             owl->shot();
             if (owl->getLives() > 0) { 
                 bullet->setKilled(0);
@@ -238,7 +236,6 @@ void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *
     createHunters(number, hunterListHead, renderer);
 
     TimeStamp spawn_timestamp = Clock::now();
-    int spawn_delay = HUNTER_SPAWN_DELAY;
 
     int highscore = read_highscore();
 
@@ -268,10 +265,11 @@ void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *
         reduce_FPS(timeOnStart);
         (*frameCount)++;
         count_FPS(startTime, frameCount);
-        if(update_score(&timer) % 5 == 0 && (std::chrono::duration<double>(Clock::now()-spawn_timestamp).count() > spawn_delay) && update_score(&timer) != 0) {
+                std::cout <<  std::chrono::duration<double>(Clock::now()-spawn_timestamp).count() << std::endl;
+
+        if(update_score(&timer) % 5 == 0 && (std::chrono::duration<double>(Clock::now()-spawn_timestamp).count() > HUNTER_SPAWN_DELAY) && update_score(&timer) != 0) {
             addHunter(hunterListHead, renderer);
             spawn_timestamp = Clock::now();
-            spawn_delay = HUNTER_SPAWN_DELAY;
         }
     }
     freeHunterList(hunterListHead);

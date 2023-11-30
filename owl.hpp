@@ -15,7 +15,6 @@ struct Owl {
 
     void reset()
     {
-        x = SCREEN_WIDTH/2 - OWL_WIDTH/2, y = 50; // coordinates of the character
         vx = 0;   // speed
         dash = 0;  // dash
         backwards = false;  // facing left or right
@@ -129,8 +128,10 @@ struct Owl {
 
     void shot()
     {
+        if((std::chrono::duration<double>(Clock::now()-death_timestamp).count() > OWL_DEATH_DELAY))
         lives--;
         reset();
+        death_timestamp = Clock::now();
     }
     private:
         double x = SCREEN_WIDTH/2 - OWL_WIDTH/2, y = 50; // coordinates of the character
@@ -142,6 +143,7 @@ struct Owl {
         int state = REST;         // current sprite
         TimeStamp timestamp = Clock::now();
         TimeStamp dash_timestamp = Clock::now();
+        TimeStamp death_timestamp = Clock::now();
         SDL_Renderer *renderer;   // draw here
 
         const std::array<Animation,3> sprites; // sprite sequences to be drawn

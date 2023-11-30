@@ -8,6 +8,8 @@
 #define OWL_DASH_SPEED 30
 #define OWL_DASH_TIME 0.15  // in seconds
 #define OWL_DASH_DELAY 2  // in seconds
+#define OWL_DASH_DELAY 2  // in seconds
+#define OWL_DEATH_DELAY 1 
 #define OWL_LIVES_ON_START 3
 #define HUNTER_WIDTH 75
 #define HUNTER_HEIGHT 150
