@@ -128,10 +128,11 @@ struct Owl {
 
     void shot()
     {
-        if((std::chrono::duration<double>(Clock::now()-death_timestamp).count() > OWL_DEATH_DELAY))
-        lives--;
-        reset();
-        death_timestamp = Clock::now();
+        if((std::chrono::duration<double>(Clock::now()-death_timestamp).count() > OWL_DEATH_DELAY)){
+            lives--;
+            reset();
+            death_timestamp = Clock::now();
+        }
     }
     private:
         double x = SCREEN_WIDTH/2 - OWL_WIDTH/2, y = 50; // coordinates of the character

@@ -104,6 +104,7 @@ void draw(Owl* owl, Hunterlist * &list, Poop* poop, GUI* gui, int highscore, Map
     map->draw_background();
     if(checkHunterCollision(owl, list, poop, renderer)){
         score += 20;
+        
     }
     gui->draw_moon();                   // moon is drawn separately to be behind the trees
     gui->apply_score(score);
@@ -118,8 +119,9 @@ void draw(Owl* owl, Hunterlist * &list, Poop* poop, GUI* gui, int highscore, Map
     SDL_RenderPresent(renderer);
 }
 
-void update_game(Owl* owl,  Hunterlist* list, Poop* poop, GUI* gui, int highscore, Map* map, SDL_Renderer *renderer, bool* gameover, clock_t* timer)
+int update_game(Owl* owl,  Hunterlist* list, Poop* poop, GUI* gui, int highscore, Map* map, SDL_Renderer *renderer, bool* gameover, clock_t* timer)
 {
+    int shot = 0;
     owl->update_state(map);
     poop->update_state(owl);
     Hunterlist* current_hunter = list;
@@ -129,6 +131,7 @@ void update_game(Owl* owl,  Hunterlist* list, Poop* poop, GUI* gui, int highscor
         updateHunterWithBullet(current_hunter, owl); 
         if (bullet->getKilled() ) {
             owl->shot();
+            shot =1;
             if (owl->getLives() > 0) { 
                 bullet->setKilled(0);
             } else {
@@ -142,6 +145,7 @@ void update_game(Owl* owl,  Hunterlist* list, Poop* poop, GUI* gui, int highscor
         current_hunter = current_hunter->next; // Move to next hunter
     }
     update_score(timer);
+    return shot;
 }
 
 void handle_startscreen_events(GUI* gui, SDL_Event* event, bool* gameover, bool* continueStartscreen)
@@ -218,14 +222,17 @@ void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *
         SDL_Quit();
     }
 
-    Mix_Music* music = Mix_LoadMUS("resources/music.ogg");
-    if (!music) {
-        fprintf(stderr, "Error loading music: %s\n", Mix_GetError());
-        Mix_CloseAudio();
-        SDL_Quit();
-    }
+    Mix_Music* game_loop = Mix_LoadMUS("resources/game_loop.ogg");
 
-    Mix_PlayMusic(music, -1);
+    Mix_Music* start_screen = Mix_LoadMUS("resources/start_screen.ogg");
+
+    Mix_Music* confirm = Mix_LoadMUS("resources/confirm.ogg");
+
+    Mix_Music* death = Mix_LoadMUS("resources/death.ogg");
+
+    Mix_Chunk* hit = Mix_LoadWAV("resources/hit.ogg");
+
+
     Owl owl(renderer);
     Poop poop(renderer);
     GUI gui(renderer);
@@ -248,7 +255,17 @@ void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *
         std::cerr << e.what() << '\n';
     }
 
+    Mix_PlayMusic(start_screen, -1);
+
+
     startscreen(&map, &gui, &gameover, renderer);
+    Mix_PlayMusic(confirm, 1);
+    SDL_Delay(1000);
+    Mix_FreeMusic(start_screen);
+
+
+    Mix_PlayMusic(game_loop, -1);
+
     
     timer = clock();
 
@@ -260,12 +277,13 @@ void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *
         SDL_Event event; // handle window closing
         handle_events(&event, &gameover);
 
-        update_game(&owl, hunterListHead, &poop, &gui, highscore, &map, renderer, &gameover, &timer);
+        if(update_game(&owl, hunterListHead, &poop, &gui, highscore, &map, renderer, &gameover, &timer) == 1){
+            Mix_PlayChannel(-1, hit, 0);
+        }
         draw(&owl, hunterListHead, &poop, &gui, highscore, &map, renderer);
         reduce_FPS(timeOnStart);
         (*frameCount)++;
         count_FPS(startTime, frameCount);
-                std::cout <<  std::chrono::duration<double>(Clock::now()-spawn_timestamp).count() << std::endl;
 
         if(update_score(&timer) % 5 == 0 && (std::chrono::duration<double>(Clock::now()-spawn_timestamp).count() > HUNTER_SPAWN_DELAY) && update_score(&timer) != 0) {
             addHunter(hunterListHead, renderer);
@@ -273,8 +291,8 @@ void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *
         }
     }
     freeHunterList(hunterListHead);
-    Mix_FreeMusic(music);
-    Mix_CloseAudio();
+    Mix_FreeMusic(game_loop);
+    Mix_PlayMusic(death, 1);
 }
 
 int init_sdl(SDL_Window **window, SDL_Renderer **renderer, int width, int height)
@@ -299,6 +317,7 @@ int main()
     SDL_Renderer *renderer;
     SDL_Window *window;
 
+
     Mix_Init(MIX_INIT_MP3);
     init_sdl(&window, &renderer, SCREEN_WIDTH, SCREEN_HEIGHT);
     TTF_Init();
@@ -311,9 +330,10 @@ int main()
 
     write_highscore();
 
-    SDL_Delay(1000);
+    SDL_Delay(2500);
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();
+    Mix_CloseAudio();
     return 0;
 }
