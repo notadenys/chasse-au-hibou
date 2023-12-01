@@ -28,16 +28,19 @@ struct Poop {
         return x;
     }
 
-    void handle_keyboard() {
+    int handle_keyboard() {
         const Uint8 *kbstate = SDL_GetKeyboardState(NULL);
-        if(kbstate[SDL_SCANCODE_SPACE] && y < SCREEN_HEIGHT - POOP_HEIGHT) 
+        int state = 0;
+        if(kbstate[SDL_SCANCODE_SPACE] && y < SCREEN_HEIGHT - POOP_HEIGHT && !pooped) 
         {
             pooped = true;
+            state = 2;
         }
+        return state;
     }
 
-    void update_state(Owl* owl) {
-        handle_keyboard();
+    int update_state(Owl* owl) {
+        int p = handle_keyboard();
         if (pooped) {
             y += POOP_SPEED;
         }
@@ -48,6 +51,7 @@ struct Poop {
         //     reset(owl);
         // }
         follow(owl->getCoordX());
+        return p;
     }
 
     void reset(Owl* owl)

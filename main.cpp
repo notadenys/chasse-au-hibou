@@ -98,13 +98,18 @@ void write_highscore()
     }
 }
 
+void hunter_sound(){
+    Mix_Chunk* hunter = Mix_LoadWAV("resources/hunter.ogg");
+    Mix_PlayChannel(-1, hunter, 0);
+}
+
 void draw(Owl* owl, Hunterlist * &list, Poop* poop, GUI* gui, int highscore, Map* map, SDL_Renderer *renderer)
 {
     SDL_RenderClear(renderer);
     map->draw_background();
     if(checkHunterCollision(owl, list, poop, renderer)){
         score += 20;
-        
+        hunter_sound();
     }
     gui->draw_moon();                   // moon is drawn separately to be behind the trees
     gui->apply_score(score);
@@ -122,8 +127,9 @@ void draw(Owl* owl, Hunterlist * &list, Poop* poop, GUI* gui, int highscore, Map
 int update_game(Owl* owl,  Hunterlist* list, Poop* poop, GUI* gui, int highscore, Map* map, SDL_Renderer *renderer, bool* gameover, clock_t* timer)
 {
     int shot = 0;
+    int pooped = 0;
     owl->update_state(map);
-    poop->update_state(owl);
+    pooped = poop->update_state(owl);
     Hunterlist* current_hunter = list;
     // we iterate througt the list of hunters while it exists
     while (current_hunter != nullptr) {
@@ -138,13 +144,17 @@ int update_game(Owl* owl,  Hunterlist* list, Poop* poop, GUI* gui, int highscore
                 *gameover = true;
             }
             poop->reset(owl); 
-            poop->update_state(owl);
+             poop->update_state(owl);
+            
             draw(owl, list, poop, gui, highscore, map, renderer); 
             break;
         }
         current_hunter = current_hunter->next; // Move to next hunter
     }
     update_score(timer);
+    if(pooped == 2) {
+        return pooped;
+    }
     return shot;
 }
 
@@ -223,15 +233,11 @@ void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *
     }
 
     Mix_Music* game_loop = Mix_LoadMUS("resources/game_loop.ogg");
-
     Mix_Music* start_screen = Mix_LoadMUS("resources/start_screen.ogg");
-
     Mix_Music* confirm = Mix_LoadMUS("resources/confirm.ogg");
-
     Mix_Music* death = Mix_LoadMUS("resources/death.ogg");
-
     Mix_Chunk* hit = Mix_LoadWAV("resources/hit.ogg");
-
+    Mix_Chunk* pooped = Mix_LoadWAV("resources/poop.ogg");
 
     Owl owl(renderer);
     Poop poop(renderer);
@@ -241,10 +247,9 @@ void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *
 
     Hunterlist* hunterListHead = nullptr;
     createHunters(number, hunterListHead, renderer);
-
     TimeStamp spawn_timestamp = Clock::now();
-
     int highscore = read_highscore();
+    int state;
 
     try
     {
@@ -256,8 +261,6 @@ void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *
     }
 
     Mix_PlayMusic(start_screen, -1);
-
-
     startscreen(&map, &gui, &gameover, renderer);
     Mix_PlayMusic(confirm, 1);
     SDL_Delay(1000);
@@ -277,8 +280,12 @@ void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *
         SDL_Event event; // handle window closing
         handle_events(&event, &gameover);
 
-        if(update_game(&owl, hunterListHead, &poop, &gui, highscore, &map, renderer, &gameover, &timer) == 1){
+        state = update_game(&owl, hunterListHead, &poop, &gui, highscore, &map, renderer, &gameover, &timer);
+        if(state == 1) {
             Mix_PlayChannel(-1, hit, 0);
+        }
+        if(state == 2) {
+            Mix_PlayChannel(-1, pooped, 0);
         }
         draw(&owl, hunterListHead, &poop, &gui, highscore, &map, renderer);
         reduce_FPS(timeOnStart);
