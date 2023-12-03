@@ -111,15 +111,14 @@ void draw(Owl* owl, Hunterlist * &list, Poop* poop, GUI* gui, int highscore, Map
         score += 20;
         hunter_sound();
     }
-    gui->draw_moon();                   // moon is drawn separately to be behind the trees
     gui->apply_score(score);
     gui->apply_highscore(highscore);
     gui->draw_crown();
     poop->draw();
-    owl->draw();
     moveHunters(map, list);
     drawHunters(list);
-    map->draw();
+    map->draw_surrounding();
+    owl->draw();
     gui->draw(owl->getLives(), fps);
     SDL_RenderPresent(renderer);
 }

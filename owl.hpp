@@ -9,9 +9,9 @@ struct Owl {
 
     Owl(SDL_Renderer *renderer) :
         renderer(renderer),
-        sprites{Animation(renderer, "rest.bmp",    OWL_WIDTH, 1.0, true ),
-                Animation(renderer, "flight.bmp",    OWL_WIDTH, 0.5, true ),
-                Animation(renderer, "dash.bmp", OWL_WIDTH, 0.1, false)} {  }
+        sprites{Animation(renderer, "rest.bmp",    OWL_WIDTH/SCALE, 1.2, true ),
+                Animation(renderer, "rest.bmp",    OWL_WIDTH/SCALE, 1.2, true ),
+                Animation(renderer, "rest.bmp", OWL_WIDTH/SCALE, 1.2, false)} {  }
 
     void reset()
     {
@@ -38,10 +38,12 @@ struct Owl {
 
     void handle_keyboard() {
         const Uint8 *kbstate = SDL_GetKeyboardState(NULL);
+        // resting
         if (state==FLIGHT && !kbstate[SDL_SCANCODE_D] && !kbstate[SDL_SCANCODE_A])
         {
             set_state(REST);
         }
+        // dash
         if ((state==REST || state==FLIGHT) && kbstate[SDL_SCANCODE_LSHIFT] && std::chrono::duration<double>(Clock::now()-dash_timestamp).count() > OWL_DASH_DELAY)  // OWL_DASH_DELAY is in seconds
         {
             if (kbstate[SDL_SCANCODE_A] || kbstate[SDL_SCANCODE_D])
@@ -51,19 +53,23 @@ struct Owl {
                 dash_timestamp = Clock::now();
             }
         }
+        // stop the dash
         if (state == DASH && std::chrono::duration<double>(Clock::now()-timestamp).count() > OWL_DASH_TIME)  // OWL_DASH_TIME is in seconds
         {
             set_state(REST);
         }
+        // flight
         if (state == REST && (kbstate[SDL_SCANCODE_A] || kbstate[SDL_SCANCODE_D]))
         {
             backwards = kbstate[SDL_SCANCODE_A];
             set_state(FLIGHT);
         }
+        // rest if two buttons are pressed
         if (kbstate[SDL_SCANCODE_A] && kbstate[SDL_SCANCODE_D])
         {
             set_state(REST);
         }
+        // rest if collision
         if ((kbstate[SDL_SCANCODE_A] && vx > 0) || (kbstate[SDL_SCANCODE_D] && vx < 0))
         {
             set_state(REST);
@@ -84,6 +90,7 @@ struct Owl {
             vx = 0;
             set_state(REST);
         }
+        // collision with trees
         else if (map->left_collision(x, OWL_WIDTH))
         {
             x += 10;

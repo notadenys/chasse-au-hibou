@@ -1,4 +1,5 @@
 #define RESOURCES_DIR "resources/"
+#define SCALE 8
 
 // game
 #define SCREEN_WIDTH 1920
@@ -7,9 +8,15 @@
 #define SCORES_PER_SECOND 2
 #define TICKS_PER_SECOND 100000
 
+// graphics
+#define BACKGROUND_WIDTH 1920
+#define BACKGROUND_HEIGHT 1000
+#define GRASS_WIDTH 1920
+#define GRASS_HEIGHT 728
+
 // owl
-#define OWL_WIDTH 100
-#define OWL_HEIGHT 100
+#define OWL_WIDTH 256
+#define OWL_HEIGHT 256
 #define OWL_SPEED 10
 #define OWL_DASH_SPEED 30
 #define OWL_DASH_TIME 0.15  // in seconds
@@ -24,8 +31,8 @@
 #define POOP_SPEED 20
 
 // hunter
-#define HUNTER_WIDTH 75
-#define HUNTER_HEIGHT 150
+#define HUNTER_WIDTH 96
+#define HUNTER_HEIGHT 192
 #define HUNTER_SPEED 5
 #define HUNTER_SPAWN_DELAY 2
 
@@ -39,12 +46,11 @@
 // gui
 #define HEART_WIDTH 80
 #define HEART_HEIGHT 80
-#define MOON_SIZE 300
+#define MOON_SIZE 232
 #define CROWN_WIDTH 50
 #define CROWN_HEIGHT 25
-#define TREE_WIDTH 100
-#define LEAVES_WIDTH 300
-#define LEAVES_HEIGHT 200
+#define TREE_WIDTH 1032
+#define TREE_HEIGHT 1000
 #define BUTTON_WIDTH 200
 #define BUTTON_HEIGHT 100
 

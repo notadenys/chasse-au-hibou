@@ -102,7 +102,7 @@ struct Hunterlist;
 
 struct Hunter {
     public :
-    Hunter(SDL_Renderer *renderer) : renderer(renderer), sprite(renderer, "hunter.bmp", HUNTER_WIDTH), bullet(renderer){}
+    Hunter(SDL_Renderer *renderer) : renderer(renderer), sprite(renderer, "hunter.bmp", HUNTER_WIDTH/SCALE), bullet(renderer){}
         void draw() { // drawind hunter, if alive
         SDL_Rect src = sprite.rect(0);
         SDL_Rect dest = {int(x), int(y), HUNTER_WIDTH, HUNTER_HEIGHT};
@@ -143,7 +143,7 @@ struct Hunter {
     }
 
     private:    
-    double x = LEAVES_WIDTH + rand() % (SCREEN_WIDTH - HUNTER_WIDTH - LEAVES_WIDTH*2), y = SCREEN_HEIGHT - HUNTER_HEIGHT; // coordinates of the character
+    double x = TREE_WIDTH + rand() % (SCREEN_WIDTH - HUNTER_WIDTH - TREE_WIDTH*2), y = SCREEN_HEIGHT - HUNTER_HEIGHT; // coordinates of the character
 
     int direction = rand() % 2;
 

@@ -8,8 +8,7 @@ struct GUI
 {
     public :
     GUI(SDL_Renderer *renderer) : renderer(renderer), 
-                                  lives_sprite(renderer, "heart.bmp", HEART_WIDTH), 
-                                  moon_sprite(renderer, "moon.bmp", MOON_SIZE/20), 
+                                  lives_sprite(renderer, "heart.bmp", HEART_WIDTH),  
                                   crown_sprite(renderer, "crown.bmp", CROWN_WIDTH),
                                   buttons_sprite(renderer, "buttons.bmp", BUTTON_WIDTH){}
 
@@ -25,13 +24,6 @@ struct GUI
         SDL_Rect src = lives_sprite.rect(0);
         SDL_Rect dest = {int(livesX), int(livesY), HEART_WIDTH*2, HEART_HEIGHT*2};
         SDL_RenderCopy(renderer, lives_sprite.texture, &src, &dest);
-    }
-
-    void draw_moon()
-    {
-        SDL_Rect src = moon_sprite.rect(0);
-        SDL_Rect dest = {moonX, moonY, MOON_SIZE, MOON_SIZE};
-        SDL_RenderCopy(renderer, moon_sprite.texture, &src, &dest);
     }
 
     void draw_crown()
@@ -104,7 +96,7 @@ struct GUI
 
     private:    
     int livesX = 5, livesY = 5;
-    int moonX = 1200, moonY = 200;
+    int moonX = 980, moonY = 80;
     int buttonsX =  (SCREEN_WIDTH - BUTTON_WIDTH) / 2;
     int playY = SCREEN_HEIGHT/2 - BUTTON_HEIGHT * 2;
     int creditsY = playY + BUTTON_HEIGHT * 1.5;
@@ -115,7 +107,6 @@ struct GUI
     SDL_Renderer *renderer; // draw here
 
     const Sprite lives_sprite;
-    const Sprite moon_sprite;
     const Sprite crown_sprite;
     const Sprite buttons_sprite;
 };

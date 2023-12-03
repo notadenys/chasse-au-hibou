@@ -9,36 +9,33 @@ struct Map
 {
     public:
         Map(SDL_Renderer *renderer) : renderer(renderer), 
-        background(renderer, "background.bmp", SCREEN_WIDTH),
-        ground(renderer, "ground.bmp", SCREEN_WIDTH), 
-        tree(renderer, "tree.bmp", TREE_WIDTH),
-        leaves(renderer, "leaves.bmp", LEAVES_WIDTH){}
+        background(renderer, "background.bmp", BACKGROUND_WIDTH/SCALE),
+        grass(renderer, "grass.bmp", GRASS_WIDTH/SCALE), 
+        tree(renderer, "tree.bmp", TREE_WIDTH/SCALE){}
 
         void draw_background()
         {
-            SDL_RenderCopy(renderer, background.texture, NULL, NULL);
+            SDL_Rect bgR = {0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT};
+            SDL_RenderCopy(renderer, background.texture, NULL, &bgR);
         }
 
-        void draw()
+        void draw_surrounding()
         {
-            SDL_Rect groundR = {groundX, groundY, SCREEN_WIDTH, SCREEN_HEIGHT};
-            SDL_RenderCopy(renderer, ground.texture, NULL, &groundR);
-
             for(int i = 0; i < nbTrees; i++)
             {
-                SDL_Rect treeR = {treesX[i], treeY, TREE_WIDTH, groundY};
+                SDL_Rect treeR = {treesX[i], treeY, TREE_WIDTH, TREE_HEIGHT};
                 SDL_RenderCopy(renderer, tree.texture, NULL, &treeR);
-
-                SDL_Rect leavesR = {treesX[i] - LEAVES_WIDTH/2 + TREE_WIDTH/2, 0, LEAVES_WIDTH, LEAVES_HEIGHT};
-                SDL_RenderCopy(renderer, leaves.texture, NULL, &leavesR);
             }
+
+            SDL_Rect grassR = {grassX, grassY, GRASS_WIDTH, GRASS_HEIGHT};
+            SDL_RenderCopy(renderer, grass.texture, NULL, &grassR);
         }
 
         bool left_collision(int x, int w)
         {
             for(int i = 0; i < nbTrees; i++)
             {
-                if (treesX[i] + TREE_WIDTH > x && treesX[i] + TREE_WIDTH < x + w)
+                if (treesX[i] + TREE_WIDTH/1.5 > x && treesX[i] + TREE_WIDTH/1.5 < x + w)
                 {
                     return true;
                 }
@@ -50,7 +47,7 @@ struct Map
         {
             for(int i = 0; i < nbTrees; i++)
             {
-                if (treesX[i] > x && treesX[i] < x + w)
+                if (treesX[i] + TREE_WIDTH/2.1 > x && treesX[i] + TREE_WIDTH/2.1 < x + w)
                 {
                     return true;
                 }
@@ -96,14 +93,14 @@ struct Map
                 {
                     switch (tab[i][j])
                     {
-                        case '1':  // ground
-                            if (groundY < 0)
+                        case '1':  // grass
+                            if (grassY < 0)
                             {
-                                groundY = (SCREEN_HEIGHT / nbLig) * i;
+                                grassY = (SCREEN_HEIGHT / nbLig) * i;
                             }
                             else
                             {
-                                throw std::invalid_argument("Redefinition of ground");
+                                throw std::invalid_argument("Redefinition of grass");
                             }
                             break;
 
@@ -121,7 +118,7 @@ struct Map
                             break;
 
                         case '3':  //trees
-                            treesX[nbTreesBuilt] = SCREEN_WIDTH / nbCol * j;
+                            treesX[nbTreesBuilt] = SCREEN_WIDTH / nbCol * j - TREE_WIDTH/2;
                             nbTreesBuilt++;
 
                         default:
@@ -130,7 +127,7 @@ struct Map
                 }
             }
 
-            if (groundY < 0)
+            if (grassY < 0)
             {
                 throw std::invalid_argument("Ground is not defined");
             }
@@ -142,24 +139,23 @@ struct Map
             desallocate_tab_2D(tab, nbLig);
         }
 
-        int get_groundY()
+        int get_grassY()
         {
-            return groundY;
+            return grassY;
         }
 
     private:
         // coordinates of the objects on the screes (predefined -1)
-        int groundX = 0, groundY = -1;
+        int grassX = 0, grassY = -1;
         int owlX = -1, owlY = -1;
         int nbTrees = count_trees();
         int* treesX = new int(nbTrees);
-        int treeY = 50;
+        int treeY = 0;
 
         SDL_Renderer *renderer; // draw here
 
         const Sprite background;
-        const Sprite ground;
+        const Sprite grass;
         const Sprite tree;
-        const Sprite leaves;
 };
 #endif

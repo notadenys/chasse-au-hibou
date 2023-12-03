@@ -16,7 +16,7 @@ struct Poop {
 
     void follow(double owlX) {
         if(!pooped){
-            x = owlX + POOP_WIDTH/2;
+            x = owlX + OWL_WIDTH/2 - POOP_WIDTH/2;
         }
     }
 
@@ -57,12 +57,12 @@ struct Poop {
     void reset(Owl* owl)
     {
         pooped = false;
-        y = 50;
+        y = 120 + POOP_HEIGHT/2;
         follow(owl->getCoordX());
     }
 
     private:
-    double x = SCREEN_WIDTH/2 - POOP_WIDTH/2, y = 50 + POOP_HEIGHT/2;
+    double x = SCREEN_WIDTH/2 - POOP_WIDTH/2, y = 120 + POOP_HEIGHT/2;
 
     bool pooped = false;
 
