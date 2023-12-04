@@ -1,7 +1,7 @@
-#include "sprite.hpp"
-
 #ifndef POOP_HPP
 #define POOP_HPP
+
+#include "sprite.hpp"
 
 struct Poop {
     public:

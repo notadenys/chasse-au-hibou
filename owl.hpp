@@ -1,3 +1,6 @@
+#ifndef OWL_HPP
+#define OWL_HPP
+
 #include <cmath>
 #include <array>
 #include "sprite.hpp"
@@ -157,3 +160,5 @@ struct Owl {
 
         const std::array<Animation,3> sprites; // sprite sequences to be drawn
 };
+
+#endif // OWL_HPP

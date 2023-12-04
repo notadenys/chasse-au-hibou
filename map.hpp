@@ -1,9 +1,10 @@
+#ifndef MAP_HPP
+#define MAP_HPP
+
 #include "game_support.hpp"
 #include "settings.hpp"
 #include "sprite.hpp"
 
-#ifndef MAP_HPP
-#define MAP_HPP
 
 struct Map
 {
