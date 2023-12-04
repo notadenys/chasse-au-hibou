@@ -10,7 +10,7 @@ struct Owl {
     Owl(SDL_Renderer *renderer) :
         renderer(renderer),
         sprites{Animation(renderer, "rest.bmp",    OWL_WIDTH/SCALE, 1.2, true ),
-                Animation(renderer, "rest.bmp",    OWL_WIDTH/SCALE, 1.2, true ),
+                Animation(renderer, "flight.bmp",    OWL_WIDTH/SCALE, 1.4, true ),
                 Animation(renderer, "rest.bmp", OWL_WIDTH/SCALE, 1.2, false)} {  }
 
     void reset()
