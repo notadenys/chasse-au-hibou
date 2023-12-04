@@ -31,7 +31,7 @@ struct Map
             SDL_RenderCopy(renderer, grass.texture, NULL, &grassR);
         }
 
-        bool left_collision(int x, int w)
+        bool left_collision(double x, double w)
         {
             for(int i = 0; i < nbTrees; i++)
             {
@@ -43,7 +43,7 @@ struct Map
             return false;
         }
 
-        bool right_collision(int x, int w)
+        bool right_collision(double x, double w)
         {
             for(int i = 0; i < nbTrees; i++)
             {
@@ -139,9 +139,19 @@ struct Map
             desallocate_tab_2D(tab, nbLig);
         }
 
-        int get_grassY()
+        int getGrassY()
         {
             return grassY;
+        }
+
+        int getOwlX()
+        {
+            return owlX;
+        }
+
+        int getOwlY()
+        {
+            return owlY;
         }
 
     private:

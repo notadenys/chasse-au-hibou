@@ -238,17 +238,8 @@ void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *
     Mix_Chunk* hit = Mix_LoadWAV("resources/hit.ogg");
     Mix_Chunk* pooped = Mix_LoadWAV("resources/poop.ogg");
 
-    Owl owl(renderer);
-    Poop poop(renderer);
-    GUI gui(renderer);
-    Map map(renderer);
-    clock_t timer;
 
-    Hunterlist* hunterListHead = nullptr;
-    createHunters(number, hunterListHead, renderer);
-    TimeStamp spawn_timestamp = Clock::now();
-    int highscore = read_highscore();
-    int state;
+    Map map(renderer);
 
     try
     {
@@ -257,14 +248,26 @@ void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *
     catch(const std::exception& e)
     {
         std::cerr << e.what() << '\n';
+        return;
     }
+
+    Owl owl(map.getOwlX(), map.getOwlY(), renderer);
+    Poop poop(map.getOwlX(), map.getOwlY(), renderer);
+    GUI gui(renderer);
+    
+    clock_t timer;
+
+    Hunterlist* hunterListHead = nullptr;
+    createHunters(number, hunterListHead, renderer);
+    TimeStamp spawn_timestamp = Clock::now();
+    int highscore = read_highscore();
+    int state;
 
     Mix_PlayMusic(start_screen, -1);
     startscreen(&map, &gui, &gameover, renderer);
     Mix_PlayMusic(confirm, 1);
     SDL_Delay(1000);
     Mix_FreeMusic(start_screen);
-
 
     Mix_PlayMusic(game_loop, -1);
 

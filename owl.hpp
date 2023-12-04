@@ -7,7 +7,8 @@ struct Owl {
     public :
     enum States { REST=0, FLIGHT=1, DASH = 2};
 
-    Owl(SDL_Renderer *renderer) :
+    Owl(int x, int y, SDL_Renderer *renderer) :
+        x(x), y(y),
         renderer(renderer),
         sprites{Animation(renderer, "rest.bmp",    OWL_WIDTH/SCALE, 1.2, true ),
                 Animation(renderer, "flight.bmp",    OWL_WIDTH/SCALE, 1.4, true ),
@@ -115,7 +116,7 @@ struct Owl {
     {
         SDL_Rect src = sprites[state].rect(timestamp);
         SDL_Rect dest = { int(x), int(y), OWL_WIDTH, OWL_HEIGHT};
-        SDL_RenderCopyEx(renderer, sprites[state].texture, &src, &dest, 0, nullptr, backwards ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE);
+        SDL_RenderCopyEx(renderer, sprites[state].texture, &src, &dest, 0, nullptr, backwards ? SDL_FLIP_NONE : SDL_FLIP_HORIZONTAL);
     }
 
     double getCoordX()
@@ -142,7 +143,7 @@ struct Owl {
         }
     }
     private:
-        double x = SCREEN_WIDTH/2 - OWL_WIDTH/2, y = 50; // coordinates of the character
+        double x, y; // coordinates of the character
         double vx = 0;   // speed
         double dash = 0;  // dash
         bool backwards = false;  // facing left or right
