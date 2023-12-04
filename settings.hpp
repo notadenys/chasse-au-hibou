@@ -1,4 +1,5 @@
-#define RESOURCES_DIR "resources/"
+#define SPRITES_DIR "resources/sprites/"
+#define AUDIO_DIR "resources/audio/"
 #define SCALE 8
 
 // game

@@ -231,12 +231,12 @@ void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *
         SDL_Quit();
     }
 
-    Mix_Music* game_loop = Mix_LoadMUS("resources/game_loop.ogg");
-    Mix_Music* start_screen = Mix_LoadMUS("resources/start_screen.ogg");
-    Mix_Music* confirm = Mix_LoadMUS("resources/confirm.ogg");
-    Mix_Music* death = Mix_LoadMUS("resources/death.ogg");
-    Mix_Chunk* hit = Mix_LoadWAV("resources/hit.ogg");
-    Mix_Chunk* pooped = Mix_LoadWAV("resources/poop.ogg");
+    Mix_Music* game_loop = Mix_LoadMUS((string(AUDIO_DIR) + string("game_loop.ogg")).c_str());
+    Mix_Music* start_screen = Mix_LoadMUS((string(AUDIO_DIR) + string("start_screen.ogg")).c_str());
+    Mix_Music* confirm = Mix_LoadMUS((string(AUDIO_DIR) + string("confirm.ogg")).c_str());
+    Mix_Music* death = Mix_LoadMUS((string(AUDIO_DIR) + string("death.ogg")).c_str());
+    Mix_Chunk* hit = Mix_LoadWAV((string(AUDIO_DIR) + string("hit.ogg")).c_str());
+    Mix_Chunk* pooped = Mix_LoadWAV((string(AUDIO_DIR) + string("poop.ogg")).c_str());
 
 
     Map map(renderer);
@@ -268,6 +268,7 @@ void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *
     Mix_PlayMusic(confirm, 1);
     SDL_Delay(1000);
     Mix_FreeMusic(start_screen);
+    Mix_FreeMusic(confirm);
 
     Mix_PlayMusic(game_loop, -1);
 

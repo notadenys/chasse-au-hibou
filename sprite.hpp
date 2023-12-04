@@ -14,7 +14,7 @@ class Sprite
 {
     public :  // we make it accessible to other classes
     Sprite(SDL_Renderer *renderer, const std::string filename, const int width) : width(width) {
-        SDL_Surface *surface = SDL_LoadBMP((std::string(RESOURCES_DIR) + filename).c_str());
+        SDL_Surface *surface = SDL_LoadBMP((std::string(SPRITES_DIR) + filename).c_str());
         if (!surface) {
             std::cerr << "Error in SDL_LoadBMP: " << SDL_GetError() << std::endl;
             return;
