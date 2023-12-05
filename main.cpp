@@ -107,7 +107,7 @@ void draw(Owl* owl, Hunterlist * &list, Poop* poop, GUI* gui, int highscore, Map
 {
     SDL_RenderClear(renderer);
     map->draw_background();
-    if(checkHunterCollision(owl, list, poop, renderer)){
+    if(list->checkHunterCollision(owl, list, poop, renderer)){
         score += 20;
         hunter_sound();
     }
@@ -115,8 +115,8 @@ void draw(Owl* owl, Hunterlist * &list, Poop* poop, GUI* gui, int highscore, Map
     gui->apply_highscore(highscore);
     gui->draw_crown();
     poop->draw();
-    moveHunters(map, list);
-    drawHunters(list);
+    list->moveHunters(map, list);
+    list->drawHunters(list);
     map->draw_surrounding();
     owl->draw();
     gui->draw(owl->getLives(), fps);
@@ -133,7 +133,7 @@ int update_game(Owl* owl,  Hunterlist* list, Poop* poop, GUI* gui, int highscore
     // we iterate througt the list of hunters while it exists
     while (current_hunter != nullptr) {
         Bullet* bullet = current_hunter->hunter.getBulletAdr();
-        updateHunterWithBullet(current_hunter, owl); 
+        current_hunter->updateHunterWithBullet(current_hunter, owl); 
         if (bullet->getKilled() ) {
             owl->shot();
             shot =1;
@@ -258,7 +258,7 @@ void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *
     clock_t timer;
 
     Hunterlist* hunterListHead = nullptr;
-    createHunters(number, hunterListHead, renderer);
+    hunterListHead->createHunters(number, hunterListHead, renderer);
     TimeStamp spawn_timestamp = Clock::now();
     int highscore = read_highscore();
     int state;
@@ -296,11 +296,11 @@ void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *
         count_FPS(startTime, frameCount);
 
         if(update_score(&timer) % 5 == 0 && (std::chrono::duration<double>(Clock::now()-spawn_timestamp).count() > HUNTER_SPAWN_DELAY) && update_score(&timer) != 0) {
-            addHunter(hunterListHead, renderer);
+            hunterListHead->addHunter(hunterListHead, renderer);
             spawn_timestamp = Clock::now();
         }
     }
-    freeHunterList(hunterListHead);
+    hunterListHead->freeHunterList(hunterListHead);
     Mix_FreeMusic(game_loop);
     Mix_PlayMusic(death, 1);
 }
