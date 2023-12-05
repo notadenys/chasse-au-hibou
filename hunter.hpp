@@ -14,7 +14,7 @@ struct Hunterlist; // костиль
 
 struct Hunter { // structure of hunter caracter
     public :
-    Hunter(SDL_Renderer *renderer) : renderer(renderer), sprite(renderer, "hunter.bmp", HUNTER_WIDTH/SCALE), bullet(renderer){}
+    Hunter(int y, SDL_Renderer *renderer) : y(y-HUNTER_HEIGHT/2), renderer(renderer), sprite(renderer, "hunter.bmp", HUNTER_WIDTH/SCALE), bullet(renderer){}
         void draw() { // drawind hunter, if alive
         SDL_Rect src = sprite.rect(0);
         SDL_Rect dest = {int(x), int(y), HUNTER_WIDTH, HUNTER_HEIGHT};
@@ -57,7 +57,7 @@ struct Hunter { // structure of hunter caracter
     }
 
     private:    
-    double x = TREE_WIDTH + rand() % (SCREEN_WIDTH - HUNTER_WIDTH - TREE_WIDTH*2), y = SCREEN_HEIGHT - HUNTER_HEIGHT; // coordinates of the character
+    double x = TREE_WIDTH + rand() % (SCREEN_WIDTH - HUNTER_WIDTH - TREE_WIDTH*2), y; // coordinates of the character
 
     int direction = rand() % 2;
 
@@ -85,15 +85,16 @@ struct Hunterlist { // linked list, to store several hunters
     }
     
     // adding new hunter in existing list
-    void addHunter(Hunterlist* &head, SDL_Renderer *renderer) { 
-        Hunter* hunter = new Hunter(renderer);
+    void addHunter(int y, Hunterlist* &head, SDL_Renderer *renderer) { 
+        Hunter* hunter = new Hunter(y, renderer);
         head->insertHunter(head, *hunter);
+
     }
 
     // adding N hunters in existing list
-    void createHunters(int numHunters, Hunterlist* &head, SDL_Renderer* renderer) { 
+    void createHunters(int y, int numHunters, Hunterlist* &head, SDL_Renderer* renderer) { 
         for (int i = 0; i < numHunters; i++) {
-            Hunter* hunter = new Hunter(renderer);
+            Hunter* hunter = new Hunter(y, renderer);
             head->insertHunter(head, *hunter);
         }
     }

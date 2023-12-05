@@ -258,7 +258,7 @@ void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *
     clock_t timer;
 
     Hunterlist* hunterListHead = nullptr;
-    hunterListHead->createHunters(number, hunterListHead, renderer);
+    hunterListHead->createHunters(map.getGrassY(), number, hunterListHead, renderer);
     TimeStamp spawn_timestamp = Clock::now();
     int highscore = read_highscore();
     int state;
@@ -296,7 +296,7 @@ void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *
         count_FPS(startTime, frameCount);
 
         if(update_score(&timer) % 5 == 0 && (std::chrono::duration<double>(Clock::now()-spawn_timestamp).count() > HUNTER_SPAWN_DELAY) && update_score(&timer) != 0) {
-            hunterListHead->addHunter(hunterListHead, renderer);
+            hunterListHead->addHunter(map.getGrassY(), hunterListHead, renderer);
             spawn_timestamp = Clock::now();
         }
     }
