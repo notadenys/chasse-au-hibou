@@ -6,38 +6,40 @@
 #include "sprite.hpp"
 #include "map.hpp"
 
+
 struct Owl {
     public :
     enum States { REST=0, FLIGHT=1, DASH = 2};
 
     Owl(int x, int y, SDL_Renderer *renderer) :
-        x(x), y(y),
+        x(x), y(y),  // start coordinates
         renderer(renderer),
         sprites{Animation(renderer, "rest.bmp",    OWL_WIDTH/SCALE, 1.2, true ),
                 Animation(renderer, "flight.bmp",    OWL_WIDTH/SCALE, 1.4, true ),
                 Animation(renderer, "rest.bmp", OWL_WIDTH/SCALE, 1.2, false)} {  }
 
+    // if owl was hit we reset it's position and animation
     void reset()
     {
-        vx = 0;   // speed
-        dash = 0;  // dash
-        backwards = false;  // facing left or right
+        vx = 0;
+        backwards = false;
 
-        state = REST;         // current sprite
+        state = REST;
         timestamp = Clock::now();
         dash_timestamp = Clock::now();
     }
 
+    // controlling owl movement based on the current state
     void set_state(int s) {
-        timestamp = Clock::now();
+        timestamp = Clock::now();  // setting the timer for an animation
         state = s;
-        if (state!=DASH && state!=FLIGHT)
+
+        if (state == REST)
             vx = 0;
-        else if (state==FLIGHT)
-            vx = backwards ? -OWL_SPEED : OWL_SPEED;
-        else if (state==DASH) {
-            vx = backwards ? -dash : dash;
-        }
+        else if (state == FLIGHT)
+            vx = backwards ? OWL_SPEED : -OWL_SPEED;
+        else if (state == DASH)
+            vx = backwards ? dash : -dash;
     }
 
     void handle_keyboard() {
@@ -48,14 +50,11 @@ struct Owl {
             set_state(REST);
         }
         // dash
-        if ((state==REST || state==FLIGHT) && kbstate[SDL_SCANCODE_LSHIFT] && std::chrono::duration<double>(Clock::now()-dash_timestamp).count() > OWL_DASH_DELAY)  // OWL_DASH_DELAY is in seconds
+        if (state==FLIGHT && kbstate[SDL_SCANCODE_LSHIFT] &&  // if shift is pressed while flying
+        std::chrono::duration<double>(Clock::now()-dash_timestamp).count() > OWL_DASH_DELAY)  // if enough time has passed from previous dash
         {
-            if (kbstate[SDL_SCANCODE_A] || kbstate[SDL_SCANCODE_D])
-            {
-                dash = OWL_DASH_SPEED; // dash equal to thirty (30)
-                set_state(DASH);
-                dash_timestamp = Clock::now();
-            }
+            set_state(DASH);
+            dash_timestamp = Clock::now();
         }
         // stop the dash
         if (state == DASH && std::chrono::duration<double>(Clock::now()-timestamp).count() > OWL_DASH_TIME)  // OWL_DASH_TIME is in seconds
@@ -65,7 +64,7 @@ struct Owl {
         // flight
         if (state == REST && (kbstate[SDL_SCANCODE_A] || kbstate[SDL_SCANCODE_D]))
         {
-            backwards = kbstate[SDL_SCANCODE_A];
+            backwards = kbstate[SDL_SCANCODE_D];
             set_state(FLIGHT);
         }
         // rest if two buttons are pressed
@@ -94,6 +93,7 @@ struct Owl {
             vx = 0;
             set_state(REST);
         }
+        
         // collision with trees
         else if (map->left_collision(x, OWL_WIDTH))
         {
@@ -109,6 +109,7 @@ struct Owl {
         }
     }
 
+    // moving the owl, checking for collisions
     void update_state(Map* map)
     {
         x += vx;
@@ -119,7 +120,7 @@ struct Owl {
     {
         SDL_Rect src = sprites[state].rect(timestamp);
         SDL_Rect dest = { int(x), int(y), OWL_WIDTH, OWL_HEIGHT};
-        SDL_RenderCopyEx(renderer, sprites[state].texture, &src, &dest, 0, nullptr, backwards ? SDL_FLIP_NONE : SDL_FLIP_HORIZONTAL);
+        SDL_RenderCopyEx(renderer, sprites[state].texture, &src, &dest, 0, nullptr, backwards ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE);
     }
 
     double getCoordX()
@@ -137,6 +138,7 @@ struct Owl {
         return lives;
     }
 
+    // call when the owl was shot
     void shot()
     {
         if((std::chrono::duration<double>(Clock::now()-death_timestamp).count() > OWL_DEATH_DELAY)){
@@ -148,12 +150,12 @@ struct Owl {
     private:
         double x, y; // coordinates of the character
         double vx = 0;   // speed
-        double dash = 0;  // dash
+        double dash = OWL_DASH_SPEED;  // dash
         bool backwards = false;  // facing left or right
         int lives = OWL_LIVES_ON_START;
 
         int state = REST;         // current sprite
-        TimeStamp timestamp = Clock::now();
+        TimeStamp timestamp = Clock::now();  // timer for animation
         TimeStamp dash_timestamp = Clock::now();
         TimeStamp death_timestamp = Clock::now();
         SDL_Renderer *renderer;   // draw here

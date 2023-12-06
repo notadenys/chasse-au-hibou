@@ -75,7 +75,7 @@ struct Hunterlist { // linked list, to store several hunters
     Hunter hunter;
     Hunterlist* next;
 
-    Hunterlist(Hunter& hunter) : hunter(hunter) {}\
+    Hunterlist(Hunter& hunter) : hunter(hunter) {}
 
     // adding one existing hunter in existing list
     void insertHunter(Hunterlist* &head, Hunter& hunter) {  
