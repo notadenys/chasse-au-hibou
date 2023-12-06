@@ -7,6 +7,24 @@
 #define GAME_SUPPORT_HPP
 
 /*
+Initialize SDL_Window and SDL_Renderer
+*/
+int init_sdl(SDL_Window **window, SDL_Renderer **renderer, int width, int height)
+{
+    if(0 != SDL_Init(SDL_INIT_VIDEO|SDL_INIT_AUDIO))
+    {
+        fprintf(stderr, "Error while initialising SDL: %s", SDL_GetError());
+        return -1;
+    }
+    if(0 != SDL_CreateWindowAndRenderer(width, height, SDL_WINDOW_SHOWN, window, renderer))
+    {
+        fprintf(stderr, "Error while creating an image and rendering it: %s", SDL_GetError());
+        return -1;
+    }
+    return 0;
+}
+
+/*
 allocate a two-dimensional array of size n × m,
 where n and m are the number of rows and columns
 and initialize this array with the space character (’ ’).
@@ -155,11 +173,11 @@ int countDigit(long long n)
 } 
 
 /*applies integer on the screen*/
-void apply_text_int(SDL_Renderer *renderer, TTF_Font *font, SDL_Rect* rec, int text)
+void apply_text_int(SDL_Renderer *renderer, TTF_Font *font, SDL_Rect* rec, int text, SDL_Color color)
 {
     char str[countDigit(text) + 1];
     sprintf(str, "%d", text);
-    SDL_Surface* surfaceText = TTF_RenderText_Solid(font, str, {0, 0, 0});
+    SDL_Surface* surfaceText = TTF_RenderText_Solid(font, str, color);
     SDL_Texture* textureText = SDL_CreateTextureFromSurface(renderer, surfaceText);
     SDL_FreeSurface(surfaceText);
     SDL_SetRenderDrawColor(renderer,0,0,0xFF,SDL_ALPHA_OPAQUE);

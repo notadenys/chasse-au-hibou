@@ -111,15 +111,13 @@ void draw(Owl* owl, Hunterlist * &list, Poop* poop, GUI* gui, int highscore, Map
         score += 20;
         hunter_sound();
     }
-    gui->apply_score(score);
-    gui->apply_highscore(highscore);
-    gui->draw_crown();
+    gui->draw_score(score, highscore);
     poop->draw();
     list->moveHunters(map, list);
     list->drawHunters(list);
     map->draw_surrounding();
     owl->draw();
-    gui->draw(owl->getLives(), fps);
+    gui->draw_gui(owl->getLives(), fps);
     SDL_RenderPresent(renderer);
 }
 
@@ -304,22 +302,6 @@ void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *
     Mix_FreeMusic(game_loop);
     Mix_PlayMusic(death, 1);
 }
-
-int init_sdl(SDL_Window **window, SDL_Renderer **renderer, int width, int height)
-{
-    if(0 != SDL_Init(SDL_INIT_VIDEO|SDL_INIT_AUDIO))
-    {
-        fprintf(stderr, "Error while initialising SDL: %s", SDL_GetError());
-        return -1;
-    }
-    if(0 != SDL_CreateWindowAndRenderer(width, height, SDL_WINDOW_SHOWN, window, renderer))
-    {
-        fprintf(stderr, "Error while creating an image and rendering it: %s", SDL_GetError());
-        return -1;
-    }
-    return 0;
-}
-
 
 
 int main()

@@ -4,6 +4,13 @@
 #include "sprite.hpp"
 #include <SDL2/SDL_ttf.h>
 
+namespace Colors
+{
+    inline constexpr SDL_Color white ={255,255,255};
+    inline constexpr SDL_Color black ={0,0,0};
+}
+
+
 struct GUI
 {
     public :
@@ -12,12 +19,27 @@ struct GUI
                                   crown_sprite(renderer, "crown.bmp", CROWN_WIDTH),
                                   buttons_sprite(renderer, "buttons.bmp", BUTTON_WIDTH){}
 
-    void draw(int lives, int fps)
+    void draw_gui(int lives, int fps)
     {
         draw_lives();
         apply_lives_text(lives);
         apply_fps(fps);
     }
+
+    void draw_score(int score, int highscore)
+    {
+        apply_score(score);
+        apply_highscore(highscore);
+        draw_crown();
+    }
+
+    void draw_buttons()
+    {
+        draw_play();
+        draw_credits();
+        draw_exit();
+    }
+
 
     void draw_lives() 
     {
@@ -31,13 +53,6 @@ struct GUI
         SDL_Rect src = crown_sprite.rect(0);
         SDL_Rect dest = {moonX + MOON_SIZE/2 - CROWN_WIDTH/2, moonY + 195, CROWN_WIDTH, CROWN_HEIGHT};
         SDL_RenderCopy(renderer, crown_sprite.texture, &src, &dest);
-    }
-
-    void draw_buttons()
-    {
-        draw_play();
-        draw_credits();
-        draw_exit();
     }
 
     void draw_play()
@@ -64,34 +79,34 @@ struct GUI
     void apply_lives_text(int lives)
     {
         SDL_Rect rec = {60, 25, 50, 100};
-        apply_text_int(renderer, font, &rec, lives);
+        apply_text_int(renderer, font, &rec, lives, Colors::black);
     }
 
     void apply_fps(int fps)
     {
         SDL_Rect rec = {SCREEN_WIDTH - 30 - 5, SCREEN_HEIGHT - 40, 30, 40};
-        apply_text_int(renderer, font, &rec, fps);
+        apply_text_int(renderer, font, &rec, fps, Colors::white);
     }
 
     void apply_score(int score)
     {
         SDL_Rect rec = {moonX + MOON_SIZE/2 - countDigit(score)*27, moonY + 100, countDigit(score)*50, 100};
-        apply_text_int(renderer, font, &rec, score);
+        apply_text_int(renderer, font, &rec, score, Colors::white);
     }
 
     void apply_highscore(int highscore)
     {
         SDL_Rect rec = {moonX + MOON_SIZE/2 - countDigit(highscore)*25/2, moonY + 210, countDigit(highscore)*25, 50};
-        apply_text_int(renderer, font, &rec, highscore);
+        apply_text_int(renderer, font, &rec, highscore, Colors::white);
     }
 
-    int getButtonsX() const { return buttonsX; }
+    int getButtonsX() { return buttonsX; }
 
-    int getPlayY() const { return playY; }
+    int getPlayY() { return playY; }
 
-    int getCreditsY() const { return creditsY; }
+    int getCreditsY() { return creditsY; }
 
-    int getExitY() const { return exitY; }
+    int getExitY() { return exitY; }
 
 
     private:    

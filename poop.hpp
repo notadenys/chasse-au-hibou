@@ -9,7 +9,7 @@ struct Poop {
 
     void draw()
     {
-        if (pooped)
+        if (pooped)  // while following the owl it's invisible
         {
             SDL_Rect src = sprite.rect(0);
             SDL_Rect dest = {int(x), int(y), POOP_WIDTH, POOP_HEIGHT};
@@ -17,10 +17,9 @@ struct Poop {
         }
     }
 
+    // while SPACE is not pressed
     void follow(double owlX) {
-        if(!pooped){
-            x = owlX + OWL_WIDTH/2 - POOP_WIDTH/2;
-        }
+        x = owlX + OWL_WIDTH/2 - POOP_WIDTH/2;
     }
 
     double getCoordY() {
@@ -33,31 +32,34 @@ struct Poop {
 
     int handle_keyboard() {
         const Uint8 *kbstate = SDL_GetKeyboardState(NULL);
-        int state = 0;
         if(kbstate[SDL_SCANCODE_SPACE] && y < SCREEN_HEIGHT - POOP_HEIGHT && !pooped) 
         {
             pooped = true;
-            state = 2;
+            return 2;  // to play the sound
         }
-        return state;
+        return 0;
     }
 
     int update_state(Owl* owl) {
         int p = handle_keyboard();
-        if (pooped) {
+        if(!pooped)
+        {
+            follow(owl->getCoordX());
+        }
+        else
+        {
             y += POOP_SPEED;
+
+            if(y >= SCREEN_HEIGHT)  // if goes lower than the screen
+                reset(owl);
         }
-        if((y >= SCREEN_HEIGHT)) {
-            reset(owl);
-        }
-        follow(owl->getCoordX());
         return p;
     }
 
-    void reset(Owl* owl)
+    void reset(Owl* owl)  // returns poop back into owl
     {
         pooped = false;
-        y = 120 + POOP_HEIGHT/2;
+        y = owl->getCoordY() + POOP_HEIGHT/2;
         follow(owl->getCoordX());
     }
 
