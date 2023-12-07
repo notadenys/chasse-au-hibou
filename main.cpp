@@ -308,22 +308,6 @@ void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *
     Mix_FreeMusic(game_loop);
 }
 
-int init_sdl(SDL_Window **window, SDL_Renderer **renderer, int width, int height)
-{
-    if(0 != SDL_Init(SDL_INIT_VIDEO|SDL_INIT_AUDIO))
-    {
-        fprintf(stderr, "Error while initialising SDL: %s", SDL_GetError());
-        return -1;
-    }
-    if(0 != SDL_CreateWindowAndRenderer(width, height, SDL_WINDOW_SHOWN, window, renderer))
-    {
-        fprintf(stderr, "Error while creating an image and rendering it: %s", SDL_GetError());
-        return -1;
-    }
-    return 0;
-}
-
-
 int main()
 {
     SDL_Renderer *renderer;
