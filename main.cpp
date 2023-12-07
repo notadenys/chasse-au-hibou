@@ -18,6 +18,7 @@ Uint32 startTime = 0; // Global start time
 int fps;
 int score = 0;
 int spawn_cof = HUNTER_SPAWN_COF;
+int highscores[HIGHSCORE_MAX+1];  // constant array is needed to avoid using pointers in reading/writing
 
 void handle_events(SDL_Event* event, bool* gameover)
 {
@@ -59,15 +60,13 @@ void draw(Owl* owl, Hunterlist * &list, Poop* poop, GUI* gui, int highscore, Map
         score += 20;
         playHunterSound();
     }
-    gui->apply_score(score);
-    gui->apply_highscore(highscore);
-    gui->draw_crown();
+    gui->draw_score(score, highscore);
     poop->draw();
     list->moveHunters(map, list);
     list->drawHunters(list);
     map->draw_surrounding();
     owl->draw();
-    gui->draw(owl->getLives(), fps);
+    gui->draw_gui(owl->getLives(), fps);
     SDL_RenderPresent(renderer);
 }
 
@@ -126,7 +125,6 @@ void handle_startscreen_events(GUI* gui, SDL_Event* event, bool* gameover, bool*
                 playConfirmationSound();
             }
             break;
-
         case SDL_MOUSEBUTTONDOWN:
             int x, y;
             SDL_GetMouseState(&x, &y);
@@ -147,13 +145,12 @@ void handle_startscreen_events(GUI* gui, SDL_Event* event, bool* gameover, bool*
                     }
                     if (y > gui->getExitY() && y < gui->getExitY() + BUTTON_HEIGHT)
                     {
+                        playConfirmationSound();
                         *continueStartscreen = false;
                         *gameover = true;
-                        playConfirmationSound();
                     }
                 }
             }
-        
         default:
             break;
         }
@@ -163,7 +160,6 @@ void handle_startscreen_events(GUI* gui, SDL_Event* event, bool* gameover, bool*
 void startscreen(Map* map, GUI* gui, bool* gameover, SDL_Renderer *renderer)
 {
     bool continueStartscreen = 1;
-
     map->draw_background();
     gui->draw_buttons();
     SDL_RenderPresent(renderer);
@@ -172,6 +168,43 @@ void startscreen(Map* map, GUI* gui, bool* gameover, SDL_Renderer *renderer)
         SDL_Event event;
         handle_startscreen_events(gui, &event, gameover, &continueStartscreen);
     }
+}
+
+void write_highscore(int score) 
+{
+    int h_size = 0;
+    for (int item : highscores)  // counting non-null elements in highscore array
+    {
+        if ( item != 0 ) { // This is a filter
+            ++h_size;
+        }
+    }
+
+    highscores[h_size++] = score;  // putting score in the last position in an array
+        
+    sort(highscores, highscores+h_size, greater<int>());  // sorting an array to then get HIGHSCORE_MAX highest scores
+    h_size = (h_size > HIGHSCORE_MAX) ? HIGHSCORE_MAX : h_size;
+
+    ofstream outfile("highscore.txt", std::ios_base::trunc);
+    for (int i = 0; i < h_size; i++)
+    {
+        outfile << highscores[i] << '\n';
+    }
+    outfile.close();
+}
+
+void read_highscore()
+{
+    fstream myfile("highscore.txt", std::ios_base::in);
+    
+    if (myfile.is_open()) {  // if file exists
+        int num, i = 0;
+        while (myfile >> num)  // Read highscore from the file
+        {
+            highscores[i++] = num;
+        }
+    }
+    myfile.close(); // Close the file
 }
 
 void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *renderer)
@@ -195,7 +228,9 @@ void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *
     Hunterlist* hunterListHead = nullptr;
     hunterListHead->createHunters(map.getGrassY(), number, hunterListHead, renderer);
     TimeStamp spawn_timestamp = Clock::now();
-    int highscore = gui.read_highscore();
+
+    read_highscore();
+    int highscore = highscores[0];
     int state;
 
     playLobbyMusic();
@@ -243,9 +278,8 @@ void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *
     }
     hunterListHead->freeHunterList(hunterListHead);
     Mix_FreeMusic(game_loop);
-    gui.write_highscore(score);
+    write_highscore(score);
 }
-
 int main()
 {
     SDL_Renderer *renderer;
