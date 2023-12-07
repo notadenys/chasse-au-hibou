@@ -35,8 +35,8 @@
 // hunter
 #define HUNTER_WIDTH 96
 #define HUNTER_HEIGHT 192
-#define RIFLE_WIDTH 104
-#define RIFLE_HEIGHT 256
+#define RIFLE_WIDTH 144
+#define RIFLE_HEIGHT 320
 #define HUNTER_SPEED 5
 #define HUNTER_SPAWN_DELAY 0.5
 #define HUNTER_SPAWN_COF 5

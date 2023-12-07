@@ -29,14 +29,14 @@ struct Hunter { // structure of hunter caracter
         SDL_RenderCopyEx(renderer, hunter_sprite.texture, &h_src, &h_dest, 0, nullptr, (looking_left) ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE);
         SDL_Rect r_src = rifle_sprite.rect(0);
         SDL_Rect r_dest = {int(x + HUNTER_WIDTH/2 - RIFLE_WIDTH/2) , int(y + HUNTER_HEIGHT/2 - RIFLE_HEIGHT/2), RIFLE_WIDTH, RIFLE_HEIGHT};
-        SDL_RenderCopyEx(renderer, rifle_sprite.texture, &r_src, &r_dest, angle*180/PI, nullptr, (looking_left) ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE);
+        SDL_RenderCopyEx(renderer, rifle_sprite.texture, &r_src, &r_dest, angle, nullptr, (looking_left) ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE);
     }
 
     void update_graphics(Owl* owl)
     {
         looking_left = x + HUNTER_WIDTH/2 > owl->getCoordX() + OWL_WIDTH/2;
 
-        angle = getDestAngle(owl);
+        angle = (looking_left) ? getDestAngle(owl)*180/PI + 30 : getDestAngle(owl)*180/PI - 30;
     }
 
     // calculating an angle between the hunter and the owl
