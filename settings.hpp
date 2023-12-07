@@ -28,8 +28,8 @@
 #define OWL_LIVES_ON_START 3
 
 //poop
-#define POOP_WIDTH 59
-#define POOP_HEIGHT 60
+#define POOP_WIDTH 40
+#define POOP_HEIGHT 48
 #define POOP_SPEED 20
 
 // hunter
@@ -43,9 +43,9 @@
 
 
 // bullet
-#define BULLET_HEIGHT 20
-#define BULLET_WIDTH 10
-#define BULLET_SPEED 0
+#define BULLET_HEIGHT 32
+#define BULLET_WIDTH 32
+#define BULLET_SPEED 5
 #define SHOOTING_DELAY_MIN 0.1  // in seconds
 #define SHOOTING_DELAY_MAX 1 // in seconds
 

@@ -6,7 +6,7 @@
 
 class Bullet {
     public:
-    Bullet(SDL_Renderer *renderer) : renderer(renderer), sprite(renderer, "bullet.bmp", BULLET_WIDTH){}
+    Bullet(SDL_Renderer *renderer) : renderer(renderer), sprite(renderer, "bullet.bmp", BULLET_WIDTH/SCALE){}
 
     void draw() {
         SDL_Rect src = sprite.rect(0);
