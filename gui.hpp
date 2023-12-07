@@ -85,6 +85,29 @@ struct GUI
         apply_text_int(renderer, font, &rec, highscore);
     }
 
+    void write_highscore(int score) 
+    {
+        if (score > read_highscore()){
+            ofstream outfile("highscore.txt", std::ios_base::trunc);
+            outfile << score << "\n";
+            outfile.close();
+        }
+    }
+
+    int read_highscore()
+    {
+        fstream myfile("highscore.txt", std::ios_base::in);
+        int num;
+        if (!myfile.is_open()) {
+            num = 0; // Set highscore to 0 if file doesn't exist
+        } else {
+            myfile >> num; // Read highscore from the file
+        }
+        myfile.close(); // Close the file
+
+        return num;
+    }
+
     int getButtonsX() const { return buttonsX; }
 
     int getPlayY() const { return playY; }

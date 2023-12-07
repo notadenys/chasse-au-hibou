@@ -159,11 +159,53 @@ void apply_text_int(SDL_Renderer *renderer, TTF_Font *font, SDL_Rect* rec, int t
 {
     char str[countDigit(text) + 1];
     sprintf(str, "%d", text);
-    SDL_Surface* surfaceText = TTF_RenderText_Solid(font, str, {0, 0, 0});
+    SDL_Surface* surfaceText = TTF_RenderText_Solid(font, str, {255, 255, 255});
     SDL_Texture* textureText = SDL_CreateTextureFromSurface(renderer, surfaceText);
     SDL_FreeSurface(surfaceText);
     SDL_SetRenderDrawColor(renderer,0,0,0xFF,SDL_ALPHA_OPAQUE);
     SDL_RenderCopy(renderer, textureText, NULL, rec);
     SDL_DestroyTexture(textureText);
+}
+
+// rducing FPS to 60
+void reduce_FPS(int timeOnStart)
+{
+    int delta = SDL_GetTicks() - timeOnStart;
+    int desiredDelta = 1000 / FPS_LIM;
+
+    if (delta < desiredDelta)
+    {
+        SDL_Delay(desiredDelta - delta);    // FPS reducing
+    }
+}
+
+int count_FPS(Uint32* startTime, int* frameCount, int fps)
+{
+    Uint32 currentTime = SDL_GetTicks();
+    Uint32 deltaTime = currentTime - *startTime;
+
+    if (deltaTime >= 1000) 
+    {
+        fps = static_cast<float>(*frameCount) / (static_cast<float>(deltaTime) / 1000.0f);
+        *frameCount = 0;
+        *startTime = currentTime;
+    }
+    return fps;
+}
+
+// initialising of SDL
+int init_sdl(SDL_Window **window, SDL_Renderer **renderer, int width, int height)
+{
+    if(0 != SDL_Init(SDL_INIT_VIDEO|SDL_INIT_AUDIO))
+    {
+        fprintf(stderr, "Error while initialising SDL: %s", SDL_GetError());
+        return -1;
+    }
+    if(0 != SDL_CreateWindowAndRenderer(width, height, SDL_WINDOW_SHOWN, window, renderer))
+    {
+        fprintf(stderr, "Error while creating an image and rendering it: %s", SDL_GetError());
+        return -1;
+    }
+    return 0;
 }
 #endif

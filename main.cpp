@@ -17,7 +17,7 @@ int frameCount = 0; // Global frame count
 Uint32 startTime = 0; // Global start time
 int fps;
 int score = 0;
-int spawn_cof = 5;
+int spawn_cof = HUNTER_SPAWN_COF;
 
 void handle_events(SDL_Event* event, bool* gameover)
 {
@@ -38,30 +38,6 @@ void handle_events(SDL_Event* event, bool* gameover)
     }
 }
 
-void reduce_FPS(int timeOnStart)
-{
-    int delta = SDL_GetTicks() - timeOnStart;
-    int desiredDelta = 1000 / FPS_LIM;
-
-    if (delta < desiredDelta)
-    {
-        SDL_Delay(desiredDelta - delta);    // FPS reducing
-    }
-}
-
-void count_FPS(Uint32* startTime, int* frameCount)
-{
-    Uint32 currentTime = SDL_GetTicks();
-    Uint32 deltaTime = currentTime - *startTime;
-
-    if (deltaTime >= 1000) 
-    {
-        fps = static_cast<float>(*frameCount) / (static_cast<float>(deltaTime) / 1000.0f);
-        *frameCount = 0;
-        *startTime = currentTime;
-    }
-}
-
 int update_score(clock_t* timer)
 {
     clock_t currentTime;
@@ -75,34 +51,11 @@ int update_score(clock_t* timer)
     return score;
 }
 
-int read_highscore()
-{
-    fstream myfile("highscore.txt", std::ios_base::in);
-    int num;
-    if (!myfile.is_open()) {
-        num = 0; // Set highscore to 0 if file doesn't exist
-    } else {
-        myfile >> num; // Read highscore from the file
-    }
-    myfile.close(); // Close the file
-
-    return num;
-}
-
-void write_highscore() 
-{
-    if (score > read_highscore()){
-        ofstream outfile("highscore.txt", std::ios_base::trunc);
-        outfile << score << "\n";
-        outfile.close();
-    }
-}
-
 void draw(Owl* owl, Hunterlist * &list, Poop* poop, GUI* gui, int highscore, Map* map, SDL_Renderer *renderer)
 {
     SDL_RenderClear(renderer);
     map->draw_background();
-    if(list->checkHunterCollision(owl, list, poop, renderer)){
+    if(list->checkHunterCollision(owl, list, poop, renderer)) {
         score += 20;
         playHunterSound();
     }
@@ -170,6 +123,7 @@ void handle_startscreen_events(GUI* gui, SDL_Event* event, bool* gameover, bool*
             {
                 *continueStartscreen = false;
                 *gameover = true;
+                playConfirmationSound();
             }
             break;
 
@@ -184,15 +138,18 @@ void handle_startscreen_events(GUI* gui, SDL_Event* event, bool* gameover, bool*
                     if (y > gui->getPlayY() && y < gui->getPlayY() + BUTTON_HEIGHT)
                     {
                         *continueStartscreen = false;
+                        playConfirmationSound();
                     }
                     if (y > gui->getCreditsY() && y < gui->getCreditsY() + BUTTON_HEIGHT)
                     {
                         // to complete
+                        playConfirmationSound();
                     }
                     if (y > gui->getExitY() && y < gui->getExitY() + BUTTON_HEIGHT)
                     {
                         *continueStartscreen = false;
                         *gameover = true;
+                        playConfirmationSound();
                     }
                 }
             }
@@ -238,12 +195,11 @@ void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *
     Hunterlist* hunterListHead = nullptr;
     hunterListHead->createHunters(map.getGrassY(), number, hunterListHead, renderer);
     TimeStamp spawn_timestamp = Clock::now();
-    int highscore = read_highscore();
+    int highscore = gui.read_highscore();
     int state;
 
     playLobbyMusic();
     startscreen(&map, &gui, &gameover, renderer);
-    playConfirmationSound();
     SDL_Delay(1000);
 
     playGameLoopMusic();
@@ -268,7 +224,7 @@ void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *
         draw(&owl, hunterListHead, &poop, &gui, highscore, &map, renderer);
         reduce_FPS(timeOnStart); // rerducing FPS to 60
         (*frameCount)++;
-        count_FPS(startTime, frameCount);
+        fps = count_FPS(startTime, frameCount, fps);
         // seting spawn coficient to increase difficulty of game
         if(update_score(&timer) > 1000 && update_score(&timer) < 2000) {
             spawn_cof = 4;
@@ -279,7 +235,6 @@ void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *
         } else if(update_score(&timer) > 4000) {
             spawn_cof = 1;
         }
-
         // spawning hunters depending on score to increase difficulty
         if(update_score(&timer) % spawn_cof == 0 && (std::chrono::duration<double>(Clock::now()-spawn_timestamp).count() > HUNTER_SPAWN_DELAY) && update_score(&timer) != 0) {
             hunterListHead->addHunter(map.getGrassY(), hunterListHead, renderer);
@@ -288,21 +243,7 @@ void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *
     }
     hunterListHead->freeHunterList(hunterListHead);
     Mix_FreeMusic(game_loop);
-}
-
-int init_sdl(SDL_Window **window, SDL_Renderer **renderer, int width, int height)
-{
-    if(0 != SDL_Init(SDL_INIT_VIDEO|SDL_INIT_AUDIO))
-    {
-        fprintf(stderr, "Error while initialising SDL: %s", SDL_GetError());
-        return -1;
-    }
-    if(0 != SDL_CreateWindowAndRenderer(width, height, SDL_WINDOW_SHOWN, window, renderer))
-    {
-        fprintf(stderr, "Error while creating an image and rendering it: %s", SDL_GetError());
-        return -1;
-    }
-    return 0;
+    gui.write_highscore(score);
 }
 
 int main()
@@ -319,8 +260,6 @@ int main()
     srand(time(NULL));
 
     main_loop(gameover, &frameCount, &startTime, renderer);
-
-    write_highscore();
 
     SDL_Delay(2500);
     SDL_DestroyRenderer(renderer);
