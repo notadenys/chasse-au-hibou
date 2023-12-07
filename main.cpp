@@ -2,13 +2,13 @@
 #include <fstream> 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
-#include <SDL2/SDL_mixer.h> // sudo apt-get install libsdl2-mixer-dev libogg-dev libvorbis-dev   !!! ЗНИЩИТИ ПІСЛЯ ВИКОРИСТАННЯ !!!
 #include "owl.hpp"
 #include "hunter.hpp"
 #include "settings.hpp"
 #include "poop.hpp"
 #include "gui.hpp"
 #include "map.hpp"
+#include "music.hpp"
 
 using namespace std;
 
@@ -18,7 +18,7 @@ Uint32 startTime = 0; // Global start time
 int fps;
 int score = 0;
 int highscores[HIGHSCORE_MAX+1];  // constant array is needed to avoid using pointers in reading/writing
-
+int spawn_cof = 5;
 
 void handle_events(SDL_Event* event, bool* gameover)
 {
@@ -123,7 +123,7 @@ void draw(Owl* owl, Hunterlist * &list, Poop* poop, GUI* gui, int highscore, Map
     map->draw_background();
     if(list->checkHunterCollision(owl, list, poop, renderer)){
         score += 20;
-        hunter_sound();
+        playHunterSound();
     }
     gui->draw_score(score, highscore);
     poop->draw();
@@ -151,8 +151,10 @@ int update_game(Owl* owl,  Hunterlist* list, Poop* poop, GUI* gui, int highscore
             shot =1;
             if (owl->getLives() > 0) { 
                 bullet->setKilled(0);
+                playHitSound();
             } else {
                 *gameover = true;
+                playDeathMusic();
             }
             poop->reset(owl); 
              poop->update_state(owl);
@@ -164,7 +166,7 @@ int update_game(Owl* owl,  Hunterlist* list, Poop* poop, GUI* gui, int highscore
     }
     update_score(timer);
     if(pooped == 2) {
-        return pooped;
+        playPoopSound();
     }
     return shot;
 }
@@ -234,31 +236,12 @@ void startscreen(Map* map, GUI* gui, bool* gameover, SDL_Renderer *renderer)
 
 void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *renderer)
 {
-    if (SDL_Init(SDL_INIT_AUDIO) < 0) {
-        fprintf(stderr, "SDL_Init failed: %s\n", SDL_GetError());
-    }
-
-    if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024) < 0) {
-        fprintf(stderr, "Mix_OpenAudio failed: %s\n", Mix_GetError());
-        SDL_Quit();
-    }
-
-    Mix_Music* game_loop = Mix_LoadMUS((string(AUDIO_DIR) + string("game_loop.ogg")).c_str());
-    Mix_Music* start_screen = Mix_LoadMUS((string(AUDIO_DIR) + string("start_screen.ogg")).c_str());
-    Mix_Music* confirm = Mix_LoadMUS((string(AUDIO_DIR) + string("confirm.ogg")).c_str());
-    Mix_Music* death = Mix_LoadMUS((string(AUDIO_DIR) + string("death.ogg")).c_str());
-    Mix_Chunk* hit = Mix_LoadWAV((string(AUDIO_DIR) + string("hit.ogg")).c_str());
-    Mix_Chunk* pooped = Mix_LoadWAV((string(AUDIO_DIR) + string("poop.ogg")).c_str());
-
-
+    loadMusic(); // initializing and loading of music
     Map map(renderer);
-
-    try
-    {
+    try {
         map.calculate_map();
     }
-    catch(const std::exception& e)
-    {
+    catch(const std::exception& e) {
         std::cerr << e.what() << '\n';
         return;
     }
@@ -276,16 +259,13 @@ void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *
     int highscore = highscores[0];
     int state;
 
-    Mix_PlayMusic(start_screen, -1);
+    playLobbyMusic();
     startscreen(&map, &gui, &gameover, renderer);
-    Mix_PlayMusic(confirm, 1);
+    playConfirmationSound();
     SDL_Delay(1000);
-    Mix_FreeMusic(start_screen);
-    Mix_FreeMusic(confirm);
 
-    Mix_PlayMusic(game_loop, -1);
+    playGameLoopMusic();
 
-    
     timer = clock();
 
     while (!gameover)   
@@ -304,18 +284,43 @@ void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *
             Mix_PlayChannel(-1, pooped, 0);
         }
         draw(&owl, hunterListHead, &poop, &gui, highscore, &map, renderer);
-        reduce_FPS(timeOnStart);
+        reduce_FPS(timeOnStart); // rerducing FPS to 60
         (*frameCount)++;
         count_FPS(startTime, frameCount);
+        // seting spawn coficient to increase difficulty of game
+        if(update_score(&timer) > 1000 && update_score(&timer) < 2000) {
+            spawn_cof = 4;
+        } else if(update_score(&timer) > 2000 && update_score(&timer) < 3000) {
+            spawn_cof = 3;
+        } else if(update_score(&timer) > 3000 && update_score(&timer) < 4000) {
+            spawn_cof = 2;
+        } else if(update_score(&timer) > 4000) {
+            spawn_cof = 1;
+        }
 
-        if(update_score(&timer) % 5 == 0 && (std::chrono::duration<double>(Clock::now()-spawn_timestamp).count() > HUNTER_SPAWN_DELAY) && update_score(&timer) != 0) {
+        // spawning hunters depending on score to increase difficulty
+        if(update_score(&timer) % spawn_cof == 0 && (std::chrono::duration<double>(Clock::now()-spawn_timestamp).count() > HUNTER_SPAWN_DELAY) && update_score(&timer) != 0) {
             hunterListHead->addHunter(map.getGrassY(), hunterListHead, renderer);
             spawn_timestamp = Clock::now();
         }
     }
     hunterListHead->freeHunterList(hunterListHead);
     Mix_FreeMusic(game_loop);
-    Mix_PlayMusic(death, 1);
+}
+
+int init_sdl(SDL_Window **window, SDL_Renderer **renderer, int width, int height)
+{
+    if(0 != SDL_Init(SDL_INIT_VIDEO|SDL_INIT_AUDIO))
+    {
+        fprintf(stderr, "Error while initialising SDL: %s", SDL_GetError());
+        return -1;
+    }
+    if(0 != SDL_CreateWindowAndRenderer(width, height, SDL_WINDOW_SHOWN, window, renderer))
+    {
+        fprintf(stderr, "Error while creating an image and rendering it: %s", SDL_GetError());
+        return -1;
+    }
+    return 0;
 }
 
 
@@ -323,7 +328,6 @@ int main()
 {
     SDL_Renderer *renderer;
     SDL_Window *window;
-
 
     Mix_Init(MIX_INIT_MP3);
     init_sdl(&window, &renderer, SCREEN_WIDTH, SCREEN_HEIGHT);

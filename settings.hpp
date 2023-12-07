@@ -36,12 +36,12 @@
 #define HUNTER_WIDTH 96
 #define HUNTER_HEIGHT 192
 #define HUNTER_SPEED 5
-#define HUNTER_SPAWN_DELAY 2
+#define HUNTER_SPAWN_DELAY 0.5
 
 // bullet
 #define BULLET_HEIGHT 20
 #define BULLET_WIDTH 10
-#define BULLET_SPEED 10
+#define BULLET_SPEED 5
 #define SHOOTING_DELAY_MIN 0.1  // in seconds
 #define SHOOTING_DELAY_MAX 1 // in seconds
 
