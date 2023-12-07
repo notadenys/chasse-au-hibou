@@ -2,16 +2,19 @@
 #define BULLET_HPP
 
 #include "sprite.hpp"
-
+#include "music.hpp"
 
 class Bullet {
     public:
     Bullet(SDL_Renderer *renderer) : renderer(renderer), sprite(renderer, "bullet.bmp", BULLET_WIDTH/SCALE){}
 
     void draw() {
-        SDL_Rect src = sprite.rect(0);
-        SDL_Rect dest = {int(x), int(y), BULLET_WIDTH, BULLET_HEIGHT};
-        SDL_RenderCopyEx(renderer, sprite.texture, &src, &dest, angle*180/PI, nullptr, SDL_FLIP_NONE);
+        if(shot)
+        {
+            SDL_Rect src = sprite.rect(0);
+            SDL_Rect dest = {int(x), int(y), BULLET_WIDTH, BULLET_HEIGHT};
+            SDL_RenderCopyEx(renderer, sprite.texture, &src, &dest, angle*180/PI, nullptr, SDL_FLIP_NONE);
+        }
     }
 
     // while bullet is waiting for its time to be shot its position is linked to the hunter

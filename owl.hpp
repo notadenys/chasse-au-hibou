@@ -14,7 +14,7 @@ struct Owl {
         renderer(renderer),
         sprites{Animation(renderer, "rest.bmp",    OWL_WIDTH/SCALE, 1.2, true ),
                 Animation(renderer, "flight.bmp",    OWL_WIDTH/SCALE, 1.4, true ),
-                Animation(renderer, "rest.bmp", OWL_WIDTH/SCALE, 1.2, false)} {  }
+                Animation(renderer, "dash.bmp", OWL_WIDTH/SCALE, 1, false)} {  }
 
     // if owl was hit we reset it's position and animation
     void reset()
@@ -95,13 +95,13 @@ struct Owl {
         // collision with trees
         else if (map->left_collision(x, OWL_WIDTH))
         {
-            x += 10;
+            x += 15;
             vx = 0;
             set_state(REST);
         }
         else if (map->right_collision(x, OWL_WIDTH))
         {
-            x -= 10;
+            x -= 15;
             vx = 0;
             set_state(REST);
         }
