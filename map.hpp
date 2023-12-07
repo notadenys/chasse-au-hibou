@@ -155,6 +155,11 @@ struct Map
             return owlY;
         }
 
+        ~Map()
+        {
+            delete treesX;
+        }
+
     private:
         // coordinates of the objects on the screes (predefined -1)
         int grassX = 0, grassY = -1;

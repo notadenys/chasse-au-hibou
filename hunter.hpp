@@ -14,7 +14,7 @@ struct Hunterlist; // костиль
 
 struct Hunter { // structure of hunter caracter
     public :
-    Hunter(int y, SDL_Renderer *renderer) : y(y-HUNTER_HEIGHT/2), renderer(renderer), sprite(renderer, "hunter.bmp", HUNTER_WIDTH/SCALE), bullet(renderer){}
+    Hunter(int y, SDL_Renderer *renderer) : y(y-HUNTER_HEIGHT/2.5), renderer(renderer), sprite(renderer, "hunter.bmp", HUNTER_WIDTH/SCALE), bullet(renderer){}
         void draw() { // drawind hunter, if alive
         SDL_Rect src = sprite.rect(0);
         SDL_Rect dest = {int(x), int(y), HUNTER_WIDTH, HUNTER_HEIGHT};
