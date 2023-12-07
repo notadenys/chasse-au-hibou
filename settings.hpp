@@ -19,7 +19,7 @@
 // owl
 #define OWL_WIDTH 256
 #define OWL_HEIGHT 256
-#define OWL_SPEED 10
+#define OWL_SPEED 15
 #define OWL_DASH_SPEED 30
 #define OWL_DASH_TIME 0.15  // in seconds
 #define OWL_DASH_DELAY 2  // in seconds
@@ -37,7 +37,7 @@
 #define HUNTER_HEIGHT 192
 #define RIFLE_WIDTH 104
 #define RIFLE_HEIGHT 256
-#define HUNTER_SPEED 5
+#define HUNTER_SPEED 3
 #define HUNTER_SPAWN_DELAY 0.5
 #define HUNTER_SPAWN_COF 5
 
@@ -45,7 +45,7 @@
 // bullet
 #define BULLET_HEIGHT 20
 #define BULLET_WIDTH 10
-#define BULLET_SPEED 0
+#define BULLET_SPEED 5
 #define SHOOTING_DELAY_MIN 0.1  // in seconds
 #define SHOOTING_DELAY_MAX 1 // in seconds
 

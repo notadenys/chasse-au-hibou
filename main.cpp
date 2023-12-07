@@ -141,7 +141,7 @@ void handle_startscreen_events(GUI* gui, SDL_Event* event, bool* gameover, bool*
                     if (y > gui->getCreditsY() && y < gui->getCreditsY() + BUTTON_HEIGHT)
                     {
                         // to complete
-                        playConfirmationSound();
+                        RickRoll();
                     }
                     if (y > gui->getExitY() && y < gui->getExitY() + BUTTON_HEIGHT)
                     {
@@ -151,7 +151,7 @@ void handle_startscreen_events(GUI* gui, SDL_Event* event, bool* gameover, bool*
                     }
                 }
             }
-        default:
+            default:
             break;
         }
     }
@@ -175,7 +175,7 @@ void write_highscore(int score)
     int h_size = 0;
     for (int item : highscores)  // counting non-null elements in highscore array
     {
-        if ( item != 0 ) { // This is a filter
+        if ( item != 0 ) { // this is a filter
             ++h_size;
         }
     }
@@ -199,12 +199,12 @@ void read_highscore()
     
     if (myfile.is_open()) {  // if file exists
         int num, i = 0;
-        while (myfile >> num)  // Read highscore from the file
+        while (myfile >> num)  // read highscore from the file
         {
             highscores[i++] = num;
         }
     }
-    myfile.close(); // Close the file
+    myfile.close(); // close the file
 }
 
 void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *renderer)
@@ -261,13 +261,13 @@ void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *
         (*frameCount)++;
         fps = count_FPS(startTime, frameCount, fps);
         // seting spawn coficient to increase difficulty of game
-        if(update_score(&timer) > 1000 && update_score(&timer) < 2000) {
+        if(update_score(&timer) > 500 && update_score(&timer) < 1000) {
             spawn_cof = 4;
-        } else if(update_score(&timer) > 2000 && update_score(&timer) < 3000) {
+        } else if(update_score(&timer) > 1000 && update_score(&timer) < 1500) {
             spawn_cof = 3;
-        } else if(update_score(&timer) > 3000 && update_score(&timer) < 4000) {
+        } else if(update_score(&timer) > 1500 && update_score(&timer) < 2000) {
             spawn_cof = 2;
-        } else if(update_score(&timer) > 4000) {
+        } else if(update_score(&timer) > 2000) {
             spawn_cof = 1;
         }
         // spawning hunters depending on score to increase difficulty

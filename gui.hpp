@@ -6,8 +6,9 @@
 
 namespace Colors
 {
-    inline constexpr SDL_Color white ={255,255,255};
-    inline constexpr SDL_Color black ={0,0,0};
+    inline constexpr SDL_Color white = {255,255,255};
+    inline constexpr SDL_Color black = {0,0,0};
+    inline constexpr SDL_Color moon_gray = {79,94,140};
 }
 
 
@@ -30,7 +31,7 @@ struct GUI
     {
         apply_score(score);
         apply_highscore(highscore);
-        draw_crown();
+        // draw_crown();
     }
 
     void draw_buttons()
@@ -85,19 +86,19 @@ struct GUI
     void apply_fps(int fps)
     {
         SDL_Rect rec = {SCREEN_WIDTH - 30 - 5, SCREEN_HEIGHT - 40, 30, 40};
-        apply_text_int(renderer, font, &rec, fps, Colors::white);
+        apply_text_int(renderer, font, &rec, fps, Colors::moon_gray);
     }
 
     void apply_score(int score)
     {
         SDL_Rect rec = {moonX + MOON_SIZE/2 - countDigit(score)*27, moonY + 100, countDigit(score)*50, 100};
-        apply_text_int(renderer, font, &rec, score, Colors::white);
+        apply_text_int(renderer, font, &rec, score, Colors::moon_gray);
     }
 
     void apply_highscore(int highscore)
     {
         SDL_Rect rec = {moonX + MOON_SIZE/2 - countDigit(highscore)*25/2, moonY + 210, countDigit(highscore)*25, 50};
-        apply_text_int(renderer, font, &rec, highscore, Colors::white);
+        apply_text_int(renderer, font, &rec, highscore, Colors::moon_gray);
     }
 
     int getButtonsX() const { return buttonsX; }
@@ -117,7 +118,7 @@ struct GUI
     int creditsY = playY + BUTTON_HEIGHT * 1.5;
     int exitY = creditsY + BUTTON_HEIGHT * 1.5;
 
-    TTF_Font *font = TTF_OpenFont("resources/ARCADECLASSIC.ttf", 48);
+    TTF_Font *font = TTF_OpenFont("resources/font2.ttf", 48);
 
     SDL_Renderer *renderer; // draw here
 

@@ -11,7 +11,6 @@
 
 struct Hunterlist; // костиль
 
-
 struct Hunter { // structure of hunter caracter
     public :
     Hunter(int y, SDL_Renderer *renderer) : y(y-HUNTER_HEIGHT/2.5), 
@@ -97,8 +96,6 @@ struct Hunter { // structure of hunter caracter
     Bullet bullet; // bullet, linked to hunter
 };
 
-
-
 struct Hunterlist { // linked list, to store several hunters
     public :
     Hunter hunter;
@@ -177,7 +174,7 @@ struct Hunterlist { // linked list, to store several hunters
         }
     }
 
-    // drawing hunters and bullets
+    // drawing hunters from list
     void drawHunters(Hunterlist* &head, Owl* owl) {
         Hunterlist* current_hunter = head;
         while (current_hunter != nullptr) {
@@ -187,7 +184,7 @@ struct Hunterlist { // linked list, to store several hunters
         }
     }
 
-    // checking collision of hunter and poop
+    // checking collision of hunter and poop, removing if true
     bool checkHunterCollision(Owl* owl, Hunterlist* &head, Poop* poop, SDL_Renderer *renderer) {
         bool killed = false;
         Hunterlist* current_hunter = head;
@@ -206,7 +203,7 @@ struct Hunterlist { // linked list, to store several hunters
         return killed;
     }
 
-    // animation of hunters
+    // iteration to move each hunter of list
     void moveHunters(Map* map, Hunterlist* &head) {
         Hunterlist* current_hunter = head;
         while (current_hunter != nullptr) {
