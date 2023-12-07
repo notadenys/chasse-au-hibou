@@ -8,6 +8,7 @@
 #define FPS_LIM 60
 #define SCORES_PER_SECOND 2
 #define TICKS_PER_SECOND 100000
+#define HIGHSCORE_MAX 5
 
 // graphics
 #define BACKGROUND_WIDTH 1920

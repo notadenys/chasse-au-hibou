@@ -17,6 +17,7 @@ int frameCount = 0; // Global frame count
 Uint32 startTime = 0; // Global start time
 int fps;
 int score = 0;
+int highscores[HIGHSCORE_MAX+1];  // constant array is needed to avoid using pointers in reading/writing
 
 
 void handle_events(SDL_Event* event, bool* gameover)
@@ -75,27 +76,40 @@ int update_score(clock_t* timer)
     return score;
 }
 
-int read_highscore()
+void read_highscore()
 {
     fstream myfile("highscore.txt", std::ios_base::in);
-    int num;
-    if (!myfile.is_open()) {
-        num = 0; // Set highscore to 0 if file doesn't exist
-    } else {
-        myfile >> num; // Read highscore from the file
+    
+    if (myfile.is_open()) {  // if file exists
+        int num, i = 0;
+        while (myfile >> num)  // Read highscore from the file
+        {
+            highscores[i++] = num;
+        }
     }
     myfile.close(); // Close the file
-
-    return num;
 }
 
 void write_highscore() 
 {
-    if (score > read_highscore()){
-        ofstream outfile("highscore.txt", std::ios_base::trunc);
-        outfile << score << "\n";
-        outfile.close();
+    int h_size = 0;
+    for (int item : highscores)  // counting non-null elements in highscore array
+    {
+        if ( item != 0 ) // This is a filter
+            ++h_size;
     }
+
+    highscores[h_size++] = score;  // putting score in the last position in an array
+    
+    sort(highscores, highscores+h_size, greater<int>());  // sorting an array to then get HIGHSCORE_MAX highest scores
+    h_size = (h_size > HIGHSCORE_MAX) ? HIGHSCORE_MAX : h_size;
+
+    ofstream outfile("highscore.txt", std::ios_base::trunc);
+    for (int i = 0; i < h_size; i++)
+    {
+        outfile << highscores[i] << '\n';
+    }
+    outfile.close();
 }
 
 void hunter_sound(){
@@ -258,7 +272,8 @@ void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *
     Hunterlist* hunterListHead = nullptr;
     hunterListHead->createHunters(map.getGrassY(), number, hunterListHead, renderer);
     TimeStamp spawn_timestamp = Clock::now();
-    int highscore = read_highscore();
+    read_highscore();
+    int highscore = highscores[0];
     int state;
 
     Mix_PlayMusic(start_screen, -1);
