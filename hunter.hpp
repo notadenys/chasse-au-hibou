@@ -14,19 +14,50 @@ struct Hunterlist; // костиль
 
 struct Hunter { // structure of hunter caracter
     public :
-    Hunter(int y, SDL_Renderer *renderer) : y(y-HUNTER_HEIGHT/2.5), renderer(renderer), sprite(renderer, "hunter.bmp", HUNTER_WIDTH/SCALE), bullet(renderer){}
-        void draw() { // drawind hunter, if alive
-        SDL_Rect src = sprite.rect(0);
-        SDL_Rect dest = {int(x), int(y), HUNTER_WIDTH, HUNTER_HEIGHT};
-        SDL_RenderCopyEx(renderer, sprite.texture, &src, &dest, 0, nullptr, SDL_FLIP_NONE);
+    Hunter(int y, SDL_Renderer *renderer) : y(y-HUNTER_HEIGHT/2.5), 
+                                            renderer(renderer), 
+                                            hunter_sprite(renderer, "hunter.bmp", HUNTER_WIDTH/SCALE), 
+                                            rifle_sprite(renderer, "rifle.bmp", RIFLE_WIDTH/SCALE), 
+                                            bullet(renderer){}
+
+    // drawind hunter, if alive
+    void draw(Owl* owl) 
+    {
+        update_graphics(owl);
+        SDL_Rect h_src = hunter_sprite.rect(0);
+        SDL_Rect h_dest = {int(x), int(y), HUNTER_WIDTH, HUNTER_HEIGHT};
+        SDL_RenderCopyEx(renderer, hunter_sprite.texture, &h_src, &h_dest, 0, nullptr, (looking_left) ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE);
+        SDL_Rect r_src = rifle_sprite.rect(0);
+        SDL_Rect r_dest = {int(x + HUNTER_WIDTH/2 - RIFLE_WIDTH/2) , int(y + HUNTER_HEIGHT/2 - RIFLE_HEIGHT/2), RIFLE_WIDTH, RIFLE_HEIGHT};
+        SDL_RenderCopyEx(renderer, rifle_sprite.texture, &r_src, &r_dest, angle*180/PI, nullptr, (looking_left) ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE);
     }
 
-    double getCoordX() { // getting coordinate X
+    void update_graphics(Owl* owl)
+    {
+        looking_left = x + HUNTER_WIDTH/2 > owl->getCoordX() + OWL_WIDTH/2;
+
+        angle = getDestAngle(owl);
+    }
+
+    // calculating an angle between the hunter and the owl
+    double getDestAngle(Owl* owl) {
+        double l = (owl->getCoordX() + OWL_WIDTH/2) - (x + HUNTER_WIDTH/2);
+        if (l == 0) return 0;  
+        double h = y + HUNTER_HEIGHT/2 - (owl->getCoordY() + OWL_HEIGHT/2);
+        return atan(l/h);
+    }
+
+    double getCoordX() {
         return x;
     }
 
-    double getCoordY() { // getting coordinate Y
+    double getCoordY() {
         return y;
+    }
+
+    double getAngle()
+    {
+        return angle;
     }
 
     Bullet* getBulletAdr() {
@@ -35,7 +66,7 @@ struct Hunter { // structure of hunter caracter
 
     // animation of running hunters
     void moveHunter(Map* map, Hunterlist* list) {
-        int change_dir = rand() % 100;
+        int change_dir = rand() % 100;  // 1% probability to change direction
         if((change_dir == 0 && direction == 0) || (map->right_collision(x, HUNTER_WIDTH) && direction == 0)) {
             direction = 1;
         }
@@ -50,20 +81,18 @@ struct Hunter { // structure of hunter caracter
         }
     }
 
-    // setting Y coordinate, depenging on ground from 'terrain.txt'
-    void setY(int h)
-    {
-        y = h;
-    }
-
     private:    
     double x = TREE_WIDTH + rand() % (SCREEN_WIDTH - HUNTER_WIDTH - TREE_WIDTH*2), y; // coordinates of the character
 
     int direction = rand() % 2;
+    bool looking_left = true;
 
     SDL_Renderer *renderer; // draw here
 
-    const Sprite sprite; // hunter sprite
+    const Sprite hunter_sprite;
+    const Sprite rifle_sprite; 
+
+    double angle = 0;
 
     Bullet bullet; // bullet, linked to hunter
 };
@@ -149,11 +178,11 @@ struct Hunterlist { // linked list, to store several hunters
     }
 
     // drawing hunters and bullets
-    void drawHunters(Hunterlist* &head) {
+    void drawHunters(Hunterlist* &head, Owl* owl) {
         Hunterlist* current_hunter = head;
         while (current_hunter != nullptr) {
             current_hunter->hunter.getBulletAdr()->draw();
-            current_hunter->hunter.draw();
+            current_hunter->hunter.draw(owl);
             current_hunter = current_hunter->next;
         }
     }
@@ -192,7 +221,7 @@ struct Hunterlist { // linked list, to store several hunters
         Bullet* bullet = current_hunter->hunter.getBulletAdr();
         if (bullet != nullptr) 
         {
-            bullet->update_state(current_hunter->hunter.getCoordX(), current_hunter->hunter.getCoordY(), owl->getCoordX(), owl->getCoordY());
+            bullet->update_state(current_hunter->hunter.getCoordX(), current_hunter->hunter.getCoordY(), current_hunter->hunter.getAngle(), owl);
         }
     }
 };

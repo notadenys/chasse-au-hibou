@@ -59,7 +59,7 @@ struct Poop {
     void reset(Owl* owl)  // returns poop back into owl
     {
         pooped = false;
-        y = owl->getCoordY() + POOP_HEIGHT/2;
+        y = owl->getCoordY() + OWL_HEIGHT - POOP_HEIGHT;
         follow(owl->getCoordX());
     }
 

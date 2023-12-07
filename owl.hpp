@@ -9,8 +9,6 @@
 
 struct Owl {
     public :
-    enum States { REST=0, FLIGHT=1, DASH = 2};
-
     Owl(int x, int y, SDL_Renderer *renderer) :
         x(x), y(y),  // start coordinates
         renderer(renderer),
@@ -148,6 +146,8 @@ struct Owl {
         }
     }
     private:
+        enum States { REST=0, FLIGHT=1, DASH = 2};
+        
         double x, y; // coordinates of the character
         double vx = 0;   // speed
         double dash = OWL_DASH_SPEED;  // dash
