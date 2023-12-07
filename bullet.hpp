@@ -15,17 +15,9 @@ class Bullet {
     }
 
     // while bullet is waiting for its time to be shot its position is linked to the hunter
-    void follow(double hunterX, double hunterY) {
-        x = hunterX + HUNTER_WIDTH/2 - BULLET_WIDTH/2;
-        y = (hunterY + BULLET_HEIGHT);
-    }
-
-    // calculating an angle between the bullet and the owl
-    double getDestAngle(double owlX, double owlY) {
-        double l = (owlX + OWL_WIDTH/2) - (x + BULLET_WIDTH/2);
-        if (l == 0) return 0;  
-        double h = y - (owlY + OWL_HEIGHT/2);
-        return atan(l/h);
+    void follow(int hX, int hY) {
+        x = hX + HUNTER_WIDTH/2 - BULLET_WIDTH/2;
+        y = hY + BULLET_HEIGHT;
     }
 
     void move(double angle) {
@@ -33,7 +25,7 @@ class Bullet {
         y -= BULLET_SPEED * cos(angle);
     }
 
-    void shoot(double owlX, double owlY) {
+    void shoot(Owl* owl) {
         // we set a delay for a bullet to be shot only after a certaint amount of time and not just after its return to hunter's position
         if (std::chrono::duration<double>(Clock::now()-shot_timestamp).count() > shooting_delay) {
             reset_shooting_delay();
@@ -41,7 +33,7 @@ class Bullet {
         }
     }
 
-    void handle_collision(double owlX, double owlY) {
+    void handle_collision(Owl* owl) {
         // if bullet goes out of the screen
         if (y <= 0) {
             shot = false;
@@ -49,21 +41,21 @@ class Bullet {
         }
 
         // if bullet hits the owl
-        if (!(x > owlX + OWL_WIDTH || owlX > x + BULLET_WIDTH || y > owlY + OWL_HEIGHT || owlY > y + BULLET_HEIGHT)) {
+        if (!(x > owl->getCoordX() + OWL_WIDTH || owl->getCoordX() > x + BULLET_WIDTH || y > owl->getCoordY() + OWL_HEIGHT || owl->getCoordY() > y + BULLET_HEIGHT)) {
             killed = 1;
             shot = false;
             shot_timestamp = Clock::now();
         }
     }
 
-    void update_state(double hunterX, double hunterY, double owlX, double owlY) {
-        handle_collision(owlX, owlY);
+    void update_state(int hX, int hY, double angle, Owl* owl) {
+        handle_collision(owl);
         if (!shot) {
-            angle = getDestAngle(owlX, owlY);
-            shoot(owlX, owlY);
-            follow(hunterX, hunterY);
+            this->angle = angle;
+            shoot(owl);
+            follow(hX, hY);
         } else {
-            move(angle);
+            move(this->angle);
         }
     }
 
