@@ -13,7 +13,7 @@ class Bullet {
         {
             SDL_Rect src = sprite.rect(0);
             SDL_Rect dest = {int(x), int(y), BULLET_WIDTH, BULLET_HEIGHT};
-            SDL_RenderCopyEx(renderer, sprite.texture, &src, &dest, angle*180/PI, nullptr, SDL_FLIP_NONE);
+            SDL_RenderCopyEx(renderer, sprite.texture, &src, &dest, angle*180/PI, nullptr, SDL_FLIP_NONE);  // angle is calculated in radians and then converted to degrees
         }
     }
 
@@ -24,6 +24,7 @@ class Bullet {
     }
 
     void move(double angle) {
+        // horizontal and vertical speed are calculated based on the angle to the owl so bullets will always move with the same speed
         x += BULLET_SPEED * sin(angle);
         y -= BULLET_SPEED * cos(angle);
     }
@@ -31,7 +32,7 @@ class Bullet {
     void shoot(Owl* owl) {
         // we set a delay for a bullet to be shot only after a certaint amount of time and not just after its return to hunter's position
         if (std::chrono::duration<double>(Clock::now()-shot_timestamp).count() > shooting_delay) {
-            reset_shooting_delay();
+            reset_shooting_delay();  // we regenerate the random delay right after the shot and after it passed the bullet will be shot again
             shot = true;
         }
     }
@@ -54,14 +55,15 @@ class Bullet {
     void update_state(int hX, int hY, double angle, Owl* owl) {
         handle_collision(owl);
         if (!shot) {
-            this->angle = angle;
-            shoot(owl);
+            this->angle = angle;  // giving the bullet a direction of the owl in the moment
             follow(hX, hY);
+            shoot(owl);
         } else {
             move(this->angle);
         }
     }
 
+    // generates the random delay in defined range and puts it into certain variable
     void reset_shooting_delay()
     {
         shooting_delay = (SHOOTING_DELAY_MIN + ((double)rand() / RAND_MAX) * SHOOTING_DELAY_MAX);
