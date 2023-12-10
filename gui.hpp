@@ -92,6 +92,17 @@ struct GUI
         apply_text_int(renderer, font, &rec, highscore, Colors::moon_gray);
     }
 
+    void displayTestText(SDL_Renderer* renderer) {
+        SDL_Surface* textSurface = TTF_RenderText_Solid(font, "Chasse Au Hibou", {28,37,61,200});
+        SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
+        int textW, textH;
+        SDL_QueryTexture(textTexture, NULL, NULL, &textW, &textH);
+        SDL_Rect textRect = {SCREEN_WIDTH / 2 - 750, 50, 1500, 200};
+        SDL_RenderCopy(renderer, textTexture, NULL, &textRect);
+        SDL_FreeSurface(textSurface);
+        SDL_DestroyTexture(textTexture);
+    }
+
     int getButtonsX() const { return buttonsX; }
 
     int getPlayY() { return playY; }

@@ -163,6 +163,7 @@ void startscreen(Map* map, GUI* gui, bool* gameover, SDL_Renderer *renderer)
     bool continueStartscreen = 1;
     map->draw_background();
     gui->draw_buttons();
+    gui->displayTestText(renderer);
     SDL_RenderPresent(renderer);
     while(continueStartscreen)
     {
