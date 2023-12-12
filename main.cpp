@@ -91,6 +91,8 @@ int update_game(Owl* owl,  Hunterlist* list, Poop* poop, GUI* gui, int highscore
             } else {
                 *gameover = true;
                 playDeathMusic();
+                SDL_Delay(2500);
+                gui->apply_lose_message(renderer);
             }
             poop->reset(owl); 
              poop->update_state(owl);
@@ -107,7 +109,7 @@ int update_game(Owl* owl,  Hunterlist* list, Poop* poop, GUI* gui, int highscore
     return shot;
 }
 
-void handle_startscreen_events(GUI* gui, SDL_Event* event, bool* gameover, bool* continueStartscreen)
+void handle_startscreen_events(GUI* gui, SDL_Event* event, bool* gameover, bool* continueStartscreen, bool* endgame)
 {
     while (SDL_PollEvent(event))
     {
@@ -123,6 +125,7 @@ void handle_startscreen_events(GUI* gui, SDL_Event* event, bool* gameover, bool*
             {
                 *continueStartscreen = false;
                 *gameover = true;
+                *endgame = true;
                 playConfirmationSound();
             }
             break;
@@ -149,6 +152,7 @@ void handle_startscreen_events(GUI* gui, SDL_Event* event, bool* gameover, bool*
                         playConfirmationSound();
                         *continueStartscreen = false;
                         *gameover = true;
+                        *endgame = true;
                     }
                 }
             }
@@ -158,7 +162,7 @@ void handle_startscreen_events(GUI* gui, SDL_Event* event, bool* gameover, bool*
     }
 }
 
-void startscreen(Map* map, GUI* gui, bool* gameover, SDL_Renderer *renderer)
+void startscreen(Map* map, GUI* gui, bool* gameover, SDL_Renderer *renderer, bool* endgame)
 {
     bool continueStartscreen = 1;
     map->draw_background();
@@ -168,7 +172,7 @@ void startscreen(Map* map, GUI* gui, bool* gameover, SDL_Renderer *renderer)
     while(continueStartscreen)
     {
         SDL_Event event;
-        handle_startscreen_events(gui, &event, gameover, &continueStartscreen);
+        handle_startscreen_events(gui, &event, gameover, &continueStartscreen, endgame);
     }
 }
 
@@ -209,7 +213,7 @@ void read_highscore()
     myfile.close(); // close the file
 }
 
-void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *renderer)
+void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *renderer, bool* endgame)
 {
     loadMusic(); // initializing and loading of music
     Map map(renderer);
@@ -236,7 +240,7 @@ void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *
     int state;
 
     playLobbyMusic();
-    startscreen(&map, &gui, &gameover, renderer);
+    startscreen(&map, &gui, &gameover, renderer, endgame);
     SDL_Delay(1000);
 
     playGameLoopMusic();
@@ -278,6 +282,7 @@ void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *
             spawn_timestamp = Clock::now();
         }
     }
+    draw(&owl, hunterListHead, &poop, &gui, highscore, &map, renderer);
     hunterListHead->freeHunterList(hunterListHead);
     Mix_FreeMusic(game_loop);
     write_highscore(score);
@@ -292,12 +297,16 @@ int main()
     TTF_Init();
     
     bool gameover = false;
+    bool endgame = false;
 
     srand(time(NULL));
 
-    main_loop(gameover, &frameCount, &startTime, renderer);
 
-    SDL_Delay(2500);
+    while(!endgame) { 
+        gameover = false; 
+        main_loop(gameover, &frameCount, &startTime, renderer, &endgame);
+    }
+    
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();

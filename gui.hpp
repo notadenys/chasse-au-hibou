@@ -103,6 +103,17 @@ struct GUI
         SDL_DestroyTexture(textTexture);
     }
 
+    void apply_lose_message(SDL_Renderer* renderer) {
+        SDL_Surface* textSurface = TTF_RenderText_Solid(font, "YOU LOSE!", {28,37,61,200});
+        SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
+        int textW, textH;
+        SDL_QueryTexture(textTexture, NULL, NULL, &textW, &textH);
+        SDL_Rect textRect = {SCREEN_WIDTH /2, SCREEN_HEIGHT /2, 1500, 200};
+        SDL_RenderCopy(renderer, textTexture, NULL, &textRect);
+        SDL_FreeSurface(textSurface);
+        SDL_DestroyTexture(textTexture);
+    }
+
     int getButtonsX() const { return buttonsX; }
 
     int getPlayY() { return playY; }
