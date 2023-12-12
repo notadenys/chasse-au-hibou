@@ -92,7 +92,7 @@ struct GUI
         apply_text_int(renderer, font, &rec, highscore, Colors::moon_gray);
     }
 
-    void displayTestText(SDL_Renderer* renderer) {
+    void apply_logo(SDL_Renderer* renderer) {
         SDL_Surface* textSurface = TTF_RenderText_Solid(font, "Chasse Au Hibou", {28,37,61,200});
         SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
         int textW, textH;
