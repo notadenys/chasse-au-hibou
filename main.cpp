@@ -289,6 +289,7 @@ void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *
     hunterListHead->freeHunterList(hunterListHead);
     Mix_FreeMusic(game_loop);
     write_highscore(score);
+    score = 0;
     SDL_Delay(3000);
 }
 
