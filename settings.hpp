@@ -45,9 +45,9 @@
 // bullet
 #define BULLET_HEIGHT 32
 #define BULLET_WIDTH 32
-#define BULLET_SPEED 5
+#define BULLET_SPEED 10
 #define SHOOTING_DELAY_MIN 0.1  // in seconds
-#define SHOOTING_DELAY_MAX 1 // in seconds
+#define SHOOTING_DELAY_MAX 2 // in seconds
 
 // gui
 #define HEART_WIDTH 80
