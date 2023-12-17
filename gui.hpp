@@ -22,7 +22,8 @@ class GUI
                                   exit_button(renderer, "exit.bmp", BACKGROUND_WIDTH/SCALE),
                                   qwerty_button(renderer, "qwerty.bmp", BACKGROUND_WIDTH/SCALE),
                                   azerty_button(renderer, "azerty.bmp", BACKGROUND_WIDTH/SCALE),
-                                  credits_sprite(renderer, "credits.bmp", CREDITS_WIDTH){}
+                                  credits_sprite(renderer, "credits.bmp", CREDITS_WIDTH),
+                                  start_screen(renderer, "start_screen.bmp", BACKGROUND_WIDTH/SCALE){}
 
     void draw_gui(int lives, int fps)
     {
@@ -161,6 +162,12 @@ class GUI
         }
     }
 
+    void draw_start_screen() {
+            SDL_Rect bgR = {0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT};
+            SDL_RenderCopy(renderer, start_screen.texture, NULL, &bgR);
+        }
+
+
 
     private:    
     int livesX = 5, livesY = 5;
@@ -179,6 +186,7 @@ class GUI
     const Sprite qwerty_button;
     const Sprite azerty_button;
     const Sprite credits_sprite;
+    const Sprite start_screen;
 };
 
 #endif // GUI_HPP

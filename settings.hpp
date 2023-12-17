@@ -22,8 +22,8 @@
 #define OWL_WIDTH 256
 #define OWL_HEIGHT 256
 #define OWL_SPEED 15
-#define OWL_DASH_SPEED 40
-#define OWL_DASH_TIME 0.2  // in seconds
+#define OWL_DASH_SPEED 35
+#define OWL_DASH_TIME 0.25  // in seconds
 #define OWL_DASH_DELAY 1  // in seconds
 #define OWL_DEATH_DELAY 1 
 #define OWL_LIVES_ON_START 3
