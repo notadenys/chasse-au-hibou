@@ -11,7 +11,6 @@ class Map
     public:
         Map(SDL_Renderer *renderer) : renderer(renderer), 
         background(renderer, "background.bmp", BACKGROUND_WIDTH/SCALE),
-        start_background(renderer, "start_background.bmp", BACKGROUND_WIDTH/SCALE),
         grass(renderer, "grass.bmp", GRASS_WIDTH/SCALE), 
         tree(renderer, "tree.bmp", TREE_WIDTH/SCALE),
         logo(renderer, "logo.bmp", BACKGROUND_WIDTH/SCALE){}
@@ -24,11 +23,6 @@ class Map
         void draw_background() {
             SDL_Rect bgR = {0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT};
             SDL_RenderCopy(renderer, background.texture, NULL, &bgR);
-        }
-
-        void draw_start_background() {
-            SDL_Rect bgR = {0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT};
-            SDL_RenderCopy(renderer, start_background.texture, NULL, &bgR);
         }
 
         void draw_surrounding()
@@ -182,7 +176,6 @@ class Map
         SDL_Renderer *renderer; // draw here
 
         const Sprite background;
-        const Sprite start_background;
         const Sprite grass;
         const Sprite tree;
         const Sprite logo;

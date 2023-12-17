@@ -170,7 +170,7 @@ void startscreen(Map* map, GUI* gui, Sound* sound, bool* gameover, SDL_Renderer 
         reduce_FPS(timeOnStart); // rerducing FPS to 60
         (*frameCount)++;
 
-        map->draw_start_background();
+        gui->draw_start_screen();
         gui->draw_buttons();
 
         SDL_Event event;
