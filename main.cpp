@@ -19,7 +19,8 @@ int fps;
 int score = 0;
 int spawn_cof = HUNTER_SPAWN_COF;
 int highscores[HIGHSCORE_MAX+1];  // constant array is needed to avoid using pointers in reading/writing
-bool logo_shown = false;
+int logo_shown = 0;
+bool layout = true;
 
 void handle_events(SDL_Event* event, Sound* sound, bool* gameover, bool* endgame)
 {
@@ -126,8 +127,14 @@ void handle_startscreen_events(GUI* gui, Sound* sound, SDL_Event* event, bool* g
                 } else if(x1 > 59 * SCALE && x1 < 80 * SCALE) {
                     gui->draw_exit();
                     SDL_RenderPresent(renderer);
-                } else{
-                    break;
+                }
+            } else if(y1 > 0 && y1 < 115 * SCALE){
+                if((x1 > 5 * SCALE && x1 < 20 * SCALE) || layout) {
+                    gui->draw_qwerty();
+                    SDL_RenderPresent(renderer);
+                } else if((x1 > 219 * SCALE && x1 < 234 * SCALE) || !layout) {
+                    gui->draw_azerty();
+                    SDL_RenderPresent(renderer);
                 }
             }
             break;
@@ -171,9 +178,19 @@ void handle_startscreen_events(GUI* gui, Sound* sound, SDL_Event* event, bool* g
                         *gameover = true;
                         *endgame = true;
                     }
+                } else if(y1 > 0 && y1 < 115 * SCALE){
+                if((x1 > 5 * SCALE && x1 < 20 * SCALE)) {
+                    layout = true;
+                    printf("qweerty\n");
+                    printf("%d\n", layout);
+                } else if((x1 > 219 * SCALE && x1 < 234 * SCALE)) {
+                    layout = false;
+                    printf("azerty\n");
+                    printf("%d\n", layout);
                 }
             }
             break;
+            }
         }
     }
 }
@@ -254,10 +271,10 @@ void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *
 
     read_highscore();
     int highscore = highscores[0];
-    bool layout_qwerty = true;
+    bool layout_qwerty = layout;
 
     sound.playLobbyMusic();
-    if(!logo_shown) {
+    if(logo_shown == 0) {
         map.draw_logo();
         SDL_RenderPresent(renderer);
         logo_shown = true;
@@ -308,6 +325,7 @@ void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *
     hunterListHead->freeHunterList(hunterListHead);
     write_highscore(score);
     score = 0;
+    layout = layout_qwerty;
 }
 
 int main()
