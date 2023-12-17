@@ -87,6 +87,10 @@ void update_game(Owl* owl,  Hunterlist* &list, Poop* poop, GUI* gui, Sound* soun
         sound->playHunterSound();
     }
 
+    if(list->checkHunterCollision(owl, list, poop, renderer)) {
+        score += 20;
+        sound->playHunterSound();
+    }
     owl->update_state(map);
     int pooped = poop->update_state(owl);
     Hunterlist* current_hunter = list;
@@ -130,7 +134,6 @@ void handle_startscreen_events(Map* map, GUI* gui, Sound* sound, SDL_Event* even
             if (event->key.keysym.sym == SDLK_ESCAPE)    // ESC to exit
             {
                 *continueStartscreen = false;
-                *gameover = true;
                 *endgame = true;
                 sound->playConfirmationSound();
             }
@@ -169,6 +172,8 @@ void handle_startscreen_events(Map* map, GUI* gui, Sound* sound, SDL_Event* even
                 } else if((x > 219 * SCALE && x < 234 * SCALE)) {  // azerty button
                     layout_qwerty= false;
                     sound->playConfirmationSound();
+                    printf("azerty\n");
+                    printf("%d\n", layout_qwerty);
                 }
             }
             break;
