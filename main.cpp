@@ -20,7 +20,7 @@ int score = 0;
 int spawn_cof = HUNTER_SPAWN_COF;
 int highscores[HIGHSCORE_MAX+1];  // constant array is needed to avoid using pointers in reading/writing
 int logo_shown = 0;
-bool layout = false;
+bool layout = true;
 
 void handle_events(SDL_Event* event, Sound* sound, bool* gameover, bool* endgame)
 {
