@@ -78,8 +78,12 @@ void draw(Owl* owl, Hunterlist * &list, Poop* poop, GUI* gui, int highscore, Map
     SDL_RenderPresent(renderer);
 }
 
-void update_game(Owl* owl,  Hunterlist* list, Poop* poop, GUI* gui, Sound* sound, int highscore, Map* map, SDL_Renderer *renderer, bool* gameover, clock_t* timer)
+void update_game(Owl* owl,  Hunterlist* &list, Poop* poop, GUI* gui, Sound* sound, int highscore, Map* map, SDL_Renderer *renderer, bool* gameover, clock_t* timer)
 {
+    if(list->checkHunterCollision(owl, list, poop, renderer)) {
+        score += 20;
+        sound->playHunterSound();
+    }
     int pooped = 0;
     owl->update_state(map);
     pooped = poop->update_state(owl);
@@ -275,10 +279,6 @@ void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *
         owl.handle_keyboard(layout); // no need for the event variable, direct keyboard state polling
         SDL_Event event; // handle window closing
         handle_events(&event, &sound, &gameover, endgame);
-        if(hunterListHead->checkHunterCollision(&owl, hunterListHead, &poop, renderer)) {
-            score += 20;
-            sound.playHunterSound();
-        }
         update_game(&owl, hunterListHead, &poop, &gui, &sound, highscore, &map, renderer, &gameover, &timer);
         draw(&owl, hunterListHead, &poop, &gui, highscore, &map, renderer, gameover, &sound);
         reduce_FPS(timeOnStart); // rerducing FPS to 60

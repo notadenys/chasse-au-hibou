@@ -41,7 +41,6 @@ class Owl {
     }
 
     void handle_keyboard(bool layout_qwerty) {
-        printf("%d\n", layout_qwerty);
         const Uint8 *kbstate = SDL_GetKeyboardState(NULL);
         // resting
         if(layout_qwerty){
