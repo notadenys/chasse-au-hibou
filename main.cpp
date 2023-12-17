@@ -158,14 +158,10 @@ void handle_startscreen_events(Map* map, GUI* gui, Sound* sound, SDL_Event* even
                 } else if(y > 0 && y < 115 * SCALE){
                 if((x > 5 * SCALE && x < 20 * SCALE)) {
                     layout = true;
-                    printf("qwerty\n");
-                    printf("%d\n", layout);
                     sound->playConfirmationSound();
                 } else if((x > 219 * SCALE && x < 234 * SCALE)) {
                     layout= false;
                     sound->playConfirmationSound();
-                    printf("azerty\n");
-                    printf("%d\n", layout);
                 }
             }
             break;
