@@ -69,6 +69,11 @@ class Sound
         Mix_PlayChannel(-1, hit, 0);
     }
 
+    void killRickRoll()
+    {
+        Mix_FreeMusic(rickroll);
+    }
+
     ~Sound()
     {
         Mix_FreeMusic(game_loop);

@@ -115,7 +115,7 @@ int update_game(Owl* owl,  Hunterlist* list, Poop* poop, GUI* gui, Sound* sound,
     return shot;
 }
 
-void handle_startscreen_events(GUI* gui, Sound* sound, SDL_Event* event, bool* gameover, bool* continueStartscreen, bool* endgame, SDL_Renderer *renderer)
+void handle_startscreen_events(Map* map, GUI* gui, Sound* sound, SDL_Event* event, bool* gameover, bool* continueStartscreen, bool* endgame, SDL_Renderer *renderer)
 {
     while (SDL_PollEvent(event))
     {
@@ -169,7 +169,9 @@ void handle_startscreen_events(GUI* gui, Sound* sound, SDL_Event* event, bool* g
                     if (x > 159 * SCALE && x < 180 * SCALE)
                     {
                         sound->RickRoll();
-
+                        gui->play_credits(map, event);
+                        sound->killRickRoll();
+                        sound->playLobbyMusic();
                     }
                     if (x > 59 * SCALE && x < 80 * SCALE)
                     {
@@ -199,7 +201,7 @@ void startscreen(Map* map, GUI* gui, Sound* sound, bool* gameover, SDL_Renderer 
         (*frameCount)++;
         map->draw_start_background();
         SDL_Event event;
-        handle_startscreen_events(gui, sound, &event, gameover, &continueStartscreen, endgame, renderer);
+        handle_startscreen_events(map, gui, sound, &event, gameover, &continueStartscreen, endgame, renderer);
         SDL_RenderPresent(renderer);
     }
 }

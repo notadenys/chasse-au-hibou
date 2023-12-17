@@ -18,10 +18,11 @@ class GUI
     GUI(SDL_Renderer *renderer) : renderer(renderer), 
                                   lives_sprite(renderer, "heart.bmp", HEART_WIDTH/SCALE),  
                                   play_button(renderer, "play.bmp", BACKGROUND_WIDTH/SCALE),
-                                  credits_button(renderer, "credits.bmp", BACKGROUND_WIDTH/SCALE),
+                                  credits_button(renderer, "credits_button.bmp", BACKGROUND_WIDTH/SCALE),
                                   exit_button(renderer, "exit.bmp", BACKGROUND_WIDTH/SCALE),
                                   qwerty_button(renderer, "qwerty.bmp", BACKGROUND_WIDTH/SCALE),
-                                  azerty_button(renderer, "azerty.bmp", BACKGROUND_WIDTH/SCALE){}
+                                  azerty_button(renderer, "azerty.bmp", BACKGROUND_WIDTH/SCALE),
+                                  credits_sprite(renderer, "credits.bmp", CREDITS_WIDTH){}
 
     void draw_gui(int lives, int fps)
     {
@@ -56,31 +57,31 @@ class GUI
 
     void draw_play() {
         SDL_Rect src = play_button.rect(0);
-        SDL_Rect bgR = {0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT};
-        SDL_RenderCopy(renderer, play_button.texture, &src, &bgR);
+        SDL_Rect dst = {0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT};
+        SDL_RenderCopy(renderer, play_button.texture, &src, &dst);
     }
 
 
     void draw_credits() {
         SDL_Rect src = credits_button.rect(0);
-        SDL_Rect bgR = {0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT};
-        SDL_RenderCopy(renderer, credits_button.texture, &src, &bgR);
+        SDL_Rect dst = {0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT};
+        SDL_RenderCopy(renderer, credits_button.texture, &src, &dst);
     }
 
     void draw_exit() {
         SDL_Rect src = exit_button.rect(0);
-        SDL_Rect bgR = {0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT};
-        SDL_RenderCopy(renderer, exit_button.texture, &src, &bgR);
+        SDL_Rect dst = {0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT};
+        SDL_RenderCopy(renderer, exit_button.texture, &src, &dst);
     }
 
     void draw_qwerty() {
-        SDL_Rect bgR = {0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT};
-        SDL_RenderCopy(renderer, qwerty_button.texture, NULL, &bgR);
+        SDL_Rect dst = {0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT};
+        SDL_RenderCopy(renderer, qwerty_button.texture, NULL, &dst);
     }
 
     void draw_azerty() {
-        SDL_Rect bgR = {0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT};
-        SDL_RenderCopy(renderer, azerty_button.texture, NULL, &bgR);
+        SDL_Rect dst = {0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT};
+        SDL_RenderCopy(renderer, azerty_button.texture, NULL, &dst);
     }
 
     void apply_fps(int fps)
@@ -122,9 +123,31 @@ class GUI
         apply_text(renderer, font, &rec2, to_string(score), Colors::white);
     }
 
-    void play_credits()
+    void play_credits(Map* map, SDL_Event* event)
     {
-        
+        for (int i = 0; i < CREDITS_HEIGHT - SCREEN_HEIGHT; i++)
+        {
+            SDL_RenderClear(renderer);
+            map->draw_background();
+            SDL_Rect src = {0, i, SCREEN_WIDTH, SCREEN_HEIGHT};
+            SDL_Rect dst = {0, 0, SCREEN_WIDTH, SCREEN_HEIGHT};
+            SDL_RenderCopy(renderer, credits_sprite.texture, &src, &dst);
+            SDL_RenderPresent(renderer);
+            SDL_Delay(20);
+
+
+            while (SDL_PollEvent(event))
+            {
+            if (event->type == SDL_KEYDOWN)
+                {
+                    if (event->key.keysym.sym == SDLK_ESCAPE)    // ESC to exit
+                    {
+                        return;
+                    }
+                        
+                }
+            }
+        }
     }
 
 
@@ -144,6 +167,7 @@ class GUI
     const Sprite exit_button;
     const Sprite qwerty_button;
     const Sprite azerty_button;
+    const Sprite credits_sprite;
 };
 
 #endif // GUI_HPP
