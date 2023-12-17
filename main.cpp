@@ -186,13 +186,17 @@ void handle_startscreen_events(GUI* gui, Sound* sound, SDL_Event* event, bool* g
     }
 }
 
-void startscreen(Map* map, GUI* gui, Sound* sound, bool* gameover, SDL_Renderer *renderer, bool* endgame)
+void startscreen(Map* map, GUI* gui, Sound* sound, bool* gameover, SDL_Renderer *renderer, bool* endgame, int* frameCount, Uint32* startTime)
 {
+
     bool continueStartscreen = 1;
     map->draw_background();
     SDL_RenderPresent(renderer);
     while(continueStartscreen)
     {
+        int timeOnStart = SDL_GetTicks();
+        reduce_FPS(timeOnStart); // rerducing FPS to 60
+        (*frameCount)++;
         map->draw_start_background();
         SDL_Event event;
         handle_startscreen_events(gui, sound, &event, gameover, &continueStartscreen, endgame, renderer);
@@ -266,7 +270,7 @@ void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *
     bool layout_qwerty = true;
 
     sound.playLobbyMusic();
-    startscreen(&map, &gui, &sound, &gameover, renderer, endgame);
+    startscreen(&map, &gui, &sound, &gameover, renderer, endgame, frameCount, startTime);
     SDL_Delay(1000);
 
     if (!gameover)
