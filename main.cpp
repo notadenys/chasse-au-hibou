@@ -19,6 +19,7 @@ int fps;
 int score = 0;
 int spawn_cof = HUNTER_SPAWN_COF;
 int highscores[HIGHSCORE_MAX+1];  // constant array is needed to avoid using pointers in reading/writing
+bool logo_shown = false;
 
 void handle_events(SDL_Event* event, Sound* sound, bool* gameover, bool* endgame)
 {
@@ -58,10 +59,6 @@ void draw(Owl* owl, Hunterlist * &list, Poop* poop, GUI* gui, int highscore, Map
 {
     SDL_RenderClear(renderer);
     map->draw_background();
-    if(list->checkHunterCollision(owl, list, poop, renderer)) {
-        score += 20;
-        sound->playHunterSound();
-    }
     gui->draw_score(score, highscore);
     poop->draw();
     list->drawHunters(list, owl);
@@ -74,13 +71,14 @@ void draw(Owl* owl, Hunterlist * &list, Poop* poop, GUI* gui, int highscore, Map
         map->draw_surrounding();
         gui->apply_lose_message(renderer);
         gui->apply_scores(renderer, highscores, score);
+        SDL_RenderPresent(renderer);
+        SDL_Delay(3000);
     }
     SDL_RenderPresent(renderer);
 }
 
-int update_game(Owl* owl,  Hunterlist* list, Poop* poop, GUI* gui, Sound* sound, int highscore, Map* map, SDL_Renderer *renderer, bool* gameover, clock_t* timer)
+void update_game(Owl* owl,  Hunterlist* list, Poop* poop, GUI* gui, Sound* sound, int highscore, Map* map, SDL_Renderer *renderer, bool* gameover, clock_t* timer)
 {
-    int shot = 0;
     int pooped = 0;
     owl->update_state(map);
     pooped = poop->update_state(owl);
@@ -90,9 +88,9 @@ int update_game(Owl* owl,  Hunterlist* list, Poop* poop, GUI* gui, Sound* sound,
         Bullet* bullet = current_hunter->hunter.getBulletAdr();
         current_hunter->updateHunterWithBullet(current_hunter, owl); 
         current_hunter->hunter.moveHunter(map, list);
-        if (bullet->getKilled() ) {
+        // playing differnt sound, depending on owl's hp
+        if (bullet->getKilled()) {
             owl->shot();
-            shot =1;
             if (owl->getLives() > 0) { 
                 bullet->setKilled(0);
                 sound->playHitSound();
@@ -100,10 +98,6 @@ int update_game(Owl* owl,  Hunterlist* list, Poop* poop, GUI* gui, Sound* sound,
                 *gameover = true;
                 sound->playDeathMusic();
             }
-            poop->reset(owl); 
-             poop->update_state(owl);
-            
-            draw(owl, list, poop, gui, highscore, map, renderer, gameover, sound); 
             break;
         }
         current_hunter = current_hunter->next; // Move to next hunter
@@ -112,7 +106,6 @@ int update_game(Owl* owl,  Hunterlist* list, Poop* poop, GUI* gui, Sound* sound,
     if(pooped == 2) {
         sound->playPoopSound();
     }
-    return shot;
 }
 
 void handle_startscreen_events(Map* map, GUI* gui, Sound* sound, SDL_Event* event, bool* gameover, bool* continueStartscreen, bool* endgame, SDL_Renderer *renderer)
@@ -182,7 +175,6 @@ void handle_startscreen_events(Map* map, GUI* gui, Sound* sound, SDL_Event* even
                     }
                 }
             }
-            default:
             break;
         }
     }
@@ -190,10 +182,7 @@ void handle_startscreen_events(Map* map, GUI* gui, Sound* sound, SDL_Event* even
 
 void startscreen(Map* map, GUI* gui, Sound* sound, bool* gameover, SDL_Renderer *renderer, bool* endgame, int* frameCount, Uint32* startTime)
 {
-
     bool continueStartscreen = 1;
-    map->draw_background();
-    SDL_RenderPresent(renderer);
     while(continueStartscreen)
     {
         int timeOnStart = SDL_GetTicks();
@@ -245,7 +234,6 @@ void read_highscore()
 
 void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *renderer, bool* endgame)
 {
-    
     Map map(renderer);
     try {
         map.calculate_map();
@@ -268,10 +256,16 @@ void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *
 
     read_highscore();
     int highscore = highscores[0];
-    int state;
     bool layout_qwerty = true;
 
     sound.playLobbyMusic();
+    if(!logo_shown) {
+        map.draw_logo();
+        SDL_RenderPresent(renderer);
+        logo_shown = true;
+        SDL_Delay(3000);
+    }
+
     startscreen(&map, &gui, &sound, &gameover, renderer, endgame, frameCount, startTime);
     SDL_Delay(1000);
 
@@ -288,14 +282,11 @@ void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *
         owl.handle_keyboard(layout_qwerty); // no need for the event variable, direct keyboard state polling
         SDL_Event event; // handle window closing
         handle_events(&event, &sound, &gameover, endgame);
-
-        state = update_game(&owl, hunterListHead, &poop, &gui, &sound, highscore, &map, renderer, &gameover, &timer);
-        if(state == 1) {
-            sound.playHitSound();
+        if(hunterListHead->checkHunterCollision(&owl, hunterListHead, &poop, renderer)) {
+            score += 20;
+            sound.playHunterSound();
         }
-        if(state == 2) {
-            sound.playPoopSound();
-        }
+        update_game(&owl, hunterListHead, &poop, &gui, &sound, highscore, &map, renderer, &gameover, &timer);
         draw(&owl, hunterListHead, &poop, &gui, highscore, &map, renderer, gameover, &sound);
         reduce_FPS(timeOnStart); // rerducing FPS to 60
         (*frameCount)++;
@@ -319,7 +310,6 @@ void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *
     hunterListHead->freeHunterList(hunterListHead);
     write_highscore(score);
     score = 0;
-    SDL_Delay(3000);
 }
 
 int main()
