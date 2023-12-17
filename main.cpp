@@ -16,11 +16,12 @@ using namespace std;
 int frameCount = 0; // Global frame count
 Uint32 startTime = 0; // Global start time
 int fps;
-int score = 0;
-int spawn_cof = HUNTER_SPAWN_COF;
+int score = 0;  // our score during the game is here
+int spawn_coef = HUNTER_SPAWN_COF;  // controls delay between spawn of new hunters
 int highscores[HIGHSCORE_MAX+1];  // constant array is needed to avoid using pointers in reading/writing
-int logo_shown = 0;
-bool layout = true;
+bool logo_shown = 0;  // used once to show the logo on the first launch
+bool layout_qwerty = false;
+
 
 void handle_events(SDL_Event* event, Sound* sound, bool* gameover, bool* endgame)
 {
@@ -43,6 +44,7 @@ void handle_events(SDL_Event* event, Sound* sound, bool* gameover, bool* endgame
     }
 }
 
+// controls score during the game
 int update_score(clock_t* timer)
 {
     clock_t currentTime;
@@ -84,9 +86,13 @@ void update_game(Owl* owl,  Hunterlist* &list, Poop* poop, GUI* gui, Sound* soun
         score += 20;
         sound->playHunterSound();
     }
-    int pooped = 0;
+
+    if(list->checkHunterCollision(owl, list, poop, renderer)) {
+        score += 20;
+        sound->playHunterSound();
+    }
     owl->update_state(map);
-    pooped = poop->update_state(owl);
+    int pooped = poop->update_state(owl);
     Hunterlist* current_hunter = list;
     // we iterate througt the list of hunters while it exists
     while (current_hunter != nullptr) {
@@ -133,39 +139,42 @@ void handle_startscreen_events(Map* map, GUI* gui, Sound* sound, SDL_Event* even
                 sound->playConfirmationSound();
             }
             break;
-        case SDL_MOUSEBUTTONDOWN:
+
+        case SDL_MOUSEBUTTONDOWN:  // if any button is pressed
             int x, y;
             SDL_GetMouseState(&x, &y);
 
             if (event->button.button == SDL_BUTTON_LEFT)
             {
-                if (y > 68 * SCALE && y < 100 * SCALE)
+                if (y > 68 * SCALE && y < 100 * SCALE)  // if mouse has the same y coord as buttons
                 {
-                    if (x > 110 * SCALE && x <129 * SCALE)
+                    if (x > 110 * SCALE && x < 129 * SCALE)  // play button
                     {
                         *continueStartscreen = false;
                         sound->playConfirmationSound();
                     }
-                    if (x > 159 * SCALE && x < 180 * SCALE)
+                    if (x > 159 * SCALE && x < 180 * SCALE)  // credits button
                     {
                         sound->RickRoll();
                         gui->play_credits(map, event);
                         sound->playLobbyMusic();
                     }
-                    if (x > 59 * SCALE && x < 80 * SCALE)
+                    if (x > 59 * SCALE && x < 80 * SCALE)  // close button
                     {
                         sound->playConfirmationSound();
                         *continueStartscreen = false;
                         *gameover = true;
                         *endgame = true;
                     }
-                } else if(y > 0 && y < 115 * SCALE){
-                if((x > 5 * SCALE && x < 20 * SCALE)) {
-                    layout = true;
+                } else if(y > 0 && y < 115 * SCALE){  // y coords of banners
+                if((x > 5 * SCALE && x < 20 * SCALE)) {  // qwerty button
+                    layout_qwerty = true;
                     sound->playConfirmationSound();
-                } else if((x > 219 * SCALE && x < 234 * SCALE)) {
-                    layout= false;
+                } else if((x > 219 * SCALE && x < 234 * SCALE)) {  // azerty button
+                    layout_qwerty= false;
                     sound->playConfirmationSound();
+                    printf("azerty\n");
+                    printf("%d\n", layout_qwerty);
                 }
             }
             break;
@@ -184,7 +193,7 @@ void startscreen(Map* map, GUI* gui, Sound* sound, bool* gameover, SDL_Renderer 
         (*frameCount)++;
 
         gui->draw_start_screen();
-        gui->draw_buttons(layout);
+        gui->draw_buttons(layout_qwerty);  // draws highlightings for buttons
 
         SDL_Event event;
         handle_startscreen_events(map, gui, sound, &event, gameover, &continueStartscreen, endgame, renderer);
@@ -230,17 +239,40 @@ void read_highscore()
     myfile.close(); // close the file
 }
 
+// seting spawn coficient to increase difficulty of game
+void update_spawn_coef(clock_t* timer)
+{
+    if(update_score(timer) > 500 && update_score(timer) < 1000)
+    {
+        spawn_coef = 4;
+    } 
+    else if(update_score(timer) > 1000 && update_score(timer) < 1500) 
+    {
+        spawn_coef = 3;
+    } 
+    else if(update_score(timer) > 1500 && update_score(timer) < 2000) 
+    {
+        spawn_coef = 2;
+    } 
+    else if(update_score(timer) > 2000) 
+    {
+        spawn_coef = 1;
+    }
+}
+        
+
 void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *renderer, bool* endgame)
 {
     Map map(renderer);
     try {
-        map.calculate_map();
+        map.calculate_map();  // placing all the objects on the map
     }
     catch(const std::exception& e) {
         std::cerr << e.what() << '\n';
         return;
     }
 
+    // creating all the objects
     Owl owl(map.getOwlX(), map.getOwlY(), renderer);
     Poop poop(map.getOwlX(), map.getOwlY(), renderer);
     GUI gui(renderer);
@@ -252,17 +284,19 @@ void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *
     hunterListHead->createHunters(map.getGrassY(), HUNTERS_AMOUNT_ON_START, hunterListHead, renderer);
     TimeStamp spawn_timestamp = Clock::now();
 
+    // finding the highest score achieved
     read_highscore();
     int highscore = highscores[0];
 
     sound.playLobbyMusic();
-    if(logo_shown == 0) {
+    if(!logo_shown) {
         map.draw_logo();
         SDL_RenderPresent(renderer);
         logo_shown = true;
         SDL_Delay(3000);
     }
 
+    // playing the start screen
     startscreen(&map, &gui, &sound, &gameover, renderer, endgame, frameCount, startTime);
     SDL_Delay(1000);
 
@@ -274,28 +308,25 @@ void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *
     timer = clock();
 
     while (!gameover) {
-        int timeOnStart = SDL_GetTicks();
+        int timeOnStart = SDL_GetTicks();  // to control fps
 
-        owl.handle_keyboard(layout); // no need for the event variable, direct keyboard state polling
+        owl.handle_keyboard(layout_qwerty); // no need for the event variable, direct keyboard state polling
+
         SDL_Event event; // handle window closing
         handle_events(&event, &sound, &gameover, endgame);
+
         update_game(&owl, hunterListHead, &poop, &gui, &sound, highscore, &map, renderer, &gameover, &timer);
         draw(&owl, hunterListHead, &poop, &gui, highscore, &map, renderer, gameover, &sound);
+
+        // handling fps
         reduce_FPS(timeOnStart); // rerducing FPS to 60
         (*frameCount)++;
         fps = count_FPS(startTime, frameCount, fps);
-        // seting spawn coficient to increase difficulty of game
-        if(update_score(&timer) > 500 && update_score(&timer) < 1000) {
-            spawn_cof = 4;
-        } else if(update_score(&timer) > 1000 && update_score(&timer) < 1500) {
-            spawn_cof = 3;
-        } else if(update_score(&timer) > 1500 && update_score(&timer) < 2000) {
-            spawn_cof = 2;
-        } else if(update_score(&timer) > 2000) {
-            spawn_cof = 1;
-        }
+
+        update_spawn_coef(&timer);
+        
         // spawning hunters depending on score to increase difficulty
-        if(update_score(&timer) % spawn_cof == 0 && (std::chrono::duration<double>(Clock::now()-spawn_timestamp).count() > HUNTER_SPAWN_DELAY) && update_score(&timer) != 0) {
+        if(update_score(&timer) % spawn_coef == 0 && (std::chrono::duration<double>(Clock::now()-spawn_timestamp).count() > HUNTER_SPAWN_DELAY) && update_score(&timer) != 0) {
             hunterListHead->addHunter(map.getGrassY(), hunterListHead, renderer);
             spawn_timestamp = Clock::now();
         }
