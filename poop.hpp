@@ -3,7 +3,7 @@
 
 #include "sprite.hpp"
 
-struct Poop {
+class Poop {
     public:
     Poop(int x, int y, SDL_Renderer *renderer) : x(x + OWL_WIDTH/2 - POOP_WIDTH/2), y(y + OWL_HEIGHT/2), renderer(renderer), sprite(renderer, "poop.bmp", POOP_WIDTH/SCALE){}
 

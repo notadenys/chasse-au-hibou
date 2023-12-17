@@ -8,7 +8,7 @@
 
 using namespace std;
 
-struct Sound
+class Sound
 {
     public:
     Sound()

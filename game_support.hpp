@@ -9,7 +9,7 @@
 /*
 Initialize SDL_Window and SDL_Renderer
 */
-int init_sdl(SDL_Window **window, SDL_Renderer **renderer, int width, int height)
+inline int init_sdl(SDL_Window **window, SDL_Renderer **renderer, int width, int height)
 {
     if(0 != SDL_Init(SDL_INIT_VIDEO|SDL_INIT_AUDIO))
     {

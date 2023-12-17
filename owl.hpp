@@ -7,7 +7,7 @@
 #include "map.hpp"
 
 
-struct Owl {
+class Owl {
     public :
     Owl(int x, int y, SDL_Renderer *renderer) :
         x(x), y(y),  // start coordinates

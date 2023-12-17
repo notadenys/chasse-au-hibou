@@ -12,7 +12,7 @@ namespace Colors
     inline constexpr SDL_Color text_gray = {28,37,61,200};
 }
 
-struct GUI
+class GUI
 {
     public :
     GUI(SDL_Renderer *renderer) : renderer(renderer), 
