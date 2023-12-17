@@ -18,7 +18,8 @@ struct GUI
     public :
     GUI(SDL_Renderer *renderer) : renderer(renderer), 
                                   lives_sprite(renderer, "heart.bmp", HEART_WIDTH/SCALE),  
-                                  buttons_sprite(renderer, "buttons.bmp", BUTTON_WIDTH){}
+                                  buttons_sprite(renderer, "buttons.bmp", BUTTON_WIDTH),
+                                  credits_sprite(renderer, "credits.bmp", CREDITS_WIDTH){}
 
     void draw_gui(int lives, int fps)
     {
@@ -35,10 +36,9 @@ struct GUI
     void draw_buttons()
     {
         draw_play();
-        draw_credits();
+        draw_credits_button();
         draw_exit();
     }
-
 
     void draw_lives(int lives) 
     {
@@ -57,7 +57,7 @@ struct GUI
         SDL_RenderCopy(renderer, buttons_sprite.texture, &src, &dest);
     }
 
-    void draw_credits()
+    void draw_credits_button()
     {
         SDL_Rect src = buttons_sprite.rect(1);
         SDL_Rect dest = {buttonsX, creditsY, BUTTON_WIDTH, BUTTON_HEIGHT};
@@ -74,19 +74,19 @@ struct GUI
     void apply_fps(int fps)
     {
         SDL_Rect rec = {SCREEN_WIDTH - 30 - 5, SCREEN_HEIGHT - 40, 30, 40};
-        apply_text_int(renderer, font, &rec, fps, Colors::moon_gray);
+        apply_text(renderer, font, &rec, to_string(fps), Colors::moon_gray);
     }
 
     void apply_score(int score)
     {
         SDL_Rect rec = {moonX + MOON_SIZE/2 - countDigit(score)*27, moonY + 100, countDigit(score)*50, 100};
-        apply_text_int(renderer, font, &rec, score, Colors::moon_gray);
+        apply_text(renderer, font, &rec, to_string(score), Colors::moon_gray);
     }
 
     void apply_highscore(int highscore)
     {
         SDL_Rect rec = {moonX + MOON_SIZE/2 - countDigit(highscore)*25/2, moonY + 210, countDigit(highscore)*25, 50};
-        apply_text_int(renderer, font, &rec, highscore, Colors::moon_gray);
+        apply_text(renderer, font, &rec,  to_string(highscore), Colors::moon_gray);
     }
 
     void apply_lose_message(SDL_Renderer* renderer) {
@@ -100,14 +100,19 @@ struct GUI
         
         for(int i = 0; i < HIGHSCORE_MAX; i++) {
             SDL_Rect rec = {SCREEN_WIDTH / 2 - 75, 450 + i*50, countDigit(highscores[i])*25, 50};
-            apply_text_int(renderer, font, &rec, highscores[i], Colors::white);
+            apply_text(renderer, font, &rec, to_string(highscores[i]), Colors::white);
         }
 
         SDL_Rect textRect2 = {SCREEN_WIDTH / 2 - 350, 700, 600, 100};
         apply_text(renderer, font, &textRect2, "Your score ", Colors::white);
 
         SDL_Rect rec2 = {SCREEN_WIDTH / 2 + 250 + countDigit(score)*25/2, 720, countDigit(score)*40, 75};
-        apply_text_int(renderer, font, &rec2, score, Colors::white);
+        apply_text(renderer, font, &rec2, to_string(score), Colors::white);
+    }
+
+    void play_credits()
+    {
+        
     }
 
     int getButtonsX() const { return buttonsX; }
@@ -138,6 +143,7 @@ struct GUI
 
     const Sprite lives_sprite;
     const Sprite buttons_sprite;
+    const Sprite credits_sprite;
 };
 
 #endif // GUI_HPP

@@ -172,21 +172,6 @@ inline int countDigit(long long n)
     return 1 + countDigit(n / 10); 
 } 
 
-/*applies integer on the screen*/
-inline void apply_text_int(SDL_Renderer *renderer, TTF_Font *font, SDL_Rect* ret, int text, SDL_Color color)
-{
-    char str[countDigit(text) + 1];
-    sprintf(str, "%d", text);
-
-    SDL_Surface* surfaceText = TTF_RenderText_Solid(font, str, color);
-    SDL_Texture* textureText = SDL_CreateTextureFromSurface(renderer, surfaceText);
-    SDL_FreeSurface(surfaceText);
-
-    SDL_SetRenderDrawColor(renderer,0,0,0xFF,SDL_ALPHA_OPAQUE);
-    SDL_RenderCopy(renderer, textureText, NULL, ret);
-    SDL_DestroyTexture(textureText);
-}
-
 inline void apply_text(SDL_Renderer *renderer, TTF_Font *font, SDL_Rect* rect, const string &text, SDL_Color color)
 {
     int len = text.size();
