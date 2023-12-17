@@ -19,8 +19,6 @@ int fps;
 int score = 0;  // our score during the game is here
 int spawn_coef = HUNTER_SPAWN_COF;  // controls delay between spawn of new hunters
 int highscores[HIGHSCORE_MAX+1];  // constant array is needed to avoid using pointers in reading/writing
-bool logo_shown = 0;  // used once to show the logo on the first launch
-bool layout_qwerty = false;
 
 
 void handle_events(SDL_Event* event, Sound* sound, bool* gameover, bool* endgame)
@@ -119,7 +117,7 @@ void update_game(Owl* owl,  Hunterlist* &list, Poop* poop, GUI* gui, Sound* soun
     }
 }
 
-void handle_startscreen_events(Map* map, GUI* gui, Sound* sound, SDL_Event* event, bool* gameover, bool* continueStartscreen, bool* endgame, SDL_Renderer *renderer)
+void handle_startscreen_events(Map* map, GUI* gui, Sound* sound, SDL_Event* event, bool* gameover, bool* continueStartscreen, bool* endgame, SDL_Renderer *renderer, bool* layout_qwerty)
 {
     while (SDL_PollEvent(event))
     {
@@ -168,13 +166,11 @@ void handle_startscreen_events(Map* map, GUI* gui, Sound* sound, SDL_Event* even
                     }
                 } else if(y > 0 && y < 115 * SCALE){  // y coords of banners
                 if((x > 5 * SCALE && x < 20 * SCALE)) {  // qwerty button
-                    layout_qwerty = true;
+                    *layout_qwerty = true;
                     sound->playConfirmationSound();
                 } else if((x > 219 * SCALE && x < 234 * SCALE)) {  // azerty button
-                    layout_qwerty= false;
+                    *layout_qwerty = false;
                     sound->playConfirmationSound();
-                    printf("azerty\n");
-                    printf("%d\n", layout_qwerty);
                 }
             }
             break;
@@ -183,7 +179,7 @@ void handle_startscreen_events(Map* map, GUI* gui, Sound* sound, SDL_Event* even
     }
 }
 
-void startscreen(Map* map, GUI* gui, Sound* sound, bool* gameover, SDL_Renderer *renderer, bool* endgame, int* frameCount, Uint32* startTime)
+void startscreen(Map* map, GUI* gui, Sound* sound, bool* gameover, SDL_Renderer *renderer, bool* endgame, bool* layout_qwerty, int* frameCount, Uint32* startTime)
 {
     bool continueStartscreen = 1;
     while(continueStartscreen)
@@ -193,10 +189,10 @@ void startscreen(Map* map, GUI* gui, Sound* sound, bool* gameover, SDL_Renderer 
         (*frameCount)++;
 
         gui->draw_start_screen();
-        gui->draw_buttons(layout_qwerty);  // draws highlightings for buttons
+        gui->draw_buttons(*layout_qwerty);  // draws highlightings for buttons
 
         SDL_Event event;
-        handle_startscreen_events(map, gui, sound, &event, gameover, &continueStartscreen, endgame, renderer);
+        handle_startscreen_events(map, gui, sound, &event, gameover, &continueStartscreen, endgame, renderer, layout_qwerty);
 
         SDL_RenderPresent(renderer);
     }
@@ -261,7 +257,7 @@ void update_spawn_coef(clock_t* timer)
 }
         
 
-void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *renderer, bool* endgame)
+void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *renderer, bool* endgame, bool* logo_shown, bool* layout_qwerty)
 {
     Map map(renderer);
     try {
@@ -289,15 +285,15 @@ void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *
     int highscore = highscores[0];
 
     sound.playLobbyMusic();
-    if(!logo_shown) {
+    if(!*logo_shown) {
         map.draw_logo();
         SDL_RenderPresent(renderer);
-        logo_shown = true;
+        *logo_shown = true;
         SDL_Delay(3000);
     }
 
     // playing the start screen
-    startscreen(&map, &gui, &sound, &gameover, renderer, endgame, frameCount, startTime);
+    startscreen(&map, &gui, &sound, &gameover, renderer, endgame, layout_qwerty, frameCount, startTime);
     SDL_Delay(1000);
 
     if (!gameover)
@@ -348,10 +344,12 @@ int main()
     srand(time(NULL));
 
     bool endgame = false;
+    bool logo_shown = 0;  // used once to show the logo on the first launch
+    bool layout_qwerty = false;
 
     while(!endgame) { 
         bool gameover = false; 
-        main_loop(gameover, &frameCount, &startTime, renderer, &endgame);
+        main_loop(gameover, &frameCount, &startTime, renderer, &endgame, &logo_shown, &layout_qwerty);
     }
     
     SDL_DestroyRenderer(renderer);
