@@ -163,7 +163,6 @@ void handle_startscreen_events(Map* map, GUI* gui, Sound* sound, SDL_Event* even
                     {
                         sound->RickRoll();
                         gui->play_credits(map, event);
-                        sound->killRickRoll();
                         sound->playLobbyMusic();
                     }
                     if (x > 59 * SCALE && x < 80 * SCALE)

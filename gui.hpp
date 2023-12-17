@@ -133,7 +133,7 @@ class GUI
             SDL_Rect dst = {0, 0, SCREEN_WIDTH, SCREEN_HEIGHT};
             SDL_RenderCopy(renderer, credits_sprite.texture, &src, &dst);
             SDL_RenderPresent(renderer);
-            SDL_Delay(20);
+            SDL_Delay(18);
 
 
             while (SDL_PollEvent(event))
