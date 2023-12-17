@@ -52,7 +52,7 @@ int update_score(clock_t* timer)
     return score;
 }
 
-void draw(Owl* owl, Hunterlist * &list, Poop* poop, GUI* gui, int highscore, Map* map, SDL_Renderer *renderer)
+void draw(Owl* owl, Hunterlist * &list, Poop* poop, GUI* gui, int highscore, Map* map, SDL_Renderer *renderer, bool gameover)
 {
     SDL_RenderClear(renderer);
     map->draw_background();
@@ -66,8 +66,14 @@ void draw(Owl* owl, Hunterlist * &list, Poop* poop, GUI* gui, int highscore, Map
     list->drawHunters(list, owl);
     map->draw_surrounding();
     list->drawBullets(list);
-    owl->draw();
     gui->draw_gui(owl->getLives(), fps);
+    owl->draw();
+    if(owl->getLives() == 0) {
+        map->draw_background();
+        map->draw_surrounding();
+        gui->apply_lose_message(renderer);
+        gui->apply_scores(renderer, highscores, score);
+    }
     SDL_RenderPresent(renderer);
 }
 
@@ -91,13 +97,11 @@ int update_game(Owl* owl,  Hunterlist* list, Poop* poop, GUI* gui, int highscore
             } else {
                 *gameover = true;
                 playDeathMusic();
-                SDL_Delay(2500);
-                gui->apply_lose_message(renderer);
             }
             poop->reset(owl); 
              poop->update_state(owl);
             
-            draw(owl, list, poop, gui, highscore, map, renderer); 
+            draw(owl, list, poop, gui, highscore, map, renderer, gameover); 
             break;
         }
         current_hunter = current_hunter->next; // Move to next hunter
@@ -262,7 +266,7 @@ void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *
         if(state == 2) {
             Mix_PlayChannel(-1, pooped, 0);
         }
-        draw(&owl, hunterListHead, &poop, &gui, highscore, &map, renderer);
+        draw(&owl, hunterListHead, &poop, &gui, highscore, &map, renderer, gameover);
         reduce_FPS(timeOnStart); // rerducing FPS to 60
         (*frameCount)++;
         fps = count_FPS(startTime, frameCount, fps);
@@ -282,11 +286,13 @@ void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *
             spawn_timestamp = Clock::now();
         }
     }
-    draw(&owl, hunterListHead, &poop, &gui, highscore, &map, renderer);
     hunterListHead->freeHunterList(hunterListHead);
     Mix_FreeMusic(game_loop);
     write_highscore(score);
+    score = 0;
+    SDL_Delay(3000);
 }
+
 int main()
 {
     SDL_Renderer *renderer;

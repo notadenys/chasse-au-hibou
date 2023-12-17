@@ -104,12 +104,38 @@ struct GUI
     }
 
     void apply_lose_message(SDL_Renderer* renderer) {
-        SDL_Surface* textSurface = TTF_RenderText_Solid(font, "YOU LOSE!", {28,37,61,200});
+        SDL_Surface* textSurface = TTF_RenderText_Solid(font, "GAME OVER!", {255,255,255});
         SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
         int textW, textH;
         SDL_QueryTexture(textTexture, NULL, NULL, &textW, &textH);
-        SDL_Rect textRect = {SCREEN_WIDTH /2, SCREEN_HEIGHT /2, 1500, 200};
+        SDL_Rect textRect = {SCREEN_WIDTH / 2 - 500, 150, 1000, 200};
         SDL_RenderCopy(renderer, textTexture, NULL, &textRect);
+        SDL_FreeSurface(textSurface);
+        SDL_DestroyTexture(textTexture);
+    }
+
+    void apply_scores(SDL_Renderer* renderer, int highscores[], int score) {
+        SDL_Surface* textSurface = TTF_RenderText_Solid(font, "Highest scores", {225,225,225});
+        SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
+        int textW, textH;
+        SDL_QueryTexture(textTexture, NULL, NULL, &textW, &textH);
+        SDL_Rect textRect = {SCREEN_WIDTH / 2 - 350, 350, 700, 100};
+        SDL_RenderCopy(renderer, textTexture, NULL, &textRect);
+        
+        for(int i = 0; i < HIGHSCORE_MAX; i++) {
+            SDL_Rect rec = {SCREEN_WIDTH / 2 - 75, 450 + i*50, countDigit(highscores[i])*25, 50};
+            apply_text_int(renderer, font, &rec, highscores[i], Colors::white);
+        }
+        SDL_Surface* textSurface2 = TTF_RenderText_Solid(font, "Your score", {225,225,225});
+        SDL_Texture* textTexture2 = SDL_CreateTextureFromSurface(renderer, textSurface2);
+        int textW2, textH2;
+        SDL_QueryTexture(textTexture2, NULL, NULL, &textW2, &textH2);
+        SDL_Rect textRect2 = {SCREEN_WIDTH / 2 - 350, 700, 600, 100};
+        SDL_RenderCopy(renderer, textTexture2, NULL, &textRect2);
+        SDL_Rect rec2 = {SCREEN_WIDTH / 2 + 250 + countDigit(score)*25/2, 720, countDigit(score)*40, 75};
+        apply_text_int(renderer, font, &rec2, score, Colors::white);
+        SDL_FreeSurface(textSurface2);
+        SDL_DestroyTexture(textTexture2);
         SDL_FreeSurface(textSurface);
         SDL_DestroyTexture(textTexture);
     }
