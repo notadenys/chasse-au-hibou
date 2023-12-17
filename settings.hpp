@@ -15,13 +15,15 @@
 #define BACKGROUND_HEIGHT 1000
 #define GRASS_WIDTH 1920
 #define GRASS_HEIGHT 688
+#define CREDITS_WIDTH 1920
+#define CREDITS_HEIGHT 11279
 
 // owl
 #define OWL_WIDTH 256
 #define OWL_HEIGHT 256
 #define OWL_SPEED 15
-#define OWL_DASH_SPEED 30
-#define OWL_DASH_TIME 0.3  // in seconds
+#define OWL_DASH_SPEED 40
+#define OWL_DASH_TIME 0.2  // in seconds
 #define OWL_DASH_DELAY 1  // in seconds
 #define OWL_DEATH_DELAY 1 
 #define OWL_LIVES_ON_START 3
@@ -39,6 +41,7 @@
 #define HUNTER_SPEED 5
 #define HUNTER_SPAWN_DELAY 0.5
 #define HUNTER_SPAWN_COF 5
+#define HUNTERS_AMOUNT_ON_START 3
 
 
 // bullet
@@ -49,8 +52,9 @@
 #define SHOOTING_DELAY_MAX 2 // in seconds
 
 // gui
-#define HEART_WIDTH 80
+#define HEART_WIDTH 96
 #define HEART_HEIGHT 80
+#define HEART_DISTANCE 10
 #define MOON_SIZE 232
 #define CROWN_WIDTH 50
 #define CROWN_HEIGHT 25

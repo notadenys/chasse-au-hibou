@@ -2,7 +2,6 @@
 #define BULLET_HPP
 
 #include "sprite.hpp"
-#include "music.hpp"
 
 class Bullet {
     public:

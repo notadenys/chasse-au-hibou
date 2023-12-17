@@ -8,11 +8,11 @@
 #include "poop.hpp"
 #include "gui.hpp"
 #include "map.hpp"
-#include "music.hpp"
+#include "sound.hpp"
 
 using namespace std;
 
-int number = 3;
+
 int frameCount = 0; // Global frame count
 Uint32 startTime = 0; // Global start time
 int fps;
@@ -20,18 +20,20 @@ int score = 0;
 int spawn_cof = HUNTER_SPAWN_COF;
 int highscores[HIGHSCORE_MAX+1];  // constant array is needed to avoid using pointers in reading/writing
 
-void handle_events(SDL_Event* event, bool* gameover)
+void handle_events(SDL_Event* event, Sound* sound, bool* gameover, bool* endgame)
 {
     while (SDL_PollEvent(event))
     {
        if (event->type == SDL_QUIT)
         {
             *gameover = true;
+            *endgame = true;
         }
         else if (event->type == SDL_KEYDOWN)
         {
             if (event->key.keysym.sym == SDLK_ESCAPE)    // ESC to exit
             {
+                sound->playConfirmationSound();
                 *gameover = true;
             }
                 
@@ -52,13 +54,13 @@ int update_score(clock_t* timer)
     return score;
 }
 
-void draw(Owl* owl, Hunterlist * &list, Poop* poop, GUI* gui, int highscore, Map* map, SDL_Renderer *renderer, bool gameover)
+void draw(Owl* owl, Hunterlist * &list, Poop* poop, GUI* gui, int highscore, Map* map, SDL_Renderer *renderer, bool gameover, Sound* sound)
 {
     SDL_RenderClear(renderer);
     map->draw_background();
     if(list->checkHunterCollision(owl, list, poop, renderer)) {
         score += 20;
-        playHunterSound();
+        sound->playHunterSound();
     }
     gui->draw_score(score, highscore);
     poop->draw();
@@ -76,7 +78,7 @@ void draw(Owl* owl, Hunterlist * &list, Poop* poop, GUI* gui, int highscore, Map
     SDL_RenderPresent(renderer);
 }
 
-int update_game(Owl* owl,  Hunterlist* list, Poop* poop, GUI* gui, int highscore, Map* map, SDL_Renderer *renderer, bool* gameover, clock_t* timer)
+int update_game(Owl* owl,  Hunterlist* list, Poop* poop, GUI* gui, Sound* sound, int highscore, Map* map, SDL_Renderer *renderer, bool* gameover, clock_t* timer)
 {
     int shot = 0;
     int pooped = 0;
@@ -93,27 +95,27 @@ int update_game(Owl* owl,  Hunterlist* list, Poop* poop, GUI* gui, int highscore
             shot =1;
             if (owl->getLives() > 0) { 
                 bullet->setKilled(0);
-                playHitSound();
+                sound->playHitSound();
             } else {
                 *gameover = true;
-                playDeathMusic();
+                sound->playDeathMusic();
             }
             poop->reset(owl); 
              poop->update_state(owl);
             
-            draw(owl, list, poop, gui, highscore, map, renderer, gameover); 
+            draw(owl, list, poop, gui, highscore, map, renderer, gameover, sound); 
             break;
         }
         current_hunter = current_hunter->next; // Move to next hunter
     }
     update_score(timer);
     if(pooped == 2) {
-        playPoopSound();
+        sound->playPoopSound();
     }
     return shot;
 }
 
-void handle_startscreen_events(GUI* gui, SDL_Event* event, bool* gameover, bool* continueStartscreen, bool* endgame, SDL_Renderer *renderer)
+void handle_startscreen_events(GUI* gui, Sound* sound, SDL_Event* event, bool* gameover, bool* continueStartscreen, bool* endgame, SDL_Renderer *renderer)
 {
     while (SDL_PollEvent(event))
     {
@@ -139,6 +141,7 @@ void handle_startscreen_events(GUI* gui, SDL_Event* event, bool* gameover, bool*
         case SDL_QUIT:
             *continueStartscreen = false;
             *gameover = true;
+            *endgame = true;
             break;
 
         case SDL_KEYDOWN:
@@ -147,7 +150,7 @@ void handle_startscreen_events(GUI* gui, SDL_Event* event, bool* gameover, bool*
                 *continueStartscreen = false;
                 *gameover = true;
                 *endgame = true;
-                playConfirmationSound();
+                sound->playConfirmationSound();
             }
             break;
         case SDL_MOUSEBUTTONDOWN:
@@ -161,16 +164,16 @@ void handle_startscreen_events(GUI* gui, SDL_Event* event, bool* gameover, bool*
                     if (x > 110 * SCALE && x <129 * SCALE)
                     {
                         *continueStartscreen = false;
-                        playConfirmationSound();
+                        sound->playConfirmationSound();
                     }
                     if (x > 159 * SCALE && x < 180 * SCALE)
                     {
-                        // to complete
-                        RickRoll();
+                        sound->RickRoll();
+
                     }
                     if (x > 59 * SCALE && x < 80 * SCALE)
                     {
-                        playConfirmationSound();
+                        sound->playConfirmationSound();
                         *continueStartscreen = false;
                         *gameover = true;
                         *endgame = true;
@@ -183,15 +186,16 @@ void handle_startscreen_events(GUI* gui, SDL_Event* event, bool* gameover, bool*
     }
 }
 
-void startscreen(Map* map, GUI* gui, bool* gameover, SDL_Renderer *renderer, bool* endgame)
+void startscreen(Map* map, GUI* gui, Sound* sound, bool* gameover, SDL_Renderer *renderer, bool* endgame)
 {
     bool continueStartscreen = 1;
-    // gui->draw_buttons();
+    map->draw_background();
+    SDL_RenderPresent(renderer);
     while(continueStartscreen)
     {
         map->draw_start_background();
         SDL_Event event;
-        handle_startscreen_events(gui, &event, gameover, &continueStartscreen, endgame, renderer);
+        handle_startscreen_events(gui, sound, &event, gameover, &continueStartscreen, endgame, renderer);
         SDL_RenderPresent(renderer);
     }
 }
@@ -235,7 +239,7 @@ void read_highscore()
 
 void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *renderer, bool* endgame)
 {
-    loadMusic(); // initializing and loading of music
+    
     Map map(renderer);
     try {
         map.calculate_map();
@@ -248,11 +252,12 @@ void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *
     Owl owl(map.getOwlX(), map.getOwlY(), renderer);
     Poop poop(map.getOwlX(), map.getOwlY(), renderer);
     GUI gui(renderer);
-    
+    Sound sound;
+
     clock_t timer;
 
     Hunterlist* hunterListHead = nullptr;
-    hunterListHead->createHunters(map.getGrassY(), number, hunterListHead, renderer);
+    hunterListHead->createHunters(map.getGrassY(), HUNTERS_AMOUNT_ON_START, hunterListHead, renderer);
     TimeStamp spawn_timestamp = Clock::now();
 
     read_highscore();
@@ -260,11 +265,14 @@ void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *
     int state;
     bool layout_qwerty = true;
 
-    playLobbyMusic();
-    
-    startscreen(&map, &gui, &gameover, renderer, endgame);
+    sound.playLobbyMusic();
+    startscreen(&map, &gui, &sound, &gameover, renderer, endgame);
+    SDL_Delay(1000);
 
-    playGameLoopMusic();
+    if (!gameover)
+    {
+        sound.playGameLoopMusic();
+    }
 
     timer = clock();
 
@@ -273,16 +281,16 @@ void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *
 
         owl.handle_keyboard(layout_qwerty); // no need for the event variable, direct keyboard state polling
         SDL_Event event; // handle window closing
-        handle_events(&event, &gameover);
+        handle_events(&event, &sound, &gameover, endgame);
 
-        state = update_game(&owl, hunterListHead, &poop, &gui, highscore, &map, renderer, &gameover, &timer);
+        state = update_game(&owl, hunterListHead, &poop, &gui, &sound, highscore, &map, renderer, &gameover, &timer);
         if(state == 1) {
-            Mix_PlayChannel(-1, hit, 0);
+            sound.playHitSound();
         }
         if(state == 2) {
-            Mix_PlayChannel(-1, pooped, 0);
+            sound.playPoopSound();
         }
-        draw(&owl, hunterListHead, &poop, &gui, highscore, &map, renderer, gameover);
+        draw(&owl, hunterListHead, &poop, &gui, highscore, &map, renderer, gameover, &sound);
         reduce_FPS(timeOnStart); // rerducing FPS to 60
         (*frameCount)++;
         fps = count_FPS(startTime, frameCount, fps);
@@ -303,7 +311,6 @@ void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *
         }
     }
     hunterListHead->freeHunterList(hunterListHead);
-    Mix_FreeMusic(game_loop);
     write_highscore(score);
     score = 0;
     SDL_Delay(3000);
@@ -314,24 +321,21 @@ int main()
     SDL_Renderer *renderer;
     SDL_Window *window;
 
-    Mix_Init(MIX_INIT_MP3);
+    
     init_sdl(&window, &renderer, SCREEN_WIDTH, SCREEN_HEIGHT);
     TTF_Init();
     
-    bool gameover = false;
-    bool endgame = false;
-
     srand(time(NULL));
 
+    bool endgame = false;
 
     while(!endgame) { 
-        gameover = false; 
+        bool gameover = false; 
         main_loop(gameover, &frameCount, &startTime, renderer, &endgame);
     }
     
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();
-    Mix_CloseAudio();
     return 0;
 }
