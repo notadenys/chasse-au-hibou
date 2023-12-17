@@ -17,13 +17,12 @@ struct GUI
 {
     public :
     GUI(SDL_Renderer *renderer) : renderer(renderer), 
-                                  lives_sprite(renderer, "heart.bmp", HEART_WIDTH),  
+                                  lives_sprite(renderer, "heart.bmp", HEART_WIDTH/SCALE),  
                                   buttons_sprite(renderer, "buttons.bmp", BUTTON_WIDTH){}
 
     void draw_gui(int lives, int fps)
     {
-        draw_lives();
-        apply_lives_text(lives);
+        draw_lives(lives);
         apply_fps(fps);
     }
 
@@ -41,11 +40,14 @@ struct GUI
     }
 
 
-    void draw_lives() 
+    void draw_lives(int lives) 
     {
         SDL_Rect src = lives_sprite.rect(0);
-        SDL_Rect dest = {int(livesX), int(livesY), HEART_WIDTH*2, HEART_HEIGHT*2};
-        SDL_RenderCopy(renderer, lives_sprite.texture, &src, &dest);
+        for (int i = 0; i < lives; i++)
+        {
+            SDL_Rect dest = {int(livesX), int(livesY) + (HEART_HEIGHT + HEART_DISTANCE)*i, HEART_WIDTH, HEART_HEIGHT};
+            SDL_RenderCopy(renderer, lives_sprite.texture, &src, &dest);
+        }
     }
 
     void draw_play()
@@ -67,12 +69,6 @@ struct GUI
         SDL_Rect src = buttons_sprite.rect(2);
         SDL_Rect dest = {buttonsX, exitY, BUTTON_WIDTH, BUTTON_HEIGHT};
         SDL_RenderCopy(renderer, buttons_sprite.texture, &src, &dest);
-    }
-
-    void apply_lives_text(int lives)
-    {
-        SDL_Rect rec = {60, 25, 50, 100};
-        apply_text_int(renderer, font, &rec, lives, Colors::black);
     }
 
     void apply_fps(int fps)

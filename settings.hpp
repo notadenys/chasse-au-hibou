@@ -50,8 +50,9 @@
 #define SHOOTING_DELAY_MAX 2 // in seconds
 
 // gui
-#define HEART_WIDTH 80
+#define HEART_WIDTH 96
 #define HEART_HEIGHT 80
+#define HEART_DISTANCE 10
 #define MOON_SIZE 232
 #define CROWN_WIDTH 50
 #define CROWN_HEIGHT 25
