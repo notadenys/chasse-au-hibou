@@ -255,7 +255,6 @@ void update_spawn_coef(clock_t* timer)
         spawn_coef = 1;
     }
 }
-        
 
 void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *renderer, bool* endgame, bool* logo_shown, bool* layout_qwerty)
 {
@@ -286,7 +285,7 @@ void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *
 
     sound.playLobbyMusic();
     if(!*logo_shown) {
-        map.draw_logo();
+        gui.draw_logo();
         SDL_RenderPresent(renderer);
         *logo_shown = true;
         SDL_Delay(3000);

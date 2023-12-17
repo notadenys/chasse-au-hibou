@@ -23,7 +23,8 @@ class GUI
                                   qwerty_button(renderer, "qwerty.bmp", BACKGROUND_WIDTH/SCALE),
                                   azerty_button(renderer, "azerty.bmp", BACKGROUND_WIDTH/SCALE),
                                   credits_sprite(renderer, "credits.bmp", CREDITS_WIDTH),
-                                  start_screen(renderer, "start_screen.bmp", BACKGROUND_WIDTH/SCALE){}
+                                  start_screen(renderer, "start_screen.bmp", BACKGROUND_WIDTH/SCALE),
+                                  logo(renderer, "logo.bmp", BACKGROUND_WIDTH/SCALE){}
 
     void draw_gui(int lives, int fps)
     {
@@ -37,27 +38,30 @@ class GUI
         apply_highscore(highscore);
     }
 
+    // draw the highlighting for buttons
     void draw_buttons(bool layout_querty)
     {
         int x1, y1;
         SDL_GetMouseState(&x1, &y1);
-        if (y1 > 68 * SCALE && y1 < 100 * SCALE) 
+        if (y1 > 68 * SCALE && y1 < 100 * SCALE)  // if mouse has the same y coord as buttons
         {
-            if(x1 > 110 * SCALE && x1 <129 * SCALE) {
+            if(x1 > 110 * SCALE && x1 <129 * SCALE) {  // play button
                 draw_play();
-            } else if(x1 > 159 * SCALE && x1 < 180 * SCALE) {
+            } else if(x1 > 159 * SCALE && x1 < 180 * SCALE) {  // credits button
                 draw_credits();
-            } else if(x1 > 59 * SCALE && x1 < 80 * SCALE) {
+            } else if(x1 > 59 * SCALE && x1 < 80 * SCALE) {  // exit button
                 draw_exit();
             }
         }
-            if(((y1 > 0 && y1 < 115 * SCALE) && (x1 > 5 * SCALE && x1 < 20 * SCALE)) || layout_querty) 
-            {
-                draw_qwerty();
-            }
-            if(((y1 > 0 && y1 < 115 * SCALE) && (x1 > 219 * SCALE && x1 < 234 * SCALE)) || !layout_querty) {
-                draw_azerty();
-            }
+
+        // layout buttons are highlighted either when mouse is pointed at it and this layout is set
+        if(((y1 > 0 && y1 < 115 * SCALE) && (x1 > 5 * SCALE && x1 < 20 * SCALE)) || layout_querty)
+        {
+            draw_qwerty();
+        }
+        if(((y1 > 0 && y1 < 115 * SCALE) && (x1 > 219 * SCALE && x1 < 234 * SCALE)) || !layout_querty) {
+            draw_azerty();
+        }
     }
 
     void draw_lives(int lives) 
@@ -139,6 +143,12 @@ class GUI
         SDL_Rect rec2 = {SCREEN_WIDTH / 2 + 250 + countDigit(score)*25/2, 720, countDigit(score)*40, 75};
         apply_text(renderer, font, &rec2, to_string(score), Colors::white);
     }
+    
+    void draw_logo() 
+    {
+        SDL_Rect bgR = {0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT};
+        SDL_RenderCopy(renderer, logo.texture, NULL, &bgR);
+    }
 
     void play_credits(Map* map, SDL_Event* event)
     {
@@ -152,7 +162,7 @@ class GUI
             SDL_RenderPresent(renderer);
             SDL_Delay(18);
 
-
+            // exiting from credits by pressing ESC
             while (SDL_PollEvent(event))
             {
             if (event->type == SDL_KEYDOWN)
@@ -173,7 +183,6 @@ class GUI
         }
 
 
-
     private:    
     int livesX = 5, livesY = 5;
     int moonX = 980, moonY = 80;
@@ -192,6 +201,7 @@ class GUI
     const Sprite azerty_button;
     const Sprite credits_sprite;
     const Sprite start_screen;
+    const Sprite logo;
 };
 
 #endif // GUI_HPP
