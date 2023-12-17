@@ -1,5 +1,5 @@
 ﻿Compilation:
-$ make
+\n$ make
 $ ./chasse
 
 User manual:
