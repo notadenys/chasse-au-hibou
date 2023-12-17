@@ -62,7 +62,6 @@ void draw(Owl* owl, Hunterlist * &list, Poop* poop, GUI* gui, int highscore, Map
     }
     gui->draw_score(score, highscore);
     poop->draw();
-    list->moveHunters(map, list);
     list->drawHunters(list, owl);
     map->draw_surrounding();
     list->drawBullets(list);
@@ -88,6 +87,7 @@ int update_game(Owl* owl,  Hunterlist* list, Poop* poop, GUI* gui, int highscore
     while (current_hunter != nullptr) {
         Bullet* bullet = current_hunter->hunter.getBulletAdr();
         current_hunter->updateHunterWithBullet(current_hunter, owl); 
+        current_hunter->hunter.moveHunter(map, list);
         if (bullet->getKilled() ) {
             owl->shot();
             shot =1;
@@ -124,15 +124,12 @@ void handle_startscreen_events(GUI* gui, SDL_Event* event, bool* gameover, bool*
             if (y1 > 68 * SCALE && y1 < 100 * SCALE) {
                 if(x1 > 110 * SCALE && x1 <129 * SCALE) {
                     gui->draw_play();
-                    printf("play\n");
                     SDL_RenderPresent(renderer);
                 } else if(x1 > 159 * SCALE && x1 < 180 * SCALE) {
                     gui->draw_credits();
-                    printf("credits\n");
                     SDL_RenderPresent(renderer);
                 } else if(x1 > 59 * SCALE && x1 < 80 * SCALE) {
                     gui->draw_exit();
-                    printf("exit\n");
                     SDL_RenderPresent(renderer);
                 } else{
                     break;
