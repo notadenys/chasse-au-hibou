@@ -128,6 +128,7 @@ void handle_startscreen_events(Map* map, GUI* gui, Sound* sound, SDL_Event* even
             if (event->key.keysym.sym == SDLK_ESCAPE)    // ESC to exit
             {
                 *continueStartscreen = false;
+                *gameover = true;
                 *endgame = true;
                 sound->playConfirmationSound();
             }
