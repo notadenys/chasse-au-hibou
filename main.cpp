@@ -20,7 +20,7 @@ int score = 0;
 int spawn_cof = HUNTER_SPAWN_COF;
 int highscores[HIGHSCORE_MAX+1];  // constant array is needed to avoid using pointers in reading/writing
 int logo_shown = 0;
-bool layout = true;
+bool layout_qwerty = true;
 
 void handle_events(SDL_Event* event, Sound* sound, bool* gameover, bool* endgame)
 {
@@ -114,30 +114,6 @@ void handle_startscreen_events(Map* map, GUI* gui, Sound* sound, SDL_Event* even
     while (SDL_PollEvent(event))
     {
         switch (event->type) {
-        case SDL_MOUSEMOTION:
-            int x1, y1;
-            SDL_GetMouseState(&x1, &y1);
-            if (y1 > 68 * SCALE && y1 < 100 * SCALE) {
-                if(x1 > 110 * SCALE && x1 <129 * SCALE) {
-                    gui->draw_play();
-                    SDL_RenderPresent(renderer);
-                } else if(x1 > 159 * SCALE && x1 < 180 * SCALE) {
-                    gui->draw_credits();
-                    SDL_RenderPresent(renderer);
-                } else if(x1 > 59 * SCALE && x1 < 80 * SCALE) {
-                    gui->draw_exit();
-                    SDL_RenderPresent(renderer);
-                }
-            } else if(y1 > 0 && y1 < 115 * SCALE){
-                if((x1 > 5 * SCALE && x1 < 20 * SCALE)) {
-                    gui->draw_qwerty();
-                    SDL_RenderPresent(renderer);
-                } else if((x1 > 219 * SCALE && x1 < 234 * SCALE)) {
-                    gui->draw_azerty();
-                    SDL_RenderPresent(renderer);
-                }
-            }
-            break;
         case SDL_QUIT:
             *continueStartscreen = false;
             *gameover = true;
@@ -179,15 +155,15 @@ void handle_startscreen_events(Map* map, GUI* gui, Sound* sound, SDL_Event* even
                         *gameover = true;
                         *endgame = true;
                     }
-                } else if(y1 > 0 && y1 < 115 * SCALE){
-                if((x1 > 5 * SCALE && x1 < 20 * SCALE)) {
-                    layout = true;
+                } else if(y > 0 && y < 115 * SCALE){
+                if((x > 5 * SCALE && x < 20 * SCALE)) {
+                    layout_qwerty = true;
                     printf("qwerty\n");
-                    printf("%d\n", layout);
-                } else if((x1 > 219 * SCALE && x1 < 234 * SCALE)) {
-                    layout = false;
+                    printf("%d\n", layout_qwerty);
+                } else if((x > 219 * SCALE && x < 234 * SCALE)) {
+                    layout_qwerty = false;
                     printf("azerty\n");
-                    printf("%d\n", layout);
+                    printf("%d\n", layout_qwerty);
                 }
             }
             break;
@@ -206,7 +182,7 @@ void startscreen(Map* map, GUI* gui, Sound* sound, bool* gameover, SDL_Renderer 
         (*frameCount)++;
 
         gui->draw_start_screen();
-        gui->draw_buttons();
+        gui->draw_buttons(layout_qwerty);
 
         SDL_Event event;
         handle_startscreen_events(map, gui, sound, &event, gameover, &continueStartscreen, endgame, renderer);
@@ -299,7 +275,7 @@ void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *
     while (!gameover) {
         int timeOnStart = SDL_GetTicks();
 
-        owl.handle_keyboard(layout); // no need for the event variable, direct keyboard state polling
+        owl.handle_keyboard(layout_qwerty); // no need for the event variable, direct keyboard state polling
         SDL_Event event; // handle window closing
         handle_events(&event, &sound, &gameover, endgame);
         if(hunterListHead->checkHunterCollision(&owl, hunterListHead, &poop, renderer)) {
@@ -330,7 +306,7 @@ void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *
     hunterListHead->freeHunterList(hunterListHead);
     write_highscore(score);
     score = 0;
-    layout = layout_qwerty;
+    layout_qwerty = layout_qwerty;
 }
 
 int main()
