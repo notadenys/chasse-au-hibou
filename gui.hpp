@@ -37,22 +37,28 @@ class GUI
         apply_highscore(highscore);
     }
 
-    void draw_buttons()
+    void draw_buttons(bool layout_querty)
     {
         int x1, y1;
-        SDL_GetMouseState(&x1, &y1);
-        if (y1 > 68 * SCALE && y1 < 100 * SCALE) {
-            if(x1 > 110 * SCALE && x1 <129 * SCALE) {
-                draw_play();
-                SDL_RenderPresent(renderer);
-            } else if(x1 > 159 * SCALE && x1 < 180 * SCALE) {
-                draw_credits();
-                SDL_RenderPresent(renderer);
-            } else if(x1 > 59 * SCALE && x1 < 80 * SCALE) {
-                draw_exit();
-                SDL_RenderPresent(renderer);
+            SDL_GetMouseState(&x1, &y1);
+            if (y1 > 68 * SCALE && y1 < 100 * SCALE) {
+                if(x1 > 110 * SCALE && x1 <129 * SCALE) {
+                    draw_play();
+                } else if(x1 > 159 * SCALE && x1 < 180 * SCALE) {
+                    draw_credits();
+                } else if(x1 > 59 * SCALE && x1 < 80 * SCALE) {
+                    draw_exit();
+                }
             }
-        }
+            if(y1 > 0 && y1 < 115 * SCALE)
+            {
+                if((x1 > 5 * SCALE && x1 < 20 * SCALE) || layout_querty) {
+                    draw_qwerty();
+                }
+                if((x1 > 219 * SCALE && x1 < 234 * SCALE) || !layout_querty) {
+                    draw_azerty();
+                }
+            }
     }
 
     void draw_lives(int lives) 
