@@ -51,7 +51,7 @@ void playDeathMusic() {
 }
 
 void RickRoll() {
-    Mix_PlayMusic(rickroll, -1);
+    Mix_PlayMusic(rickroll, 1);
 }
 
 // playing sounds

@@ -12,7 +12,7 @@
 
 using namespace std;
 
-int number = 3;
+
 int frameCount = 0; // Global frame count
 Uint32 startTime = 0; // Global start time
 int fps;
@@ -20,18 +20,20 @@ int score = 0;
 int spawn_cof = HUNTER_SPAWN_COF;
 int highscores[HIGHSCORE_MAX+1];  // constant array is needed to avoid using pointers in reading/writing
 
-void handle_events(SDL_Event* event, bool* gameover)
+void handle_events(SDL_Event* event, bool* gameover, bool* endgame)
 {
     while (SDL_PollEvent(event))
     {
        if (event->type == SDL_QUIT)
         {
             *gameover = true;
+            *endgame = true;
         }
         else if (event->type == SDL_KEYDOWN)
         {
             if (event->key.keysym.sym == SDLK_ESCAPE)    // ESC to exit
             {
+                playConfirmationSound();
                 *gameover = true;
             }
                 
@@ -122,6 +124,7 @@ void handle_startscreen_events(GUI* gui, SDL_Event* event, bool* gameover, bool*
         case SDL_QUIT:
             *continueStartscreen = false;
             *gameover = true;
+            *endgame = true;
             break;
 
         case SDL_KEYDOWN:
@@ -171,7 +174,6 @@ void startscreen(Map* map, GUI* gui, bool* gameover, SDL_Renderer *renderer, boo
     bool continueStartscreen = 1;
     map->draw_background();
     gui->draw_buttons();
-    gui->apply_logo(renderer);
     SDL_RenderPresent(renderer);
     while(continueStartscreen)
     {
@@ -236,7 +238,7 @@ void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *
     clock_t timer;
 
     Hunterlist* hunterListHead = nullptr;
-    hunterListHead->createHunters(map.getGrassY(), number, hunterListHead, renderer);
+    hunterListHead->createHunters(map.getGrassY(), HUNTERS_AMOUNT_ON_START, hunterListHead, renderer);
     TimeStamp spawn_timestamp = Clock::now();
 
     read_highscore();
@@ -257,7 +259,7 @@ void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *
 
         owl.handle_keyboard(); // no need for the event variable, direct keyboard state polling
         SDL_Event event; // handle window closing
-        handle_events(&event, &gameover);
+        handle_events(&event, &gameover, endgame);
 
         state = update_game(&owl, hunterListHead, &poop, &gui, highscore, &map, renderer, &gameover, &timer);
         if(state == 1) {

@@ -144,7 +144,7 @@ inline char** lire_fichier(const char* fileName) {
     return tab;
 }
 
-SDL_Texture *load_image(const char path[], SDL_Renderer *renderer)
+inline SDL_Texture *load_image(const char path[], SDL_Renderer *renderer)
 {
     SDL_Surface *tmp = NULL;
     SDL_Texture *texture = NULL;
@@ -165,7 +165,7 @@ SDL_Texture *load_image(const char path[], SDL_Renderer *renderer)
     return texture;
 }
 
-int countDigit(long long n) 
+inline int countDigit(long long n) 
 { 
     if (n/10 == 0) 
         return 1; 
@@ -173,20 +173,40 @@ int countDigit(long long n)
 } 
 
 /*applies integer on the screen*/
-void apply_text_int(SDL_Renderer *renderer, TTF_Font *font, SDL_Rect* rec, int text, SDL_Color color)
+inline void apply_text_int(SDL_Renderer *renderer, TTF_Font *font, SDL_Rect* ret, int text, SDL_Color color)
 {
     char str[countDigit(text) + 1];
     sprintf(str, "%d", text);
+
     SDL_Surface* surfaceText = TTF_RenderText_Solid(font, str, color);
     SDL_Texture* textureText = SDL_CreateTextureFromSurface(renderer, surfaceText);
     SDL_FreeSurface(surfaceText);
+
     SDL_SetRenderDrawColor(renderer,0,0,0xFF,SDL_ALPHA_OPAQUE);
-    SDL_RenderCopy(renderer, textureText, NULL, rec);
+    SDL_RenderCopy(renderer, textureText, NULL, ret);
+    SDL_DestroyTexture(textureText);
+}
+
+inline void apply_text(SDL_Renderer *renderer, TTF_Font *font, SDL_Rect* rect, const string &text, SDL_Color color)
+{
+    int len = text.size();
+    char formattedText[len + 1];
+    strcpy(formattedText, text.c_str());
+
+    SDL_Surface* surfaceText = TTF_RenderText_Solid(font, formattedText, color);
+    SDL_Texture* textureText = SDL_CreateTextureFromSurface(renderer, surfaceText);
+    SDL_FreeSurface(surfaceText);
+
+    int textW, textH;
+    SDL_QueryTexture(textureText, NULL, NULL, &textW, &textH);
+
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0xFF, SDL_ALPHA_OPAQUE);
+    SDL_RenderCopy(renderer, textureText, NULL, rect);
     SDL_DestroyTexture(textureText);
 }
 
 // rducing FPS to 60
-void reduce_FPS(int timeOnStart)
+inline void reduce_FPS(int timeOnStart)
 {
     int delta = SDL_GetTicks() - timeOnStart;
     int desiredDelta = 1000 / FPS_LIM;
@@ -197,7 +217,7 @@ void reduce_FPS(int timeOnStart)
     }
 }
 
-int count_FPS(Uint32* startTime, int* frameCount, int fps)
+inline int count_FPS(Uint32* startTime, int* frameCount, int fps)
 {
     Uint32 currentTime = SDL_GetTicks();
     Uint32 deltaTime = currentTime - *startTime;
