@@ -122,6 +122,11 @@ struct GUI
 
     int getExitY() { return exitY; }
 
+    ~GUI()
+    {
+        TTF_CloseFont(font);
+    }
+
 
     private:    
     int livesX = 5, livesY = 5;
