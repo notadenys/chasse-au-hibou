@@ -306,7 +306,7 @@ void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *
     while (!gameover) {
         int timeOnStart = SDL_GetTicks();  // to control fps
 
-        owl.handle_keyboard(layout_qwerty); // no need for the event variable, direct keyboard state polling
+        owl.handle_keyboard(*layout_qwerty); // no need for the event variable, direct keyboard state polling
 
         SDL_Event event; // handle window closing
         handle_events(&event, &sound, &gameover, endgame);
