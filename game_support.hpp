@@ -190,7 +190,7 @@ inline void apply_text(SDL_Renderer *renderer, TTF_Font *font, SDL_Rect* rect, c
     SDL_DestroyTexture(textureText);
 }
 
-// rducing FPS to 60
+// reducing FPS to 60
 inline void reduce_FPS(int timeOnStart)
 {
     int delta = SDL_GetTicks() - timeOnStart;

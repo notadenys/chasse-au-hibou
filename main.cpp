@@ -113,24 +113,6 @@ void handle_startscreen_events(Map* map, GUI* gui, Sound* sound, SDL_Event* even
     while (SDL_PollEvent(event))
     {
         switch (event->type) {
-        case SDL_MOUSEMOTION:
-            int x1, y1;
-            SDL_GetMouseState(&x1, &y1);
-            if (y1 > 68 * SCALE && y1 < 100 * SCALE) {
-                if(x1 > 110 * SCALE && x1 <129 * SCALE) {
-                    gui->draw_play();
-                    SDL_RenderPresent(renderer);
-                } else if(x1 > 159 * SCALE && x1 < 180 * SCALE) {
-                    gui->draw_credits();
-                    SDL_RenderPresent(renderer);
-                } else if(x1 > 59 * SCALE && x1 < 80 * SCALE) {
-                    gui->draw_exit();
-                    SDL_RenderPresent(renderer);
-                } else{
-                    break;
-                }
-            }
-            break;
         case SDL_QUIT:
             *continueStartscreen = false;
             *gameover = true;
@@ -187,9 +169,13 @@ void startscreen(Map* map, GUI* gui, Sound* sound, bool* gameover, SDL_Renderer 
         int timeOnStart = SDL_GetTicks();
         reduce_FPS(timeOnStart); // rerducing FPS to 60
         (*frameCount)++;
+
         map->draw_start_background();
+        gui->draw_buttons();
+
         SDL_Event event;
         handle_startscreen_events(map, gui, sound, &event, gameover, &continueStartscreen, endgame, renderer);
+
         SDL_RenderPresent(renderer);
     }
 }

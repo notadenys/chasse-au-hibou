@@ -38,11 +38,20 @@ class GUI
 
     void draw_buttons()
     {
-        draw_play();
-        draw_credits();
-        draw_exit();
-        draw_qwerty();
-        draw_azerty();
+        int x1, y1;
+        SDL_GetMouseState(&x1, &y1);
+        if (y1 > 68 * SCALE && y1 < 100 * SCALE) {
+            if(x1 > 110 * SCALE && x1 <129 * SCALE) {
+                draw_play();
+                SDL_RenderPresent(renderer);
+            } else if(x1 > 159 * SCALE && x1 < 180 * SCALE) {
+                draw_credits();
+                SDL_RenderPresent(renderer);
+            } else if(x1 > 59 * SCALE && x1 < 80 * SCALE) {
+                draw_exit();
+                SDL_RenderPresent(renderer);
+            }
+        }
     }
 
     void draw_lives(int lives) 
