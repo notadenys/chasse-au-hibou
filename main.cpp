@@ -113,12 +113,32 @@ int update_game(Owl* owl,  Hunterlist* list, Poop* poop, GUI* gui, int highscore
     return shot;
 }
 
-void handle_startscreen_events(GUI* gui, SDL_Event* event, bool* gameover, bool* continueStartscreen, bool* endgame)
+void handle_startscreen_events(GUI* gui, SDL_Event* event, bool* gameover, bool* continueStartscreen, bool* endgame, SDL_Renderer *renderer)
 {
     while (SDL_PollEvent(event))
     {
-        switch (event->type)
-        {
+        switch (event->type) {
+        case SDL_MOUSEMOTION:
+            int x1, y1;
+            SDL_GetMouseState(&x1, &y1);
+            if (y1 > 68 * SCALE && y1 < 100 * SCALE) {
+                if(x1 > 110 * SCALE && x1 <129 * SCALE) {
+                    gui->draw_play();
+                    printf("play\n");
+                    SDL_RenderPresent(renderer);
+                } else if(x1 > 159 * SCALE && x1 < 180 * SCALE) {
+                    gui->draw_credits();
+                    printf("credits\n");
+                    SDL_RenderPresent(renderer);
+                } else if(x1 > 59 * SCALE && x1 < 80 * SCALE) {
+                    gui->draw_exit();
+                    printf("exit\n");
+                    SDL_RenderPresent(renderer);
+                } else{
+                    break;
+                }
+            }
+            break;
         case SDL_QUIT:
             *continueStartscreen = false;
             *gameover = true;
@@ -139,19 +159,19 @@ void handle_startscreen_events(GUI* gui, SDL_Event* event, bool* gameover, bool*
 
             if (event->button.button == SDL_BUTTON_LEFT)
             {
-                if (x > gui->getButtonsX() && x < gui->getButtonsX() + BUTTON_WIDTH)
+                if (y > 68 * SCALE && y < 100 * SCALE)
                 {
-                    if (y > gui->getPlayY() && y < gui->getPlayY() + BUTTON_HEIGHT)
+                    if (x > 110 * SCALE && x <129 * SCALE)
                     {
                         *continueStartscreen = false;
                         playConfirmationSound();
                     }
-                    if (y > gui->getCreditsY() && y < gui->getCreditsY() + BUTTON_HEIGHT)
+                    if (x > 159 * SCALE && x < 180 * SCALE)
                     {
                         // to complete
                         RickRoll();
                     }
-                    if (y > gui->getExitY() && y < gui->getExitY() + BUTTON_HEIGHT)
+                    if (x > 59 * SCALE && x < 80 * SCALE)
                     {
                         playConfirmationSound();
                         *continueStartscreen = false;
@@ -169,14 +189,13 @@ void handle_startscreen_events(GUI* gui, SDL_Event* event, bool* gameover, bool*
 void startscreen(Map* map, GUI* gui, bool* gameover, SDL_Renderer *renderer, bool* endgame)
 {
     bool continueStartscreen = 1;
-    map->draw_background();
-    gui->draw_buttons();
-    gui->apply_logo(renderer);
-    SDL_RenderPresent(renderer);
+    // gui->draw_buttons();
     while(continueStartscreen)
     {
+        map->draw_start_background();
         SDL_Event event;
-        handle_startscreen_events(gui, &event, gameover, &continueStartscreen, endgame);
+        handle_startscreen_events(gui, &event, gameover, &continueStartscreen, endgame, renderer);
+        SDL_RenderPresent(renderer);
     }
 }
 
@@ -242,20 +261,20 @@ void main_loop(bool gameover, int* frameCount, Uint32* startTime, SDL_Renderer *
     read_highscore();
     int highscore = highscores[0];
     int state;
+    bool layout_qwerty = true;
 
     playLobbyMusic();
+    
     startscreen(&map, &gui, &gameover, renderer, endgame);
-    SDL_Delay(1000);
 
     playGameLoopMusic();
 
     timer = clock();
 
-    while (!gameover)   
-    {
+    while (!gameover) {
         int timeOnStart = SDL_GetTicks();
 
-        owl.handle_keyboard(); // no need for the event variable, direct keyboard state polling
+        owl.handle_keyboard(layout_qwerty); // no need for the event variable, direct keyboard state polling
         SDL_Event event; // handle window closing
         handle_events(&event, &gameover);
 

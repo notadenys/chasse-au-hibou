@@ -11,13 +11,16 @@ namespace Colors
     inline constexpr SDL_Color moon_gray = {79,94,140};
 }
 
-
 struct GUI
 {
     public :
     GUI(SDL_Renderer *renderer) : renderer(renderer), 
                                   lives_sprite(renderer, "heart.bmp", HEART_WIDTH),  
-                                  buttons_sprite(renderer, "buttons.bmp", BUTTON_WIDTH){}
+                                  play_button(renderer, "play.bmp", BACKGROUND_WIDTH/SCALE),
+                                  credits_button(renderer, "credits.bmp", BACKGROUND_WIDTH/SCALE),
+                                  exit_button(renderer, "exit.bmp", BACKGROUND_WIDTH/SCALE),
+                                  qwerty_button(renderer, "qwerty.bmp", BACKGROUND_WIDTH/SCALE),
+                                  azerty_button(renderer, "azerty.bmp", BACKGROUND_WIDTH/SCALE){}
 
     void draw_gui(int lives, int fps)
     {
@@ -37,8 +40,9 @@ struct GUI
         draw_play();
         draw_credits();
         draw_exit();
+        draw_qwerty();
+        draw_azerty();
     }
-
 
     void draw_lives() 
     {
@@ -47,25 +51,32 @@ struct GUI
         SDL_RenderCopy(renderer, lives_sprite.texture, &src, &dest);
     }
 
-    void draw_play()
-    {
-        SDL_Rect src = buttons_sprite.rect(0);
-        SDL_Rect dest = {buttonsX, playY, BUTTON_WIDTH, BUTTON_HEIGHT};
-        SDL_RenderCopy(renderer, buttons_sprite.texture, &src, &dest);
+    void draw_play() {
+        SDL_Rect src = play_button.rect(0);
+        SDL_Rect bgR = {0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT};
+        SDL_RenderCopy(renderer, play_button.texture, &src, &bgR);
     }
 
-    void draw_credits()
-    {
-        SDL_Rect src = buttons_sprite.rect(1);
-        SDL_Rect dest = {buttonsX, creditsY, BUTTON_WIDTH, BUTTON_HEIGHT};
-        SDL_RenderCopy(renderer, buttons_sprite.texture, &src, &dest);
+    void draw_credits() {
+        SDL_Rect src = credits_button.rect(0);
+        SDL_Rect bgR = {0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT};
+        SDL_RenderCopy(renderer, credits_button.texture, &src, &bgR);
     }
 
-    void draw_exit()
-    {
-        SDL_Rect src = buttons_sprite.rect(2);
-        SDL_Rect dest = {buttonsX, exitY, BUTTON_WIDTH, BUTTON_HEIGHT};
-        SDL_RenderCopy(renderer, buttons_sprite.texture, &src, &dest);
+    void draw_exit() {
+        SDL_Rect src = exit_button.rect(0);
+        SDL_Rect bgR = {0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT};
+        SDL_RenderCopy(renderer, exit_button.texture, &src, &bgR);
+    }
+
+    void draw_qwerty() {
+        SDL_Rect bgR = {0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT};
+        SDL_RenderCopy(renderer, qwerty_button.texture, NULL, &bgR);
+    }
+
+    void draw_azerty() {
+        SDL_Rect bgR = {0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT};
+        SDL_RenderCopy(renderer, azerty_button.texture, NULL, &bgR);
     }
 
     void apply_lives_text(int lives)
@@ -90,17 +101,6 @@ struct GUI
     {
         SDL_Rect rec = {moonX + MOON_SIZE/2 - countDigit(highscore)*25/2, moonY + 210, countDigit(highscore)*25, 50};
         apply_text_int(renderer, font, &rec, highscore, Colors::moon_gray);
-    }
-
-    void apply_logo(SDL_Renderer* renderer) {
-        SDL_Surface* textSurface = TTF_RenderText_Solid(font, "Chasse Au Hibou", {28,37,61,200});
-        SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
-        int textW, textH;
-        SDL_QueryTexture(textTexture, NULL, NULL, &textW, &textH);
-        SDL_Rect textRect = {SCREEN_WIDTH / 2 - 750, 50, 1500, 200};
-        SDL_RenderCopy(renderer, textTexture, NULL, &textRect);
-        SDL_FreeSurface(textSurface);
-        SDL_DestroyTexture(textTexture);
     }
 
     void apply_lose_message(SDL_Renderer* renderer) {
@@ -140,29 +140,23 @@ struct GUI
         SDL_DestroyTexture(textTexture);
     }
 
-    int getButtonsX() const { return buttonsX; }
-
-    int getPlayY() { return playY; }
-
-    int getCreditsY() { return creditsY; }
-
-    int getExitY() { return exitY; }
-
 
     private:    
     int livesX = 5, livesY = 5;
     int moonX = 980, moonY = 80;
-    int buttonsX =  (SCREEN_WIDTH - BUTTON_WIDTH) / 2;
-    int playY = SCREEN_HEIGHT/2 - BUTTON_HEIGHT * 2;
-    int creditsY = playY + BUTTON_HEIGHT * 1.5;
-    int exitY = creditsY + BUTTON_HEIGHT * 1.5;
+    int buttonsX = 0;
+    int buttonsY = 0;
 
     TTF_Font *font = TTF_OpenFont("resources/font2.ttf", 48);
 
     SDL_Renderer *renderer; // draw here
 
     const Sprite lives_sprite;
-    const Sprite buttons_sprite;
+    const Sprite play_button;
+    const Sprite credits_button;
+    const Sprite exit_button;
+    const Sprite qwerty_button;
+    const Sprite azerty_button;
 };
 
 #endif // GUI_HPP

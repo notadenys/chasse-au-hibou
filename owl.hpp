@@ -40,12 +40,17 @@ struct Owl {
             vx = backwards ? dash : -dash;
     }
 
-    void handle_keyboard() {
+    void handle_keyboard(bool layout_qwerty) {
         const Uint8 *kbstate = SDL_GetKeyboardState(NULL);
         // resting
-        if (state==FLIGHT && !kbstate[SDL_SCANCODE_D] && !kbstate[SDL_SCANCODE_A])
-        {
-            set_state(REST);
+        if(layout_qwerty){
+            if (state==FLIGHT && !kbstate[SDL_SCANCODE_D] && !kbstate[SDL_SCANCODE_A]) {
+                set_state(REST);
+            }
+        } else {
+            if (state==FLIGHT && !kbstate[SDL_SCANCODE_D] && !kbstate[SDL_SCANCODE_Q]) {
+                set_state(REST);
+            }
         }
         // dash
         if (state==FLIGHT && kbstate[SDL_SCANCODE_LSHIFT] &&  // if shift is pressed while flying
@@ -60,20 +65,36 @@ struct Owl {
             set_state(REST);
         }
         // flight
-        if (state == REST && (kbstate[SDL_SCANCODE_A] || kbstate[SDL_SCANCODE_D]))
-        {
-            backwards = kbstate[SDL_SCANCODE_D];
-            set_state(FLIGHT);
+        if(layout_qwerty) {
+            if (state == REST && (kbstate[SDL_SCANCODE_A] || kbstate[SDL_SCANCODE_D])) {
+                backwards = kbstate[SDL_SCANCODE_D];
+                set_state(FLIGHT);
+            }
+        } else {
+            if (state == REST && (kbstate[SDL_SCANCODE_Q] || kbstate[SDL_SCANCODE_D])) {
+                backwards = kbstate[SDL_SCANCODE_D];
+                set_state(FLIGHT);
+            }
         }
         // rest if two buttons are pressed
-        if (kbstate[SDL_SCANCODE_A] && kbstate[SDL_SCANCODE_D])
-        {
-            set_state(REST);
+        if(layout_qwerty) {
+            if (kbstate[SDL_SCANCODE_A] && kbstate[SDL_SCANCODE_D]) {
+                set_state(REST);
+            }
+        } else {
+            if (kbstate[SDL_SCANCODE_Q] && kbstate[SDL_SCANCODE_D]) {
+                set_state(REST);
+            }
         }
         // rest if collision
-        if ((kbstate[SDL_SCANCODE_A] && vx > 0) || (kbstate[SDL_SCANCODE_D] && vx < 0))
-        {
-            set_state(REST);
+        if(layout_qwerty) {
+            if ((kbstate[SDL_SCANCODE_A] && vx > 0) || (kbstate[SDL_SCANCODE_D] && vx < 0)) {
+                set_state(REST);
+            }
+        } else {
+            if ((kbstate[SDL_SCANCODE_Q] && vx > 0) || (kbstate[SDL_SCANCODE_D] && vx < 0)) {
+                set_state(REST);
+            }
         }
     }
 
