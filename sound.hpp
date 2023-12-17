@@ -8,7 +8,7 @@
 
 using namespace std;
 
-struct Sound
+class Sound
 {
     public:
     Sound()
@@ -67,6 +67,11 @@ struct Sound
 
     void playHitSound() {
         Mix_PlayChannel(-1, hit, 0);
+    }
+
+    void killRickRoll()
+    {
+        Mix_FreeMusic(rickroll);
     }
 
     ~Sound()

@@ -9,7 +9,7 @@
 /*
 Initialize SDL_Window and SDL_Renderer
 */
-int init_sdl(SDL_Window **window, SDL_Renderer **renderer, int width, int height)
+inline int init_sdl(SDL_Window **window, SDL_Renderer **renderer, int width, int height)
 {
     if(0 != SDL_Init(SDL_INIT_VIDEO|SDL_INIT_AUDIO))
     {
@@ -190,7 +190,7 @@ inline void apply_text(SDL_Renderer *renderer, TTF_Font *font, SDL_Rect* rect, c
     SDL_DestroyTexture(textureText);
 }
 
-// rducing FPS to 60
+// reducing FPS to 60
 inline void reduce_FPS(int timeOnStart)
 {
     int delta = SDL_GetTicks() - timeOnStart;

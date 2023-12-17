@@ -9,9 +9,9 @@
 #include "sprite.hpp"
 #include "map.hpp"
 
-struct Hunterlist; // костиль
+class Hunterlist; // костиль
 
-struct Hunter { // structure of hunter caracter
+class Hunter {
     public :
     Hunter(int y, SDL_Renderer *renderer) : y(y-HUNTER_HEIGHT/2.5), 
                                             renderer(renderer), 
@@ -63,7 +63,7 @@ struct Hunter { // structure of hunter caracter
         return &bullet;
     }
 
-    // animation of running hunters
+    
     void moveHunter(Map* map, Hunterlist* list) {
         int change_dir = rand() % 100;  // 1% probability to change direction
         if((change_dir == 0 && direction == 0) || (map->right_collision(x, HUNTER_WIDTH) && direction == 0)) {
@@ -96,7 +96,7 @@ struct Hunter { // structure of hunter caracter
     Bullet bullet; // bullet, linked to hunter
 };
 
-struct Hunterlist { // linked list, to store several hunters
+class Hunterlist { // linked list, to store several hunters
     public :
     Hunter hunter;
     Hunterlist* next;

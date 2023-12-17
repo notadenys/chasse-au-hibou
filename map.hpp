@@ -6,7 +6,7 @@
 #include "sprite.hpp"
 
 
-struct Map
+class Map
 {
     public:
         Map(SDL_Renderer *renderer) : renderer(renderer), 
