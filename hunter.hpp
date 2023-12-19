@@ -81,7 +81,7 @@ class Hunter {
     }
 
     private:    
-    double x = TREE_WIDTH + rand() % (SCREEN_WIDTH - HUNTER_WIDTH - TREE_WIDTH*2), y; // coordinates of the character
+    double x = TREE_WIDTH/8 + rand() % (SCREEN_WIDTH - HUNTER_WIDTH - TREE_WIDTH/8), y; // coordinates of the character
 
     int direction = rand() % 2;
     bool looking_left = true;
