@@ -344,7 +344,7 @@ int main()
 
     bool endgame = false;
     bool logo_shown = 0;  // used once to show the logo on the first launch
-    bool layout_qwerty = false;
+    bool layout_qwerty = true;
 
     while(!endgame) { 
         bool gameover = false; 
